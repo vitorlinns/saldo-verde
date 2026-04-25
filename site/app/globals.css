@@ -31,8 +31,7 @@
   body {
     min-height: 100vh;
     margin: 0;
-    background: radial-gradient(circle at top, rgba(130, 222, 127, 0.12), transparent 28%),
-      radial-gradient(circle at bottom right, rgba(61, 159, 83, 0.12), transparent 24%);
+    background-color: var(--color-primary-50);
   }
 
   *,

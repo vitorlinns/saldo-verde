@@ -1,10 +1,10 @@
-import Badge from '../../../components/ui/badge/badge';
-import ButtonCta from '../../../components/ui/btn/button-cta';
+import Badge from '../../../../components/ui/badge/badge';
+import ButtonCta from '../../../../components/ui/btn/button-cta';
 
 export default function HeroSection() {
   return (
-    <section className="bg-[radial-gradient(circle_at_top,_rgba(130,222,127,0.18)_0%,_transparent_22%),radial-gradient(circle_at_bottom_right,_rgba(216,243,213,0.16)_0%,_transparent_24%)]">
-      <div className="mx-auto grid min-h-screen max-w-6xl gap-12 px-6 py-14 md:grid-cols-[1.3fr_0.9fr] md:px-10">
+    <section>
+      <div className="mx-auto grid min-h-[80vh] max-w-6xl gap-12 px-6 py-12 md:grid-cols-[1.3fr_0.9fr] md:px-10">
         <div className="flex flex-col justify-center gap-8">
           <Badge />
 

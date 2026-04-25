@@ -3,7 +3,8 @@ import HeroSection from '../components/sections/hero';
 import Range from '../components/ui/range/range';
 import Resources from '../components/sections/resources';
 import Spreadsheet from '../components/sections/spreadsheet';
-import Footer from '../components/footer/footer';
+import Faq from '../components/sections/faq';
+import Footer from '../components/sections/footer';
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
       <Range />
       <Resources />
       <Spreadsheet />
+      <Faq />
       <Footer />
     </main>
   );

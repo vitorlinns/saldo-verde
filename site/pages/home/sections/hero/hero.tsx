@@ -1,5 +1,6 @@
 import Badge from '../../../../components/ui/badge/badge';
 import ButtonCta from '../../../../components/ui/btn/button-cta';
+import Steps from '../../../../components/steps/steps';
 
 export default function HeroSection() {
   return (
@@ -20,6 +21,8 @@ export default function HeroSection() {
           <div className="flex flex-wrap items-center gap-4">
             <ButtonCta />
           </div>
+
+          <Steps />
         </div>
 
         <div className="hidden md:block" />

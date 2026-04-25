@@ -18,7 +18,8 @@ const config: Config = {
           900: '#17381e'
         },
         white: '#ffffff',
-        black: '#171717'
+        black: '#171717',
+        border: '#b8b8b8'
       }
     }
   },

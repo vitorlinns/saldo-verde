@@ -86,16 +86,16 @@ export default function Range() {
 
   return (
     <div className="relative overflow-hidden py-10">
-      <div className="w-full overflow-hidden bg-primary-300 py-6">
+      <div className="w-full overflow-hidden bg-primary-300 py-8">
         <div
           ref={trackRef}
-          className="track mx-auto flex min-w-full flex-nowrap items-center gap-8 px-6 text-sm font-semibold uppercase text-slate-950"
+          className="track mx-auto flex min-w-full flex-nowrap items-center gap-10 px-6 text-base sm:text-lg font-semibold normal-case text-slate-950"
         >
           {items.map((item, index) => {
             const Icon = item.icon;
             return (
               <div key={`${item.label}-${index}`} className="flex items-center gap-3 whitespace-nowrap">
-                <Icon className="h-5 w-5 text-slate-950" />
+                <Icon className="h-6 w-6 text-slate-950" />
                 <span>{item.label}</span>
                 <span className="separator">{'//'}</span>
               </div>

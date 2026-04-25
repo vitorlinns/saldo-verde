@@ -4,6 +4,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Saldo Verde',
   description: 'Organize suas finanças com o Saldo Verde.',
+  icons: {
+    icon: '/assets/brand/favicon.png'
+  },
   openGraph: {
     title: 'Saldo Verde',
     description: 'Organize suas finanças com o Saldo Verde.',

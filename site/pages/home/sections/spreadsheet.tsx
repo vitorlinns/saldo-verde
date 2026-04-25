@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Badge from '../ui/badge/badge';
+import Badge from '../../../components/ui/badge/badge';
 import CalculatorLineIcon from 'remixicon-react/CalculatorLineIcon';
 import CheckboxCircleLineIcon from 'remixicon-react/CheckboxCircleLineIcon';
 import DownloadLineIcon from 'remixicon-react/DownloadLineIcon';
@@ -81,6 +81,7 @@ export default function Spreadsheet() {
             width={720}
             height={460}
             className="h-auto w-full object-contain"
+            style={{ width: '100%', height: 'auto' }}
           />
         </div>
 

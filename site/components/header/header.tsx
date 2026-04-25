@@ -23,6 +23,7 @@ export default function Header() {
             height={40}
             quality={90}
             className="h-10 w-auto"
+            style={{ width: 'auto' }}
           />
           <span className="sr-only">Saldo Verde</span>
         </Link>

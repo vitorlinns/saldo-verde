@@ -1,10 +1,11 @@
 import Header from '../components/header/header';
-import HeroSection from '../components/sections/hero';
+import HeroSection from '../pages/home/sections/hero';
+import Testimonials from '../pages/home/sections/testimonials';
 import Range from '../components/ui/range/range';
-import Resources from '../components/sections/resources';
-import Spreadsheet from '../components/sections/spreadsheet';
-import Faq from '../components/sections/faq';
-import Footer from '../components/sections/footer';
+import Resources from '../pages/home/sections/resources';
+import Spreadsheet from '../pages/home/sections/spreadsheet';
+import Faq from '../pages/home/sections/faq';
+import Footer from '../pages/home/sections/footer';
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <Range />
       <Resources />
       <Spreadsheet />
+      <Testimonials />
       <Faq />
       <Footer />
     </main>

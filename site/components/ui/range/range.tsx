@@ -85,8 +85,8 @@ export default function Range() {
   }, []);
 
   return (
-    <div className="relative overflow-hidden py-10">
-      <div className="w-full overflow-hidden bg-primary-300 py-8">
+    <div className="relative overflow-hidden bg-primary-300 py-4">
+      <div className="w-full overflow-hidden bg-primary-300 py-3">
         <div
           ref={trackRef}
           className="track mx-auto flex min-w-full flex-nowrap items-center gap-10 px-6 text-base sm:text-lg font-semibold normal-case text-slate-950"

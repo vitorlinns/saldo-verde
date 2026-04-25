@@ -5,7 +5,7 @@ import AddLineIcon from 'remixicon-react/AddLineIcon';
 import QuestionLineIcon from 'remixicon-react/QuestionLineIcon';
 import SubtractLineIcon from 'remixicon-react/SubtractLineIcon';
 
-import Badge from '../ui/badge/badge';
+import Badge from '../../../components/ui/badge/badge';
 
 const faqItems = [
   {

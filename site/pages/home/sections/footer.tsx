@@ -4,8 +4,8 @@ import Link from 'next/link';
 import FacebookLineIcon from 'remixicon-react/FacebookLineIcon';
 import InstagramLineIcon from 'remixicon-react/InstagramLineIcon';
 
-import Input from '../ui/input/input';
-import ButtonCta from '../ui/btn/button-cta';
+import Input from '../../../components/ui/input/input';
+import ButtonCta from '../../../components/ui/btn/button-cta';
 
 const navLinks = [
   { label: 'Início', href: '/#inicio' },
@@ -33,6 +33,7 @@ export default function Footer() {
               height={40}
               quality={90}
               className="h-10 w-auto"
+              style={{ width: 'auto' }}
             />
           </Link>
           <p className="max-w-sm text-sm leading-6 text-slate-600">

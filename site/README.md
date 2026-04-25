@@ -8,7 +8,7 @@ A partir da raiz do repositório:
 
 ```bash
 npm install
-npm run dev
+npm run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
 Ou dentro da pasta do site:
@@ -16,8 +16,14 @@ Ou dentro da pasta do site:
 ```bash
 cd site
 npm install
-npm run dev
+npm run dev -- --hostname 127.0.0.1 --port 3000
 ```
+
+> Se você quiser iniciar com Node 22 explicitamente:
+>
+> ```bash
+> npm run dev:node22 -- --hostname 127.0.0.1 --port 3000
+> ```
 
 ## Deploy
 

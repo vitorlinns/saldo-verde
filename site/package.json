@@ -2,10 +2,16 @@
   "name": "saldo-verde-site",
   "private": true,
   "version": "0.1.0",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
+    "dev:node22": "PATH=/home/usuario/.local/bin:$PATH npm run dev --",
     "build": "next build",
+    "build:node22": "PATH=/home/usuario/.local/bin:$PATH npm run build --",
     "start": "next start",
+    "start:node22": "PATH=/home/usuario/.local/bin:$PATH npm run start --",
     "lint": "next lint"
   },
   "dependencies": {

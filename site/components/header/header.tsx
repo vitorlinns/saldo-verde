@@ -14,7 +14,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5 sm:px-10">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 sm:px-10">
         <Link href="/" className="inline-flex items-center">
           <Image
             src="/assets/brand/isologo.png"

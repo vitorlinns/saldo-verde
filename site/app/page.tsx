@@ -1,6 +1,8 @@
 import Header from '../components/header/header';
-import HeroSection from '../pages/home/sections/hero/hero';
+import HeroSection from '../components/sections/hero';
 import Range from '../components/ui/range/range';
+import Resources from '../components/sections/resources';
+import Spreadsheet from '../components/sections/spreadsheet';
 
 export default function Home() {
   return (
@@ -8,6 +10,8 @@ export default function Home() {
       <Header />
       <HeroSection />
       <Range />
+      <Resources />
+      <Spreadsheet />
     </main>
   );
 }

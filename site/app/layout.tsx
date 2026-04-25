@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import ClearServiceWorker from '../components/clear-service-worker';
 
 export const metadata: Metadata = {
-  title: 'Saldo Verde',
+  title: 'Saldo Verde | Saiba pra onde vai o seu dinheiro',
   description: 'Organize suas finanças com o Saldo Verde.',
   icons: {
     icon: '/assets/brand/favicon.png'
@@ -17,7 +18,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body>
+        <ClearServiceWorker />
+        {children}
+      </body>
     </html>
   );
 }

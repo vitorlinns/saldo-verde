@@ -45,7 +45,7 @@ export default function Spreadsheet() {
   const rightFeatures = features.slice(3);
 
   return (
-    <section className="mx-auto max-w-7xl rounded-[2.5rem] px-6 py-16 md:px-10 bg-primary-300">
+    <section className="mx-auto max-w-7xl rounded-[2.5rem] px-6 py-16 md:px-10 bg-primary-300 bg-[url('/assets/images/bg-s3.png')] bg-cover bg-center bg-no-repeat">
       <div className="mb-10 text-center">
         <Badge />
         <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">

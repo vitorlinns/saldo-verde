@@ -7,7 +7,8 @@ export default function Header() {
   const links = [
     { label: 'Início', href: '/#inicio' },
     { label: 'Recursos', href: '/#recursos' },
-    { label: 'Quem Somos', href: '/#quem-somos' },
+    { label: 'Clientes', href: '/#depoimentos' },
+    { label: 'Preço', href: '/#pricing' },
     { label: 'Faq', href: '/#faq' },
     { label: 'Contato', href: '/#contato' }
   ];
@@ -35,7 +36,7 @@ export default function Header() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="transition hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-300"
+                    className="transition hover:text-primary-700 focus:outline-none focus:ring-0 focus:border-transparent"
                   >
                     {link.label}
                   </Link>

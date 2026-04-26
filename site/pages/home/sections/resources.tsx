@@ -29,7 +29,7 @@ const features = [
 
 export default function Resources() {
   return (
-    <section className="bg-slate-50">
+    <section id="recursos" className="scroll-mt-24 bg-slate-50 pt-10">
       <div className="mx-auto max-w-7xl px-6 py-16 md:px-10">
         <div className="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
           <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/95 shadow-sm shadow-slate-200/40">

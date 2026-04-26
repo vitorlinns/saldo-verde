@@ -9,10 +9,10 @@ import ButtonCta from '../../../components/ui/btn/button-cta';
 
 const navLinks = [
   { label: 'Início', href: '/#inicio' },
-  { label: 'Recursos', href: '/#recursos' },
-  { label: 'Quem Somos', href: '/#quem-somos' },
-  { label: 'Faq', href: '/#faq' },
-  { label: 'Contato', href: '/#contato' }
+  { label: 'Recursos', href: '/#resources' },
+  { label: 'Clientes', href: '/#depoimentos' },
+  { label: 'Preços', href: '/#pricing' },
+  { label: 'Faq', href: '/#faq' }
 ];
 
 const socialLinks = [
@@ -46,7 +46,10 @@ export default function Footer() {
           <ul className="space-y-3 text-sm text-slate-700">
             {navLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="transition hover:text-slate-900">
+                <Link
+                  href={link.href}
+                  className="transition hover:text-slate-900 focus:outline-none focus:ring-0 focus:border-transparent"
+                >
                   {link.label}
                 </Link>
               </li>

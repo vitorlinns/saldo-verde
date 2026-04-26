@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function HeroSection() {
   return (
-    <section className="bg-slate-50">
+    <section id="inicio" className="scroll-mt-24 bg-slate-50">
       <div className="mx-auto grid min-h-[80vh] max-w-7xl gap-12 px-6 py-12 md:grid-cols-[1.3fr_0.9fr] md:px-10">
         <div className="flex flex-col justify-center gap-8">
           <Badge

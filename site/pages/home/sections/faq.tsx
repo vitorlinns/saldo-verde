@@ -82,7 +82,7 @@ export default function Faq() {
   const [openIndex, setOpenIndex] = useState<number>(0);
 
   return (
-    <section id="faq" className="bg-slate-50 py-20">
+    <section id="faq" className="scroll-mt-24 bg-slate-50 py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <div className="max-w-3xl lg:pr-10">

@@ -12,7 +12,7 @@ const pricingStepLabels = [
 
 export default function Pricing() {
   return (
-    <section id="pricing" className="bg-slate-50 py-20">
+    <section id="pricing" className="scroll-mt-24 bg-slate-50 py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>

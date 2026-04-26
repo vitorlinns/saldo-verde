@@ -91,7 +91,7 @@ export default function Testimonials() {
   }, []);
 
   return (
-    <section className="bg-slate-50 py-24">
+    <section id="depoimentos" className="scroll-mt-24 bg-slate-50 py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
           <div className="max-w-3xl">

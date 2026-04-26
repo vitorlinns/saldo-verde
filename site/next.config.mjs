@@ -13,6 +13,10 @@ const nextConfig = {
       {
         source: '/contato',
         destination: '/contact'
+      },
+      {
+        source: '/sobre-nos',
+        destination: '/about'
       }
     ];
   }

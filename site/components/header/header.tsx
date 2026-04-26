@@ -9,6 +9,7 @@ export default function Header() {
     { label: 'Recursos', href: '/#recursos' },
     { label: 'Clientes', href: '/#depoimentos' },
     { label: 'Preço', href: '/#pricing' },
+    { label: 'Sobre nós', href: '/sobre-nos' },
     { label: 'Faq', href: '/#faq' },
     { label: 'Contato', href: '/contato' }
   ];

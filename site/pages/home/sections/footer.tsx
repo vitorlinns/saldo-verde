@@ -12,6 +12,7 @@ const navLinks = [
   { label: 'Recursos', href: '/#resources' },
   { label: 'Clientes', href: '/#depoimentos' },
   { label: 'Preços', href: '/#pricing' },
+  { label: 'Sobre nós', href: '/sobre-nos' },
   { label: 'Faq', href: '/#faq' },
   { label: 'Contato', href: '/contato' }
 ];

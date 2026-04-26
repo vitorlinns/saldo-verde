@@ -37,7 +37,7 @@ export default function HeroSection() {
               src="/assets/images/img-hero.png"
               alt="Imagem do app Saldo Verde"
               fill
-              className="object-contain transform scale-105"
+              className="object-contain transform scale-115"
             />
           </div>
         </div>

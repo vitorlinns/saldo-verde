@@ -51,16 +51,16 @@ function FaqAccordionItem({
   }, [isOpen]);
 
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+    <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-sm">
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-start justify-between gap-6 px-6 py-6 text-left"
+        className="flex w-full items-center justify-between gap-6 px-6 py-5 text-left"
       >
         <div>
           <p className="text-lg font-semibold text-slate-900">{question}</p>
         </div>
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-primary-700 transition-all duration-200">
+        <span className="inline-flex h-11 w-11 aspect-square items-center justify-center rounded-full bg-primary-100 border border-primary-300 text-primary-700 transition-all duration-200">
           {isOpen ? <SubtractLineIcon className="h-5 w-5" /> : <AddLineIcon className="h-5 w-5" />}
         </span>
       </button>

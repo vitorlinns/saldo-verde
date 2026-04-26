@@ -1,6 +1,8 @@
 import Header from '../components/header/header';
 import HeroSection from '../pages/home/sections/hero';
 import Testimonials from '../pages/home/sections/testimonials';
+import Pricing from '../pages/home/sections/pricing';
+import Start from '../pages/home/sections/start';
 import Range from '../components/ui/range/range';
 import Resources from '../pages/home/sections/resources';
 import Spreadsheet from '../pages/home/sections/spreadsheet';
@@ -16,6 +18,8 @@ export default function Home() {
       <Resources />
       <Spreadsheet />
       <Testimonials />
+      <Pricing />
+      <Start />
       <Faq />
       <Footer />
     </main>

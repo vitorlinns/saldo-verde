@@ -3,6 +3,9 @@
 import { useEffect, useRef } from 'react';
 import StarFillIcon from 'remixicon-react/StarFillIcon';
 
+import Badge from '../../../components/ui/badge/badge';
+import ButtonCta from '../../../components/ui/btn/button-cta';
+
 const testimonials = [
   {
     rating: 5,
@@ -92,7 +95,11 @@ export default function Testimonials() {
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
           <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-700">Depoimentos</p>
+            <Badge
+              text="Depoimentos"
+              Icon={StarFillIcon}
+              className="bg-primary-300 border-slate-200 text-slate-900"
+            />
             <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
               Usuários felizes com resultado real no controle financeiro
             </h2>
@@ -100,17 +107,16 @@ export default function Testimonials() {
               Veja como pessoas de diferentes cidades estão melhorando a gestão do seu dinheiro com o Saldo Verde.
             </p>
           </div>
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/50">
+          <div className="rounded-[2rem] bg-primary-300 p-6 shadow-lg shadow-primary-300/30 text-slate-900">
             <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Avaliação média</p>
-                <p className="mt-2 text-3xl font-semibold text-slate-900">4.9</p>
-              </div>
-              <div className="rounded-3xl bg-primary-50 px-4 py-3 text-sm font-semibold text-primary-700">
-                ⭐⭐⭐⭐⭐
-              </div>
+              <Badge
+                text="Avaliação média | 4.9"
+                Icon={StarFillIcon}
+                className="bg-white border-transparent text-slate-900"
+              />
+              
             </div>
-            <p className="mt-6 text-slate-600">
+            <p className="mt-6 text-slate-900/90">
               Nossos usuários aprovam a clareza e a facilidade para controlar gastos, organizar orçamentos e melhorar o saldo ao final do mês.
             </p>
           </div>
@@ -124,10 +130,10 @@ export default function Testimonials() {
               {testimonials.map((testimonial, index) => (
                 <div
                   key={`${testimonial.name}-${index}`}
-                  className="min-w-[280px] max-w-xs shrink-0 rounded-[1.75rem] bg-white p-6 shadow-sm shadow-slate-200/30"
+                  className="min-w-[280px] max-w-xs shrink-0 rounded-[1.75rem] bg-white p-6 shadow-sm shadow-slate-200/30 border border-slate-200"
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex gap-1 text-amber-400">
+                    <div className="flex gap-1 text-primary-300">
                       {Array.from({ length: testimonial.rating }).map((_, itemIndex) => (
                         <StarFillIcon key={itemIndex} className="h-4 w-4" />
                       ))}
@@ -144,6 +150,16 @@ export default function Testimonials() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+      <div className="mx-auto mt-10 max-w-7xl px-6 lg:px-10">
+        <div className="max-w-2xl text-left">
+          <p className="text-lg font-semibold text-slate-900">
+            Pronto para transformar seu controle financeiro em algo simples e seguro?
+          </p>
+          <div className="mt-4">
+            <ButtonCta>Quero testar agora</ButtonCta>
           </div>
         </div>
       </div>

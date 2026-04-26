@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-import FacebookLineIcon from 'remixicon-react/FacebookLineIcon';
+import FacebookFillIcon from 'remixicon-react/FacebookFillIcon';
 import InstagramLineIcon from 'remixicon-react/InstagramLineIcon';
 
 import Input from '../../../components/ui/input/input';
@@ -16,7 +16,7 @@ const navLinks = [
 ];
 
 const socialLinks = [
-  { label: 'Facebook', href: 'https://facebook.com', Icon: FacebookLineIcon },
+  { label: 'Facebook', href: 'https://facebook.com', Icon: FacebookFillIcon },
   { label: 'Instagram', href: 'https://instagram.com', Icon: InstagramLineIcon }
 ];
 
@@ -78,7 +78,11 @@ export default function Footer() {
             </p>
           </div>
           <div className="grid gap-3">
-            <Input type="email" placeholder="Seu melhor email" />
+            <Input
+              type="email"
+              placeholder="Seu melhor email"
+              className="rounded-full focus:ring-0 focus:border-transparent"
+            />
             <ButtonCta>Inscrever</ButtonCta>
           </div>
           <div className="space-y-2 text-sm text-slate-700">

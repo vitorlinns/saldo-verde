@@ -12,7 +12,8 @@ const navLinks = [
   { label: 'Recursos', href: '/#resources' },
   { label: 'Clientes', href: '/#depoimentos' },
   { label: 'Preços', href: '/#pricing' },
-  { label: 'Faq', href: '/#faq' }
+  { label: 'Faq', href: '/#faq' },
+  { label: 'Contato', href: '/contato' }
 ];
 
 const socialLinks = [
@@ -41,7 +42,7 @@ export default function Footer() {
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 md:ml-10 lg:ml-12">
           <h3 className="text-sm font-semibold text-slate-600">Navegação</h3>
           <ul className="space-y-3 text-sm text-slate-700">
             {navLinks.map((link) => (
@@ -71,6 +72,23 @@ export default function Footer() {
               </Link>
             </li>
           </ul>
+          <div className="mt-16 space-y-2 text-sm text-slate-700">
+            <p className="font-semibold text-slate-700">Redes sociais</p>
+            <div className="flex flex-wrap gap-4">
+              {socialLinks.map((social) => (
+                <Link
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-slate-700 transition hover:text-slate-900"
+                >
+                  <social.Icon className="h-4 w-4 text-slate-600" />
+                  {social.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -88,30 +106,13 @@ export default function Footer() {
             />
             <ButtonCta>Inscrever</ButtonCta>
           </div>
-          <div className="space-y-2 text-sm text-slate-700">
-            <p className="font-semibold text-slate-700">Redes sociais</p>
-            <div className="flex flex-wrap gap-4">
-              {socialLinks.map((social) => (
-                <Link
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
-                >
-                  <social.Icon className="h-4 w-4 text-slate-600" />
-                  {social.label}
-                </Link>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
       <div className="w-full bg-transparent">
         <div className="h-px w-full bg-slate-200 opacity-60" />
         <div className="mx-auto max-w-7xl px-6 py-5 md:px-10">
           <p className="text-sm text-slate-500 opacity-80">
-            ©Saldo Verde - Todos os direitos reservados.
+            ©Saldo Verde | Todos os direitos reservados.
           </p>
         </div>
       </div>

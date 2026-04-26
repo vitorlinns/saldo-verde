@@ -10,7 +10,7 @@ export default function Header() {
     { label: 'Clientes', href: '/#depoimentos' },
     { label: 'Preço', href: '/#pricing' },
     { label: 'Faq', href: '/#faq' },
-    { label: 'Contato', href: '/#contato' }
+    { label: 'Contato', href: '/contato' }
   ];
 
   return (

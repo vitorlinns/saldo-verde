@@ -7,6 +7,14 @@ const nextConfig = {
         hostname: "images.unsplash.com"
       }
     ]
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/contato',
+        destination: '/contact'
+      }
+    ];
   }
 };
 

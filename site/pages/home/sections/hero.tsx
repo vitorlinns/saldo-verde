@@ -6,16 +6,15 @@ import Image from 'next/image';
 
 export default function HeroSection() {
   return (
-    <section id="inicio" className="scroll-mt-24 bg-slate-50">
-      <div className="mx-auto grid min-h-[80vh] max-w-7xl gap-12 px-6 py-12 md:grid-cols-[1.3fr_0.9fr] md:px-10">
+    <section id="inicio" className="scroll-mt-24 bg-slate-50 pt-20 pb-12 sm:pt-28 md:pt-32">
+      <div className="mx-auto grid min-h-[80vh] max-w-7xl gap-12 px-6 md:grid-cols-[1.3fr_0.9fr] md:px-10">
         <div className="flex flex-col justify-center gap-8">
-          <Badge
-            text="A solução que substitui a planilha"
-            Icon={ShieldCheckLineIcon}
-            className="bg-primary-300 border-slate-200 text-slate-900"
-          />
-
           <article>
+            <Badge
+              text="A solução que substitui a planilha"
+              Icon={ShieldCheckLineIcon}
+              className="mb-6 bg-primary-300 border-slate-200 text-slate-900"
+            />
             <h1 className="text-4xl font-medium leading-tight tracking-tight text-slate-950 sm:text-5xl">
               Pare de perder dinheiro sem saber para onde ele vai.
             </h1>
@@ -31,8 +30,8 @@ export default function HeroSection() {
           <Steps />
         </div>
 
-        <div className="hidden md:flex items-center justify-center">
-          <div className="relative h-[560px] w-full max-w-[620px] overflow-hidden">
+        <div className="flex items-center justify-center pt-10 md:pt-0">
+          <div className="relative h-[420px] w-full max-w-[620px] overflow-hidden sm:h-[560px]">
             <Image
               src="/assets/images/img-hero.png"
               alt="Imagem do app Saldo Verde"

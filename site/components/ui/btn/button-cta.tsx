@@ -13,7 +13,7 @@ export default function ButtonCta({
   return (
     <button
       type="button"
-      className={`inline-flex items-center justify-center gap-3 rounded-full bg-primary-300 px-6 py-3 text-base font-semibold text-black transition hover:bg-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-300 ${className}`}
+      className={`inline-flex items-center justify-center gap-3 rounded-full bg-primary-300 px-6 py-3 text-base font-semibold text-black transition hover:bg-primary-400 focus:outline-none focus:ring-0 ${className}`}
       {...props}
     >
       <span>{children}</span>

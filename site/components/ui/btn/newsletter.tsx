@@ -12,7 +12,7 @@ export default function NewsletterButton({
   return (
     <button
       type="button"
-      className={`inline-flex items-center justify-center rounded-2xl bg-primary-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-300 ${className}`}
+      className={`inline-flex items-center justify-center rounded-2xl bg-primary-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-600 focus:outline-none focus:ring-0 ${className}`}
       {...props}
     >
       {children}

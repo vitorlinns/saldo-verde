@@ -3,6 +3,11 @@ import Image from 'next/image';
 import Header from '../components/header/header';
 import Footer from './home/sections/footer';
 import Badge from '../components/ui/badge/badge';
+import BarChartLineIcon from 'remixicon-react/BarChartLineIcon';
+import BookOpenLineIcon from 'remixicon-react/BookOpenLineIcon';
+import CalendarLineIcon from 'remixicon-react/CalendarLineIcon';
+import Testimonials from './home/sections/testimonials';
+import Faq from './home/sections/faq';
 
 export default function AboutPage() {
   return (
@@ -54,28 +59,40 @@ export default function AboutPage() {
 
           <div className="mt-16 grid gap-6 lg:grid-cols-3">
             <article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm shadow-slate-200/30">
-              <h2 className="text-xl font-semibold text-slate-950">Clareza no orçamento</h2>
-              <p className="mt-4 text-sm leading-6 text-slate-600">
+              <h2 className="flex items-center gap-3 text-xl font-semibold text-slate-950">
+                <BarChartLineIcon className="h-5 w-5 text-primary-300" />
+                Clareza no orçamento
+              </h2>
+              <p className="mt-4 text-base leading-7 text-slate-600">
                 Mostramos de forma simples para onde vai o seu dinheiro, ajudando você a identificar gastos e a ajustar o orçamento sem complicação.
               </p>
             </article>
 
             <article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm shadow-slate-200/30">
-              <h2 className="text-xl font-semibold text-slate-950">Educação financeira acessível</h2>
-              <p className="mt-4 text-sm leading-6 text-slate-600">
+              <h2 className="flex items-center gap-3 text-xl font-semibold text-slate-950">
+                <BookOpenLineIcon className="h-5 w-5 text-primary-300" />
+                Educação financeira
+              </h2>
+              <p className="mt-4 text-base leading-7 text-slate-600">
                 Nosso foco é ensinar o básico de forma prática, para que qualquer pessoa possa tomar melhores decisões financeiras a cada mês.
               </p>
             </article>
 
             <article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm shadow-slate-200/30">
-              <h2 className="text-xl font-semibold text-slate-950">Controle diário</h2>
-              <p className="mt-4 text-sm leading-6 text-slate-600">
+              <h2 className="flex items-center gap-3 text-xl font-semibold text-slate-950">
+                <CalendarLineIcon className="h-5 w-5 text-primary-300" />
+                Controle diário
+              </h2>
+              <p className="mt-4 text-base leading-7 text-slate-600">
                 Com o Saldo Verde você acompanha lançamentos, metas e saldo de forma contínua, sem depender de planilhas ou fórmulas complexas.
               </p>
             </article>
           </div>
         </div>
       </section>
+
+      <Testimonials />
+      <Faq />
 
       <Footer />
     </main>

@@ -8,7 +8,7 @@ import Input from '../../../components/ui/input/input';
 import ButtonCta from '../../../components/ui/btn/button-cta';
 
 const navLinks = [
-  { label: 'Início', href: '/#inicio' },
+  { label: 'Início', href: '/' },
   { label: 'Recursos', href: '/#resources' },
   { label: 'Clientes', href: '/#depoimentos' },
   { label: 'Preços', href: '/#pricing' },

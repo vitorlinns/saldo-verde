@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function HeroSection() {
   return (
-    <section id="inicio" className="scroll-mt-24 bg-slate-50 pt-20 pb-12 sm:pt-28 md:pt-32">
+    <section id="inicio" className="scroll-mt-24 bg-slate-50 pt-24 pb-12 sm:pt-28 md:pt-32">
       <div className="mx-auto grid min-h-[80vh] max-w-7xl gap-12 px-6 md:grid-cols-[1.3fr_0.9fr] md:px-10">
         <div className="flex flex-col justify-center gap-8">
           <article>

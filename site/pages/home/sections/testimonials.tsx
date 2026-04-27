@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import StarFillIcon from 'remixicon-react/StarFillIcon';
 
@@ -12,33 +13,37 @@ const testimonials = [
     rating: 5,
     score: '5.0',
     content:
-      'O Saldo Verde tornou o meu controle financeiro muito mais simples. Agora consigo ver onde gasto e como economizar todo mês.',
-    name: 'Ana Beatriz',
-    city: 'Curitiba',
+      'Com o Saldo Verde, finalmente consegui enxergar o orçamento da minha casa sem complicação. Hoje sei exatamente quanto posso gastar e quanto devo guardar.',
+    name: 'João Almeida',
+    city: 'Fortaleza',
+    avatar: '/assets/clients/sv-4.webp',
   },
   {
     rating: 5,
     score: '4.9',
     content:
-      'A interface é leve e clara. Me ajudou a organizar minhas despesas sem perder horas no processo.',
-    name: 'Lucas Pereira',
-    city: 'São Paulo',
+      'A ferramenta me ajudou a organizar despesas e contas do mês. Passei a entender onde cortar gastos e a planejar melhor os pagamentos.',
+    name: 'Rafael Santos',
+    city: 'Curitiba',
+    avatar: '/assets/clients/sv-2.webp',
   },
   {
     rating: 5,
     score: '4.8',
     content:
-      'Recomendo para quem quer uma visão rápida e prática do saldo e dos gastos mensais.',
+      'Agora acompanho todas as minhas despesas em poucos minutos. O Saldo Verde me deu mais segurança para cuidar do meu dinheiro.',
     name: 'Marina Costa',
     city: 'Belo Horizonte',
+    avatar: '/assets/clients/sv-3.webp',
   },
   {
     rating: 5,
     score: '4.9',
     content:
-      'Os cards de avaliação deixam tudo mais confiável e fácil de ler. O carrossel é um ótimo toque visual.',
-    name: 'Felipe Rocha',
-    city: 'Porto Alegre',
+      'Foi muito fácil começar a usar e o app virou meu parceiro nas finanças diárias. Sinto que finalmente tenho controle do orçamento.',
+    name: 'Camila Martins',
+    city: 'São Paulo',
+    avatar: '/assets/clients/sv-1.webp',
   },
 ];
 
@@ -152,7 +157,7 @@ export default function Testimonials() {
               {testimonials.map((testimonial, index) => (
                 <div
                   key={`${testimonial.name}-${index}`}
-                  className="min-w-[280px] max-w-xs shrink-0 rounded-[1.75rem] bg-white p-6 shadow-sm shadow-slate-200/30 border border-slate-200"
+                  className="min-w-[280px] max-w-xs shrink-0 rounded-[1.75rem] bg-white p-6 shadow-sm shadow-slate-200/30 border border-slate-200 flex h-[330px] flex-col"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex gap-1 text-primary-300">
@@ -164,10 +169,22 @@ export default function Testimonials() {
                       {testimonial.score}
                     </span>
                   </div>
-                  <p className="mt-5 min-h-[96px] text-sm leading-7 text-slate-700">{testimonial.content}</p>
-                  <div className="mt-6 flex items-center justify-between gap-3 text-sm text-slate-600">
-                    <div className="font-semibold text-slate-900">{testimonial.name}</div>
-                    <div className="whitespace-nowrap">{testimonial.city}</div>
+                  <p className="mt-5 flex-1 text-sm leading-7 text-slate-700">{testimonial.content}</p>
+                  <div className="mt-6 border-t border-slate-100 pt-5 text-sm text-slate-600">
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-11 w-11 overflow-hidden rounded-full bg-slate-100">
+                        <Image
+                          src={testimonial.avatar}
+                          alt={`Foto de ${testimonial.name}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-slate-900">{testimonial.name}</div>
+                        <div className="text-xs text-slate-500">{testimonial.city}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}

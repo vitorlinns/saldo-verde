@@ -16,8 +16,8 @@ const startSteps = [
   },
   {
     icon: BarChartBoxLineIcon,
-    title: 'Importe ou registre suas despesas',
-    description: 'Conecte suas contas ou registre lançamentos manualmente para ter controle completo.'
+    title: 'Registre suas despesas',
+    description: 'Registre lançamentos manualmente e tenha controle rápido e prático do seu dinheiro.'
   },
   {
     icon: BarChart2LineIcon,
@@ -86,7 +86,7 @@ export default function Start() {
                         <h3 className="text-lg font-semibold text-slate-950">{step.title}</h3>
                       </div>
                     </div>
-                    <p className="mt-4 text-sm leading-6 text-slate-900/85">{step.description}</p>
+                    <p className="mt-4 text-base leading-7 text-slate-900/85">{step.description}</p>
                   </motion.div>
                 );
               })}

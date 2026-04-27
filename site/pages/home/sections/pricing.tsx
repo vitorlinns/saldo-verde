@@ -61,7 +61,7 @@ export default function Pricing() {
           <motion.div variants={itemVariants}>
             <Badge text="Plano único" Icon={CoinsLineIcon} className="mb-4 bg-primary-300 border-slate-200 text-slate-900" />
             <h2 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-              Acesso completo ao Saldo Verde para todas as suas finanças
+              Acesso completo ao Saldo Verde para cuidar melhor do seu dinheiro
             </h2>
             <p className="mt-6 max-w-xl text-base leading-7 text-slate-600">
               Experimente todos os recursos essenciais para organizar seu fluxo de caixa, acompanhar metas e controlar gastos sem limitações. Tenha acesso total às funcionalidades avançadas do Saldo Verde por 7 dias, sem custos iniciais.

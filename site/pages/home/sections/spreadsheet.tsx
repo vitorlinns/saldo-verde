@@ -13,33 +13,33 @@ import CalendarLineIcon from 'remixicon-react/CalendarLineIcon';
 const features = [
   {
     icon: FileList3LineIcon,
-    title: 'Registre gastos em segundos',
-    description: 'Anote cada compra ou conta sem planilha e sem complicação.'
+    title: 'Registre receitas e despesas rápido',
+    description: 'Lance entradas e saídas em poucos toques, sem precisar de planilha ou fórmulas.'
   },
   {
     icon: BarChartLineIcon,
-    title: 'Veja onde seu dinheiro sumiu',
-    description: 'Identifique as despesas que mais consomem seu orçamento.'
+    title: 'Saldo claro em tempo real',
+    description: 'Veja seu saldo atualizado instantaneamente e saiba quanto ainda pode gastar.'
   },
   {
     icon: CheckboxCircleLineIcon,
-    title: 'Tenha controle diário',
-    description: 'Organize seus lançamentos por categorias e saiba exatamente quanto já gastou.'
+    title: 'Controle diário sem complicação',
+    description: 'Organize seus lançamentos por categoria e acompanhe o dia a dia com facilidade.'
   },
   {
     icon: CalculatorLineIcon,
-    title: 'Planeje o mês com calma',
-    description: 'Defina metas simples e saiba o que você ainda pode gastar.'
+    title: 'Substitui Excel com inteligência',
+    description: 'Tenha a mesma fidelidade dos dados do Excel, mas de forma muito mais simples.'
   },
   {
     icon: CalendarLineIcon,
-    title: 'Não perca o fim do mês',
-    description: 'Veja na hora se você está no caminho certo ou se falta ajustar o orçamento.'
+    title: 'Defina metas e acompanhe progresso',
+    description: 'Crie objetivos de economia e veja se está no caminho certo todo mês.'
   },
   {
     icon: DownloadLineIcon,
-    title: 'Dados prontos para revisão',
-    description: 'Exporte ou revise seus números com clareza sempre que precisar.'
+    title: 'Relatórios rápidos e práticos',
+    description: 'Tenha relatórios claros e acessíveis sempre que precisar tomar uma decisão.'
   }
 ];
 
@@ -78,15 +78,15 @@ export default function Spreadsheet() {
       <div className="mx-auto max-w-7xl rounded-[2.5rem] px-6 py-16 md:px-10 bg-primary-300 bg-[url('/assets/images/background-spreadsheet.webp')] bg-cover bg-center bg-no-repeat">
         <motion.div className="mb-10 text-left max-w-3xl md:text-center md:mx-auto" variants={revealVariants}>
           <Badge
-            text="Substitui a planilha com mais clareza"
+            text="Sem Excel, mais velocidade"
             Icon={FileList3LineIcon}
             className="bg-primary-300 border-slate-200 text-slate-900"
           />
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-black sm:text-4xl">
-            Substitua o Excel por um app simples e rápido
+            Faça tudo rápido: registre despesas, consulte saldo e acompanhe metas
           </h2>
           <p className="mt-4 text-base leading-8 text-black">
-            Lançamentos, totais e organização em uma interface clara – sem fórmulas, sem conexão bancária e sem dor de cabeça.
+            Um app prático e intuitivo que substitui planilhas, deixa seus dados claros e acelera o controle financeiro do dia a dia.
           </p>
         </motion.div>
 

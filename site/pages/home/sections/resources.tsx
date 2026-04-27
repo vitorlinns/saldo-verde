@@ -13,23 +13,23 @@ import ButtonCta from '../../../components/ui/btn/button-cta';
 const features = [
   {
     icon: CalculatorLineIcon,
-    title: 'Planejamento automático',
-    description: 'Orçamentos inteligentes com limites ajustados por categoria e período.'
+    title: 'Registrar receitas e despesas',
+    description: 'Registre entradas e saídas em segundos para entender onde seu dinheiro entra e sai.'
   },
   {
     icon: AlarmLineIcon,
-    title: 'Alertas e metas inteligentes',
-    description: 'Notificações quando você ultrapassa limites ou chega perto do objetivo.'
+    title: 'Consultar saldo atualizado',
+    description: 'Veja seu saldo real na hora, com todas as categorias e contas consolidadas.'
   },
   {
     icon: CalendarLineIcon,
-    title: 'Projeção de saldo mensal',
-    description: 'Veja como seu saldo tende a se comportar até o fim do mês.'
+    title: 'Definir metas financeiras',
+    description: 'Escolha objetivos de economia e acompanhe o progresso até o resultado.'
   },
   {
     icon: LightbulbLineIcon,
-    title: 'Sugestões de economia',
-    description: 'Dicas práticas baseadas nos seus hábitos de gasto.'
+    title: 'Alertas de gastos',
+    description: 'Receba avisos antes de ultrapassar o limite e mantenha seu orçamento sob controle.'
   }
 ];
 
@@ -65,12 +65,12 @@ export default function Resources() {
     >
       <div className="mx-auto max-w-7xl px-6 py-16 md:px-10">
         <motion.div className="mb-12 max-w-3xl text-left" variants={revealVariants}>
-          <Badge text="Simples e prático" Icon={BarChartBoxLineIcon} className="mb-4 bg-primary-300 border-slate-200 text-slate-900" />
+          <Badge text="Controle no bolso" Icon={BarChartBoxLineIcon} className="mb-4 bg-primary-300 border-slate-200 text-slate-900" />
           <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-            Descubra como o app simplifica seus relatórios financeiros
+            Registre receitas, despesas, consulte saldo e defina metas em um só lugar
           </h2>
           <p className="mt-4 text-base leading-8 text-slate-700">
-            Relatórios, projeções e alertas organizados para você tomar decisões com mais segurança e velocidade.
+            Use o app para acompanhar entradas e saídas em tempo real, manter seu saldo sob controle e atingir objetivos financeiros com mais clareza.
           </p>
         </motion.div>
 
@@ -101,12 +101,11 @@ export default function Resources() {
                 </div>
                 
                 <h2 className="text-base font-semibold tracking-tight text-slate-950 sm:text-2xl">
-                  Relatórios completos e detalhados
+                  Registre e acompanhe seu dinheiro em segundos
                 </h2>
               </div>
               <p className="mt-4 text-sm leading-7 text-slate-700">
-                Veja todas as suas despesas por categoria, período e tendência. Filtros poderosos,
-                comparação mês a mês e exportação para análise completa.
+                Lance receitas e despesas com rapidez, consulte o saldo atualizado e veja seu orçamento sempre alinhado com suas metas.
               </p>
             </div>
           </motion.div>
@@ -131,7 +130,7 @@ export default function Resources() {
 
         <motion.div className="mt-10 max-w-2xl text-left mb-16" variants={revealVariants}>
           <p className="text-lg font-semibold text-slate-900">
-            Pronto para ver seus resultados em relatórios reais?
+            Pronto para começar a controlar receitas, despesas e saldo com facilidade?
           </p>
           <motion.div className="mt-4 inline-flex rounded-full" whileHover={{ y: -2, scale: 1.02 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }}>
             <ButtonCta href="#pricing">Quero testar agora</ButtonCta>

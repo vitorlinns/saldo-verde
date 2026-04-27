@@ -1,7 +1,5 @@
 'use client';
 
-'use client';
-
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import AddLineIcon from 'remixicon-react/AddLineIcon';
@@ -14,22 +12,32 @@ const faqItems = [
   {
     question: 'Como posso começar a usar o Saldo Verde?',
     answer:
-      'Basta criar sua conta, conectar suas contas ou inserir suas despesas e receitas manualmente. O painel é pensado para trazer clareza imediata ao seu fluxo de caixa.',
+      'Basta criar sua conta e começar a registrar receitas e despesas manualmente. O app foi feito para ser simples desde o primeiro uso.',
   },
   {
     question: 'O app funciona com orçamento mensal?',
     answer:
-      'Sim. Você pode acompanhar seu orçamento do mês, ver onde está gastando mais e receber alertas visuais para evitar surpresas no fim do período.',
+      'Sim. Você pode acompanhar seu dinheiro mês a mês, ver onde está gastando mais e ajustar seus gastos antes do fim do período.',
   },
   {
-    question: 'Posso controlar várias categorias de gastos?',
+    question: 'Posso controlar várias categorias de despesas?',
     answer:
-      'Sim. O Saldo Verde organiza despesas por categorias, tornando fácil identificar padrões e encontrar oportunidades de economia.',
+      'Sim. O Saldo Verde organiza seus lançamentos por categoria, ajudando você a identificar onde o dinheiro está indo.',
   },
   {
-    question: 'É possível usar sem sincronizar contas bancárias?',
+    question: 'O app integra com bancos automaticamente?',
     answer:
-      'Sim. O app também aceita lançamentos manuais de receitas e despesas para quem prefere manter o controle sem integrações automáticas.',
+      'Não. O Saldo Verde não faz integração com bancos. Você registra suas receitas e despesas manualmente, sem precisar de acesso à sua conta bancária.',
+  },
+  {
+    question: 'O app substitui planilhas como Excel?',
+    answer:
+      'Sim. Ele oferece controle rápido e direto do seu dinheiro em vez de fórmulas e abas várias, deixando tudo mais prático e acessível.',
+  },
+  {
+    question: 'Consigo acompanhar minhas metas e saldo com rapidez?',
+    answer:
+      'Sim. Você vê o saldo atualizado, as metas e os lançamentos com clareza, sem perder tempo em ajustes ou cálculos manuais.',
   },
 ];
 

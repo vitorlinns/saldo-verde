@@ -47,19 +47,19 @@ export default function Spreadsheet() {
   return (
     <section className="bg-slate-50">
       <div className="mx-auto max-w-7xl rounded-[2.5rem] px-6 py-16 md:px-10 bg-primary-300 bg-[url('/assets/images/bg-s3.png')] bg-cover bg-center bg-no-repeat">
-        <div className="mb-10 text-center">
+        <div className="mb-10 text-left max-w-3xl md:text-center md:mx-auto">
           <Badge
             text="Substitui a planilha com mais clareza"
             Icon={FileList3LineIcon}
-            className="bg-white/90 text-primary-900"
+            className="bg-primary-300 border-slate-200 text-slate-900"
           />
-        <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-          Substitua o Excel por um app simples e rápido
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-slate-700">
-          Lançamentos, totais e organização em uma interface clara – sem fórmulas, sem conexão bancária e sem dor de cabeça.
-        </p>
-      </div>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-black sm:text-4xl">
+            Substitua o Excel por um app simples e rápido
+          </h2>
+          <p className="mt-4 text-base leading-8 text-black">
+            Lançamentos, totais e organização em uma interface clara – sem fórmulas, sem conexão bancária e sem dor de cabeça.
+          </p>
+        </div>
 
       <div className="grid gap-1 justify-items-center xl:grid-cols-[minmax(16rem,1fr)_minmax(18rem,18rem)_minmax(16rem,1fr)] items-center">
         <div className="grid gap-2">

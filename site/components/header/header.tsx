@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import HeaderLogin from '../ui/btn/header-login';
+import HeaderDownload from '../ui/btn/header-download';
 import HeaderCta from '../ui/btn/header-cta';
 
 export default function Header() {
@@ -51,8 +51,8 @@ export default function Header() {
           </nav>
 
           <div className="flex flex-wrap items-center gap-3">
-            <HeaderLogin />
-            <HeaderCta />
+            <HeaderDownload href="/download" />
+            <HeaderCta href="/#pricing" />
           </div>
         </div>
 
@@ -95,8 +95,8 @@ export default function Header() {
             </nav>
 
             <div className="mt-5 space-y-3">
-              <HeaderLogin className="w-full justify-center" />
-              <HeaderCta className="w-full justify-center" />
+              <HeaderDownload href="/download" className="w-full justify-center" />
+              <HeaderCta href="/#pricing" className="w-full justify-center" />
             </div>
           </div>
         </div>

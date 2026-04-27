@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import ClearServiceWorker from '../components/clear-service-worker';
+import SmoothScroll from '../components/ui/scroll/scroll';
 
 export const metadata: Metadata = {
   title: 'Saldo Verde | Saiba pra onde vai o seu dinheiro',
@@ -20,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR">
       <body>
         <ClearServiceWorker />
-        {children}
+        <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>
   );

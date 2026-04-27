@@ -159,7 +159,7 @@ export default function Testimonials() {
             Pronto para transformar seu controle financeiro em algo simples e seguro?
           </p>
           <div className="mt-4">
-            <ButtonCta>Quero testar agora</ButtonCta>
+            <ButtonCta href="#pricing">Quero testar agora</ButtonCta>
           </div>
         </div>
       </div>

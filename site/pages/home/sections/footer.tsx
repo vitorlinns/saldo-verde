@@ -63,12 +63,12 @@ export default function Footer() {
           <h3 className="text-sm font-semibold text-slate-600">Legal</h3>
           <ul className="space-y-3 text-sm text-slate-700">
             <li>
-              <Link href="#" className="transition hover:text-slate-900">
+              <Link href="/politica-de-privacidade" className="transition hover:text-slate-900">
                 Política de Privacidade
               </Link>
             </li>
             <li>
-              <Link href="#" className="transition hover:text-slate-900">
+              <Link href="/termos-de-uso" className="transition hover:text-slate-900">
                 Termos de Uso
               </Link>
             </li>

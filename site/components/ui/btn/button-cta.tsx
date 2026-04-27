@@ -1,21 +1,35 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type {
+  AnchorHTMLAttributes,
+  ButtonHTMLAttributes,
+  ReactNode
+} from 'react';
 import ArrowRightSLineIcon from 'remixicon-react/ArrowRightSLineIcon';
 
-type ButtonCtaProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type ButtonCtaProps = {
+  href?: string;
   children?: ReactNode;
-};
+  className?: string;
+} & ButtonHTMLAttributes<HTMLButtonElement> & AnchorHTMLAttributes<HTMLAnchorElement>;
 
 export default function ButtonCta({
+  href,
   children = 'Começar agora',
   className = '',
   ...props
 }: ButtonCtaProps) {
+  const baseClass = `inline-flex items-center justify-center gap-3 rounded-full bg-primary-300 px-6 py-3 text-base font-semibold text-black transition hover:bg-primary-400 focus:outline-none focus:ring-0 ${className}`;
+
+  if (href) {
+    return (
+      <a href={href} className={baseClass} {...props}>
+        <span>{children}</span>
+        <ArrowRightSLineIcon className="h-5 w-5 text-black" />
+      </a>
+    );
+  }
+
   return (
-    <button
-      type="button"
-      className={`inline-flex items-center justify-center gap-3 rounded-full bg-primary-300 px-6 py-3 text-base font-semibold text-black transition hover:bg-primary-400 focus:outline-none focus:ring-0 ${className}`}
-      {...props}
-    >
+    <button type="button" className={baseClass} {...props}>
       <span>{children}</span>
       <ArrowRightSLineIcon className="h-5 w-5 text-black" />
     </button>

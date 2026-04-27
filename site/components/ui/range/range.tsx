@@ -3,8 +3,9 @@
 import { useEffect, useRef } from 'react';
 import BarChartLineIcon from 'remixicon-react/BarChartLineIcon';
 import BriefcaseLineIcon from 'remixicon-react/BriefcaseLineIcon';
+import CalculatorLineIcon from 'remixicon-react/CalculatorLineIcon';
+import LightbulbLineIcon from 'remixicon-react/LightbulbLineIcon';
 import PercentLineIcon from 'remixicon-react/PercentLineIcon';
-import ShieldCheckLineIcon from 'remixicon-react/ShieldCheckLineIcon';
 import TimerLineIcon from 'remixicon-react/TimerLineIcon';
 import WalletLineIcon from 'remixicon-react/WalletLineIcon';
 
@@ -18,20 +19,20 @@ const items = [
     label: 'Planejamento claro'
   },
   {
-    icon: ShieldCheckLineIcon,
-    label: 'Segurança financeira'
+    icon: LightbulbLineIcon,
+    label: 'Educação financeira'
   },
   {
-    icon: TimerLineIcon,
-    label: 'Pagamentos rápidos'
+    icon: CalculatorLineIcon,
+    label: 'Registre receitas e despesas'
   },
   {
     icon: PercentLineIcon,
-    label: 'Menos taxas'
+    label: 'Mais controle do seu dinheiro'
   },
   {
     icon: BriefcaseLineIcon,
-    label: 'Metas alcançadas'
+    label: 'Alcance metas'
   }
 ];
 
@@ -50,7 +51,7 @@ export default function Range() {
     const styles = getComputedStyle(track);
     const gap = parseFloat(styles.columnGap || '0');
 
-    while (track.scrollWidth < wrapper.offsetWidth * 2) {
+    while (track.scrollWidth < wrapper.offsetWidth * 3) {
       const cloneIndex = track.children.length % items.length;
       const clone = track.children[cloneIndex].cloneNode(true) as HTMLElement;
       track.appendChild(clone);
@@ -89,17 +90,19 @@ export default function Range() {
       <div className="w-full overflow-hidden bg-primary-300 py-3">
         <div
           ref={trackRef}
-          className="track mx-auto flex min-w-full flex-nowrap items-center gap-10 px-6 text-base sm:text-lg font-semibold normal-case text-slate-950"
+          className="track mx-auto flex min-w-full flex-nowrap items-center gap-6 px-6 text-base sm:text-lg font-semibold normal-case text-slate-950"
         >
-          {items.map((item, index) => {
+          {items.flatMap((item, index) => {
             const Icon = item.icon;
-            return (
+            return [
               <div key={`${item.label}-${index}`} className="flex items-center gap-3 whitespace-nowrap">
                 <Icon className="h-6 w-6 text-slate-950" />
                 <span>{item.label}</span>
-                <span className="separator">{'//'}</span>
-              </div>
-            );
+              </div>,
+              <span key={`sep-${index}`} className="separator px-4">
+                |
+              </span>
+            ];
           })}
         </div>
       </div>

@@ -6,8 +6,17 @@ import Image from 'next/image';
 
 export default function HeroSection() {
   return (
-    <section id="inicio" className="scroll-mt-24 bg-slate-50 pt-24 pb-12 sm:pt-28 md:pt-32">
-      <div className="mx-auto grid min-h-[80vh] max-w-7xl gap-12 px-6 md:grid-cols-[1.3fr_0.9fr] md:px-10">
+    <section id="inicio" className="relative scroll-mt-24 bg-slate-50 pt-24 pb-12 sm:pt-28 md:pt-32">
+      <div className="pointer-events-none absolute inset-0">
+        <Image
+          src="/assets/images/background-hero.png"
+          alt="Fundo da seção hero"
+          fill
+          className="object-cover"
+        />
+      </div>
+
+      <div className="relative mx-auto grid min-h-[70vh] max-w-7xl gap-12 px-6 md:grid-cols-[1.3fr_0.9fr] md:px-10">
         <div className="flex flex-col justify-center gap-8">
           <article>
             <Badge
@@ -16,21 +25,21 @@ export default function HeroSection() {
               className="mb-6 bg-primary-300 border-slate-200 text-slate-900"
             />
             <h1 className="text-4xl font-medium leading-tight tracking-tight text-slate-950 sm:text-5xl">
-              Pare de perder dinheiro sem saber para onde ele vai.
+              Pare de chegar no fim do mês sem saber pra onde foi o dinheiro.
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-700 sm:text-xl">
-              Saldo Verde é um software pensado para quem sente que o salário some antes do fim do mês. Acompanhe despesas, organize compras e ganhe clareza financeira de verdade.
-            </p>
+              Organize seus gastos, entenda seu saldo e tenha controle total da sua vida financeira, sem planilhas e sem complicação.
+              </p>
           </article>
 
           <div className="flex flex-wrap items-center gap-4">
-            <ButtonCta />
+            <ButtonCta href="#pricing">Começar agora</ButtonCta>
           </div>
 
           <Steps />
         </div>
 
-        <div className="flex items-center justify-center pt-10 md:pt-0">
+        <div className="flex items-center justify-center">
           <div className="relative h-[420px] w-full max-w-[620px] overflow-hidden sm:h-[560px]">
             <Image
               src="/assets/images/img-hero.png"

@@ -86,7 +86,7 @@ export default function Faq() {
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <div className="max-w-3xl lg:pr-10">
-            <Badge text="Dúvidas" Icon={QuestionLineIcon} className="mb-6" />
+            <Badge text="Dúvidas" Icon={QuestionLineIcon} className="mb-6 bg-primary-300 border-slate-200 text-slate-900" />
             <h2 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
               Dúvidas frequentes sobre o controle do seu fluxo financeiro
             </h2>

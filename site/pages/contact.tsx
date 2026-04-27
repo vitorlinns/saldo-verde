@@ -15,10 +15,10 @@ export default function ContactPage() {
       </Head>
       <Header />
 
-      <section className="bg-slate-50 py-20">
+      <section className="bg-slate-50 pt-28 pb-20">
         <div className="mx-auto max-w-4xl px-6 lg:px-10">
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-10 shadow-sm shadow-slate-200/40">
-            <div className="mb-10 text-center">
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-8 lg:p-10 shadow-sm shadow-slate-200/40">
+            <div className="mb-10 text-left">
               <Badge
                 text="Fale com a gente"
                 Icon={ChatHeartLineIcon}
@@ -27,7 +27,7 @@ export default function ContactPage() {
               <h1 className="text-4xl font-medium tracking-tight text-slate-950 sm:text-5xl">
                 Entre em contato e vamos te ajudar a organizar suas finanças
               </h1>
-              <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600">
+              <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
                 Preencha o formulário abaixo que nossa equipe entrará em contato em breve.
               </p>
             </div>

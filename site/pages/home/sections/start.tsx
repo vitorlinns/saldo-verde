@@ -3,6 +3,7 @@ import BarChart2LineIcon from 'remixicon-react/BarChart2LineIcon';
 import BarChartBoxLineIcon from 'remixicon-react/BarChartBoxLineIcon';
 import ClipboardLineIcon from 'remixicon-react/ClipboardLineIcon';
 import ChatHeartLineIcon from 'remixicon-react/ChatHeartLineIcon';
+import RocketLineIcon from 'remixicon-react/RocketLineIcon';
 
 const startSteps = [
   {
@@ -33,7 +34,7 @@ export default function Start() {
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <Badge text="Como começar" className="mb-4" />
+            <Badge text="Como começar" Icon={RocketLineIcon} className="mb-4 bg-primary-300 border-slate-200 text-slate-900" />
             <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
               Comece a usar o Saldo Verde em poucos passos
             </h2>
@@ -52,7 +53,7 @@ export default function Start() {
                     className="rounded-[1.75rem] bg-primary-300 p-6 shadow-sm"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/90 text-primary-700 shadow-sm">
+                      <div className="inline-flex h-12 w-12 aspect-square items-center justify-center rounded-xl bg-white/90 text-primary-700 shadow-sm">
                         <Icon className="h-6 w-6" />
                       </div>
                       <div>

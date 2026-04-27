@@ -48,7 +48,7 @@ export default function AboutPage() {
             <div className="hidden md:flex items-center justify-center">
               <div className="relative h-[560px] w-full max-w-[620px] overflow-hidden">
                 <Image
-                  src="/assets/images/img-hero.png"
+                  src="/assets/images/img-about.png"
                   alt="Imagem do app Saldo Verde"
                   fill
                   className="object-contain"

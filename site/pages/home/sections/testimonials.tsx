@@ -129,7 +129,7 @@ export default function Testimonials() {
               className="bg-primary-300 border-slate-200 text-slate-900"
             />
             <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-              Usuários felizes com resultado real no controle financeiro
+              Clientes felizes com resultado real no controle do seu dinheiro
             </h2>
             <p className="mt-4 text-base leading-7 text-slate-600">
               Veja como pessoas de diferentes cidades estão melhorando a gestão do seu dinheiro com o Saldo Verde.

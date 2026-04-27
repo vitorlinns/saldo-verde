@@ -50,7 +50,7 @@ export default function Pricing() {
     >
       <div className="pointer-events-none absolute inset-0">
         <Image
-          src="/assets/images/background-hero.png"
+          src="/assets/images/background-hero.webp"
           alt="Fundo da seção de preços"
           fill
           className="object-cover"

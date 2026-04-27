@@ -25,7 +25,7 @@ export default function ContactPage() {
                 className="mb-6 bg-primary-300 border-slate-200 text-slate-900"
               />
               <h1 className="text-4xl font-medium tracking-tight text-slate-950 sm:text-5xl">
-                Entre em contato e vamos te ajudar a organizar suas finanças
+                Precisa de ajuda? Envie-nos uma mensagem.
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
                 Preencha o formulário abaixo que nossa equipe entrará em contato em breve.

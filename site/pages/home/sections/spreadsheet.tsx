@@ -90,12 +90,12 @@ export default function Spreadsheet() {
           </p>
         </motion.div>
 
-      <div className="grid gap-1 justify-items-center xl:grid-cols-[minmax(16rem,1fr)_minmax(18rem,18rem)_minmax(16rem,1fr)] items-center">
-        <motion.div className="grid gap-2" variants={listVariants}>
+      <div className="grid gap-4 justify-items-center xl:grid-cols-[minmax(16rem,1fr)_minmax(18rem,18rem)_minmax(16rem,1fr)] xl:justify-items-stretch items-center">
+        <motion.div className="grid gap-4 w-full xl:max-w-[18rem]" variants={listVariants}>
           {leftFeatures.map((feature) => {
             const Icon = feature.icon;
             return (
-              <motion.div key={feature.title} className="max-w-[18rem] rounded-[1.75rem] border border-slate-200 bg-white/90 p-5 shadow-sm shadow-slate-200/30" variants={itemVariants}>
+              <motion.div key={feature.title} className="w-full rounded-[1.75rem] border border-slate-200 bg-white/90 p-5 shadow-sm shadow-slate-200/30" variants={itemVariants}>
                 <div className="flex items-center gap-4">
                   <div className="inline-flex h-11 w-11 aspect-square items-center justify-center rounded-xl bg-primary-100 border border-primary-300 text-primary-700">
                     <Icon className="h-5 w-5" />
@@ -108,7 +108,7 @@ export default function Spreadsheet() {
           })}
         </motion.div>
 
-        <motion.div className="w-full max-w-[18rem]" variants={itemVariants}>
+        <motion.div className="w-full xl:max-w-[20rem]" variants={itemVariants}>
           <Image
             src="/assets/mockups/tela.png"
             alt="Mockup do app"
@@ -119,11 +119,11 @@ export default function Spreadsheet() {
           />
         </motion.div>
 
-        <motion.div className="grid gap-2" variants={listVariants}>
+        <motion.div className="grid gap-4 w-full xl:max-w-[18rem]" variants={listVariants}>
           {rightFeatures.map((feature) => {
             const Icon = feature.icon;
             return (
-              <motion.div key={feature.title} className="max-w-[18rem] rounded-[1.75rem] border border-slate-200 bg-white/90 p-5 shadow-sm shadow-slate-200/30" variants={itemVariants}>
+              <motion.div key={feature.title} className="w-full rounded-[1.75rem] border border-slate-200 bg-white/90 p-5 shadow-sm shadow-slate-200/30" variants={itemVariants}>
                 <div className="flex items-center gap-4">
                   <div className="inline-flex h-11 w-11 aspect-square items-center justify-center rounded-xl bg-primary-100 border border-primary-300 text-primary-700">
                     <Icon className="h-5 w-5" />

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import HeaderDownload from '../ui/btn/header-download';
@@ -9,6 +9,7 @@ import HeaderCta from '../ui/btn/header-cta';
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const links = [
     { label: 'Início', href: '/' },
@@ -20,10 +21,18 @@ export default function Header() {
     { label: 'Contato', href: '/contato' }
   ];
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleNav = async (href: string) => {
     const [path, hash] = href.split('#');
 
     if (!hash) {
+      if (href === '/' && pathname === '/') {
+        scrollToTop();
+        return;
+      }
       await router.push(href);
       return;
     }
@@ -67,7 +76,7 @@ export default function Header() {
                     scroll={false}
                     className="transition hover:text-primary-700 focus:outline-none focus:ring-0 focus:border-transparent"
                     onClick={(event) => {
-                      if (link.href.includes('#')) {
+                      if (link.href === '/' || link.href.includes('#')) {
                         event.preventDefault();
                         handleNav(link.href);
                       }
@@ -124,7 +133,7 @@ export default function Header() {
                       className="block rounded-2xl px-4 py-3 transition hover:bg-slate-50"
                       onClick={(event) => {
                         setOpen(false);
-                        if (link.href.includes('#')) {
+                        if (link.href === '/' || link.href.includes('#')) {
                           event.preventDefault();
                           handleNav(link.href);
                         }

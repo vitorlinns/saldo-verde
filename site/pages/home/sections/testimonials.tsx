@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import StarFillIcon from 'remixicon-react/StarFillIcon';
 
 import Badge from '../../../components/ui/badge/badge';
@@ -40,6 +41,21 @@ const testimonials = [
     city: 'Porto Alegre',
   },
 ];
+
+const sectionVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.14,
+      delayChildren: 0.16,
+    },
+  },
+};
+
+const revealVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } },
+};
 
 export default function Testimonials() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -91,9 +107,16 @@ export default function Testimonials() {
   }, []);
 
   return (
-    <section id="depoimentos" className="scroll-mt-24 bg-slate-50 py-24">
+    <motion.section
+      id="depoimentos"
+      className="scroll-mt-24 bg-slate-50 py-24"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      variants={sectionVariants}
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+        <motion.div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end" variants={revealVariants}>
           <div className="max-w-3xl">
             <Badge
               text="Depoimentos"
@@ -107,23 +130,22 @@ export default function Testimonials() {
               Veja como pessoas de diferentes cidades estão melhorando a gestão do seu dinheiro com o Saldo Verde.
             </p>
           </div>
-          <div className="rounded-[2rem] bg-primary-300 p-6 shadow-lg shadow-primary-300/30 text-slate-900">
+          <motion.div className="rounded-[2rem] bg-primary-300 p-6 shadow-lg shadow-primary-300/30 text-slate-900" variants={revealVariants}>
             <div className="flex items-center justify-between gap-4">
               <Badge
                 text="Avaliação média | 4.9"
                 Icon={StarFillIcon}
                 className="bg-white border-transparent text-slate-900"
               />
-              
             </div>
             <p className="mt-6 text-slate-900/90">
               Nossos usuários aprovam a clareza e a facilidade para controlar gastos, organizar orçamentos e melhorar o saldo ao final do mês.
             </p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
-      <div className="mt-12 overflow-hidden">
+      <motion.div className="mt-12 overflow-hidden" variants={revealVariants}>
         <div className="relative left-1/2 right-1/2 mx-[-50vw] w-screen">
           <div className="overflow-hidden">
             <div ref={trackRef} className="flex gap-6 px-6 lg:px-10 py-8">
@@ -152,17 +174,17 @@ export default function Testimonials() {
             </div>
           </div>
         </div>
-      </div>
-      <div className="mx-auto mt-10 max-w-7xl px-6 lg:px-10">
+      </motion.div>
+      <motion.div className="mx-auto mt-10 max-w-7xl px-6 lg:px-10" variants={revealVariants}>
         <div className="max-w-2xl text-left">
           <p className="text-lg font-semibold text-slate-900">
             Pronto para transformar seu controle financeiro em algo simples e seguro?
           </p>
-          <div className="mt-4">
+          <motion.div className="mt-4 inline-flex rounded-full" whileHover={{ y: -2, scale: 1.02 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }}>
             <ButtonCta href="#pricing">Quero testar agora</ButtonCta>
-          </div>
+          </motion.div>
         </div>
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   );
 }

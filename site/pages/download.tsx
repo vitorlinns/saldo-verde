@@ -1,3 +1,6 @@
+'use client';
+
+import { motion } from 'framer-motion';
 import Head from 'next/head';
 import Header from '../components/header/header';
 import Footer from './home/sections/footer';
@@ -6,6 +9,26 @@ import ButtonCta from '../components/ui/btn/button-cta';
 import AndroidFillIcon from 'remixicon-react/AndroidFillIcon';
 import DownloadQr from '../components/download/download-qr';
 import Image from 'next/image';
+
+const sectionVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.14,
+      delayChildren: 0.16,
+    },
+  },
+};
+
+const revealVariants = {
+  hidden: { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.98 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: 'easeOut' } },
+};
 
 export default function DownloadPage() {
   const downloadUrl = '#';
@@ -19,9 +42,15 @@ export default function DownloadPage() {
       <div className="min-h-screen bg-slate-50">
         <Header />
         <main className="pt-28">
-          <section className="mx-auto max-w-7xl px-6 pb-24 md:px-10">
+          <motion.section
+            className="mx-auto max-w-7xl px-6 pb-24 md:px-10"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={sectionVariants}
+          >
             <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-              <div className="flex flex-col justify-center gap-8">
+              <motion.div className="flex flex-col justify-center gap-8" variants={revealVariants}>
                 <Badge
                   text="Baixar app Saldo Verde"
                   Icon={AndroidFillIcon}
@@ -48,18 +77,18 @@ export default function DownloadPage() {
                     />
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex justify-center">
+              <motion.div className="flex justify-center" variants={cardVariants}>
                 <div className="group flex h-full max-w-sm flex-col items-center justify-center rounded-[2rem] border border-slate-200 bg-white p-8 text-center shadow-sm shadow-slate-200/40">
                   <div className="mb-6 inline-flex h-44 w-44 items-center justify-center rounded-3xl bg-slate-100 text-primary-900 transition">
                     <DownloadQr value={downloadUrl} />
                   </div>
                   <p className="text-xl font-semibold tracking-tight text-slate-950">Escaneie o QR Code</p>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </section>
+          </motion.section>
         </main>
         <Footer />
       </div>

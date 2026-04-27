@@ -1,6 +1,9 @@
 'use client';
 
+'use client';
+
 import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import AddLineIcon from 'remixicon-react/AddLineIcon';
 import QuestionLineIcon from 'remixicon-react/QuestionLineIcon';
 import SubtractLineIcon from 'remixicon-react/SubtractLineIcon';
@@ -29,6 +32,26 @@ const faqItems = [
       'Sim. O app também aceita lançamentos manuais de receitas e despesas para quem prefere manter o controle sem integrações automáticas.',
   },
 ];
+
+const sectionVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.16,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+};
+
+const revealVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } },
+};
 
 function FaqAccordionItem({
   question,
@@ -82,9 +105,16 @@ export default function Faq() {
   const [openIndex, setOpenIndex] = useState<number>(0);
 
   return (
-    <section id="faq" className="scroll-mt-24 bg-slate-50 py-20">
+    <motion.section
+      id="faq"
+      className="scroll-mt-24 bg-slate-50 py-20"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      variants={sectionVariants}
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        <div className="grid gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+        <motion.div className="grid gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-start" variants={revealVariants}>
           <div className="max-w-3xl lg:pr-10">
             <Badge text="Dúvidas" Icon={QuestionLineIcon} className="mb-6 bg-primary-300 border-slate-200 text-slate-900" />
             <h2 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
@@ -95,19 +125,20 @@ export default function Faq() {
             </p>
           </div>
 
-          <div className="space-y-4">
+          <motion.div className="space-y-4" variants={sectionVariants}>
             {faqItems.map((item, index) => (
-              <FaqAccordionItem
-                key={item.question}
-                question={item.question}
-                answer={item.answer}
-                isOpen={openIndex === index}
-                onToggle={() => setOpenIndex(openIndex === index ? -1 : index)}
-              />
+              <motion.div key={item.question} variants={itemVariants}>
+                <FaqAccordionItem
+                  question={item.question}
+                  answer={item.answer}
+                  isOpen={openIndex === index}
+                  onToggle={() => setOpenIndex(openIndex === index ? -1 : index)}
+                />
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }

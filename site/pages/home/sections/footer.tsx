@@ -73,21 +73,34 @@ export default function Footer() {
               </Link>
             </li>
           </ul>
-          <div className="mt-16 space-y-2 text-sm text-slate-700">
-            <p className="font-semibold text-slate-700">Redes sociais</p>
-            <div className="flex flex-wrap gap-4">
-              {socialLinks.map((social) => (
+          <div className="mt-14 space-y-6 text-sm text-slate-700">
+            <div>
+              <p className="font-semibold text-slate-700">Redes sociais</p>
+              <div className="mt-3 flex flex-wrap gap-4">
+                {socialLinks.map((social) => (
+                  <Link
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-slate-700 transition hover:text-slate-900"
+                  >
+                    <social.Icon className="h-4 w-4 text-slate-600" />
+                    {social.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="font-semibold text-slate-700">Suporte</p>
+              <div className="mt-3 flex flex-wrap gap-4">
                 <Link
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noreferrer"
+                  href="mailto:suporte@saldoverde.pro"
                   className="inline-flex items-center gap-2 text-sm text-slate-700 transition hover:text-slate-900"
                 >
-                  <social.Icon className="h-4 w-4 text-slate-600" />
-                  {social.label}
+                  suporte@saldoverde.pro
                 </Link>
-              ))}
+              </div>
             </div>
           </div>
         </div>
@@ -103,7 +116,7 @@ export default function Footer() {
             <Input
               type="email"
               placeholder="Seu melhor email"
-              className="rounded-full focus:ring-0 focus:border-transparent"
+              className="rounded-full focus:ring-0 focus:border-slate-200 focus:shadow-none"
             />
             <ButtonCta>Inscrever</ButtonCta>
           </div>

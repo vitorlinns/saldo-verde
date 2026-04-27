@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import Badge from '../../../components/ui/badge/badge';
 import ButtonCta from '../../../components/ui/btn/button-cta';
 import CheckFillIcon from 'remixicon-react/CheckFillIcon';
@@ -14,6 +15,21 @@ const pricingStepLabels = [
   'Sem necessidade de cartão'
 ];
 
+const sectionVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.14,
+      delayChildren: 0.18
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } }
+};
+
 export default function Pricing() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const price = billingCycle === 'monthly' ? 'R$ 14,99' : 'R$ 149,90';
@@ -24,7 +40,14 @@ export default function Pricing() {
       : 'Pague 10x R$ 14,99 e ganhe 2 meses grátis no plano anual.';
 
   return (
-    <section id="pricing" className="relative scroll-mt-24 bg-slate-50 py-20">
+    <motion.section
+      id="pricing"
+      className="relative scroll-mt-24 bg-slate-50 py-20"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      variants={sectionVariants}
+    >
       <div className="pointer-events-none absolute inset-0">
         <Image
           src="/assets/images/background-hero.png"
@@ -35,7 +58,7 @@ export default function Pricing() {
       </div>
       <div className="relative mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div>
+          <motion.div variants={itemVariants}>
             <Badge text="Plano único" Icon={CoinsLineIcon} className="mb-4 bg-primary-300 border-slate-200 text-slate-900" />
             <h2 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
               Acesso completo ao Saldo Verde para todas as suas finanças
@@ -45,9 +68,9 @@ export default function Pricing() {
             </p>
 
             <Steps labels={pricingStepLabels} className="mt-8 flex flex-wrap gap-4" />
-          </div>
+          </motion.div>
 
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+          <motion.div variants={itemVariants} className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="rounded-full border border-primary-300 bg-primary-100 px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold text-primary-700 shadow-sm">
                 7 dias grátis
@@ -131,9 +154,9 @@ export default function Pricing() {
                 <span className="hidden sm:inline">Teste grátis por 7 dias</span>
               </ButtonCta>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

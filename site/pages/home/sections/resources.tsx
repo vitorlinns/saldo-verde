@@ -1,3 +1,6 @@
+'use client';
+
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import AlarmLineIcon from 'remixicon-react/AlarmLineIcon';
 import BarChartBoxLineIcon from 'remixicon-react/BarChartBoxLineIcon';
@@ -30,11 +33,38 @@ const features = [
   }
 ];
 
+const listVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.18
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+};
+
+const revealVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } }
+};
+
 export default function Resources() {
   return (
-    <section id="recursos" className="scroll-mt-24 bg-slate-50 pt-10">
+    <motion.section
+      id="recursos"
+      className="scroll-mt-24 bg-slate-50 pt-10"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      variants={listVariants}
+    >
       <div className="mx-auto max-w-7xl px-6 py-16 md:px-10">
-        <div className="mb-12 max-w-3xl text-left">
+        <motion.div className="mb-12 max-w-3xl text-left" variants={revealVariants}>
           <Badge text="Recursos em destaque" Icon={BarChartBoxLineIcon} className="mb-4 bg-primary-300 border-slate-200 text-slate-900" />
           <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
             Descubra como o app simplifica seus relatórios financeiros
@@ -42,10 +72,10 @@ export default function Resources() {
           <p className="mt-4 text-base leading-8 text-slate-700">
             Relatórios, projeções e alertas organizados para você tomar decisões com mais segurança e velocidade.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-          <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/95 shadow-sm shadow-slate-200/40">
+          <motion.div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/95 shadow-sm shadow-slate-200/40" variants={itemVariants}>
             <div className="relative w-full h-[170px] sm:h-[190px] md:h-[210px] bg-slate-100/70 overflow-hidden">
               <div className="absolute inset-0 block md:hidden">
                 <Image
@@ -79,13 +109,13 @@ export default function Resources() {
                 comparação mês a mês e exportação para análise completa.
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="grid gap-6 sm:grid-cols-2">
+          <motion.div className="grid gap-6 sm:grid-cols-2" variants={listVariants}>
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
-                <div key={feature.title} className="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6">
+                <motion.div key={feature.title} className="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6" variants={itemVariants}>
                   <div className="flex items-center gap-4">
                     <div className="inline-flex h-11 w-11 aspect-square items-center justify-center rounded-xl bg-primary-100 border border-primary-300 text-primary-700">
                       <Icon className="h-5 w-5" />
@@ -93,21 +123,21 @@ export default function Resources() {
                     <h3 className="text-base font-semibold text-slate-950">{feature.title}</h3>
                   </div>
                   <p className="mt-4 text-sm leading-6 text-slate-600">{feature.description}</p>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
 
-        <div className="mt-10 max-w-2xl text-left mb-16">
+        <motion.div className="mt-10 max-w-2xl text-left mb-16" variants={revealVariants}>
           <p className="text-lg font-semibold text-slate-900">
             Pronto para ver seus resultados em relatórios reais?
           </p>
-          <div className="mt-4">
+          <motion.div className="mt-4 inline-flex rounded-full" whileHover={{ y: -2, scale: 1.02 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }}>
             <ButtonCta href="#pricing">Quero testar agora</ButtonCta>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }

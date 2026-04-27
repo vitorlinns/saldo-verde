@@ -1,3 +1,6 @@
+'use client';
+
+import { motion } from 'framer-motion';
 import Head from 'next/head';
 import Image from 'next/image';
 import Header from '../components/header/header';
@@ -9,6 +12,26 @@ import CalendarLineIcon from 'remixicon-react/CalendarLineIcon';
 import Testimonials from './home/sections/testimonials';
 import Faq from './home/sections/faq';
 
+const sectionVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.16,
+      delayChildren: 0.18,
+    },
+  },
+};
+
+const revealVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: 'easeOut' } },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+};
+
 export default function AboutPage() {
   return (
     <main>
@@ -19,10 +42,17 @@ export default function AboutPage() {
 
       <Header />
 
-      <section className="bg-slate-50 py-20">
+      <motion.section
+        id="sobre-nos"
+        className="bg-slate-50 py-20"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.25 }}
+        variants={sectionVariants}
+      >
         <div className="mx-auto max-w-7xl px-6 py-4 md:px-10">
           <div className="grid gap-12 lg:grid-cols-[1.3fr_0.9fr]">
-            <div className="flex flex-col justify-center gap-8">
+            <motion.div className="flex flex-col justify-center gap-8" variants={revealVariants}>
               <Badge
                 text="Sobre nós"
                 className="bg-primary-300 border-slate-200 text-slate-900"
@@ -43,9 +73,9 @@ export default function AboutPage() {
                   Não queremos só mostrar números: queremos oferecer educação financeira prática para que cada pessoa consiga tomar decisões mais conscientes e seguras.
                 </p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="hidden md:flex items-center justify-center">
+            <motion.div className="hidden md:flex items-center justify-center" variants={revealVariants}>
               <div className="relative h-[560px] w-full max-w-[620px] overflow-hidden">
                 <Image
                   src="/assets/images/img-about.png"
@@ -54,11 +84,11 @@ export default function AboutPage() {
                   className="object-contain"
                 />
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          <div className="mt-16 grid gap-6 lg:grid-cols-3">
-            <article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm shadow-slate-200/30">
+          <motion.div className="mt-16 grid gap-6 lg:grid-cols-3" variants={sectionVariants}>
+            <motion.article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm shadow-slate-200/30" variants={cardVariants}>
               <h2 className="flex items-center gap-3 text-xl font-semibold text-slate-950">
                 <BarChartLineIcon className="h-5 w-5 text-primary-300" />
                 Clareza no orçamento
@@ -66,9 +96,9 @@ export default function AboutPage() {
               <p className="mt-4 text-base leading-7 text-slate-600">
                 Mostramos de forma simples para onde vai o seu dinheiro, ajudando você a identificar gastos e a ajustar o orçamento sem complicação.
               </p>
-            </article>
+            </motion.article>
 
-            <article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm shadow-slate-200/30">
+            <motion.article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm shadow-slate-200/30" variants={cardVariants}>
               <h2 className="flex items-center gap-3 text-xl font-semibold text-slate-950">
                 <BookOpenLineIcon className="h-5 w-5 text-primary-300" />
                 Educação financeira
@@ -76,9 +106,9 @@ export default function AboutPage() {
               <p className="mt-4 text-base leading-7 text-slate-600">
                 Nosso foco é ensinar o básico de forma prática, para que qualquer pessoa possa tomar melhores decisões financeiras a cada mês.
               </p>
-            </article>
+            </motion.article>
 
-            <article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm shadow-slate-200/30">
+            <motion.article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm shadow-slate-200/30" variants={cardVariants}>
               <h2 className="flex items-center gap-3 text-xl font-semibold text-slate-950">
                 <CalendarLineIcon className="h-5 w-5 text-primary-300" />
                 Controle diário
@@ -86,10 +116,10 @@ export default function AboutPage() {
               <p className="mt-4 text-base leading-7 text-slate-600">
                 Com o Saldo Verde você acompanha lançamentos, metas e saldo de forma contínua, sem depender de planilhas ou fórmulas complexas.
               </p>
-            </article>
-          </div>
+            </motion.article>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       <Testimonials />
       <Faq />

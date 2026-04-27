@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import HeaderDownload from '../ui/btn/header-download';
 import HeaderCta from '../ui/btn/header-cta';
 
 export default function Header() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const links = [
     { label: 'Início', href: '/' },
@@ -17,6 +19,27 @@ export default function Header() {
     { label: 'Faq', href: '/#faq' },
     { label: 'Contato', href: '/contato' }
   ];
+
+  const handleNav = async (href: string) => {
+    const [path, hash] = href.split('#');
+
+    if (!hash) {
+      await router.push(href);
+      return;
+    }
+
+    await router.push(path || '/');
+
+    const scrollToHash = () => {
+      const target = document.getElementById(hash);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+
+    scrollToHash();
+    setTimeout(scrollToHash, 100);
+  };
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 w-full min-w-full transform-gpu translate-y-0 border-b border-slate-200 bg-white">
@@ -41,7 +64,14 @@ export default function Header() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
+                    scroll={false}
                     className="transition hover:text-primary-700 focus:outline-none focus:ring-0 focus:border-transparent"
+                    onClick={(event) => {
+                      if (link.href.includes('#')) {
+                        event.preventDefault();
+                        handleNav(link.href);
+                      }
+                    }}
                   >
                     {link.label}
                   </Link>
@@ -52,7 +82,13 @@ export default function Header() {
 
           <div className="flex flex-wrap items-center gap-3">
             <HeaderDownload href="/download" />
-            <HeaderCta href="/#pricing" />
+            <HeaderCta
+              href="/#pricing"
+              onClick={(event) => {
+                event.preventDefault();
+                handleNav('/#pricing');
+              }}
+            />
           </div>
         </div>
 
@@ -84,8 +120,15 @@ export default function Header() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
+                      scroll={false}
                       className="block rounded-2xl px-4 py-3 transition hover:bg-slate-50"
-                      onClick={() => setOpen(false)}
+                      onClick={(event) => {
+                        setOpen(false);
+                        if (link.href.includes('#')) {
+                          event.preventDefault();
+                          handleNav(link.href);
+                        }
+                      }}
                     >
                       {link.label}
                     </Link>
@@ -96,7 +139,14 @@ export default function Header() {
 
             <div className="mt-5 space-y-3">
               <HeaderDownload href="/download" className="w-full justify-center" />
-              <HeaderCta href="/#pricing" className="w-full justify-center" />
+              <HeaderCta
+                href="/#pricing"
+                className="w-full justify-center"
+                onClick={(event) => {
+                  event.preventDefault();
+                  handleNav('/#pricing');
+                }}
+              />
             </div>
           </div>
         </div>

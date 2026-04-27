@@ -39,7 +39,7 @@ export default function DownloadPage() {
         <title>Download | Saldo Verde</title>
         <link rel="icon" href="/assets/brand/favicon.png" />
       </Head>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 scroll-smooth">
         <Header />
         <main className="pt-28">
           <motion.section

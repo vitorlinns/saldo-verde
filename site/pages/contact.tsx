@@ -8,7 +8,7 @@ import ChatHeartLineIcon from 'remixicon-react/ChatHeartLineIcon';
 
 export default function ContactPage() {
   return (
-    <main>
+    <main className="scroll-smooth">
       <Head>
         <title>Contato | Saldo Verde</title>
         <link rel="icon" href="/assets/brand/favicon.png" />

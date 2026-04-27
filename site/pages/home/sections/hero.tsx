@@ -32,7 +32,7 @@ export default function HeroSection() {
     <section id="inicio" className="relative scroll-mt-24 bg-slate-50 pt-24 pb-12 sm:pt-28 md:pt-32">
       <div className="pointer-events-none absolute inset-0">
         <Image
-          src="/assets/images/background-hero.png"
+          src="/assets/images/background-hero.webp"
           alt="Fundo da seção hero"
           fill
           className="object-cover"
@@ -88,7 +88,7 @@ export default function HeroSection() {
         >
           <div className="relative h-[420px] w-full max-w-[620px] overflow-hidden sm:h-[560px]">
             <Image
-              src="/assets/images/img-hero.png"
+              src="/assets/images/img-hero.webp"
               alt="Imagem do app Saldo Verde"
               fill
               className="object-contain transform scale-115"

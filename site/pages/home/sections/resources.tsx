@@ -65,7 +65,7 @@ export default function Resources() {
     >
       <div className="mx-auto max-w-7xl px-6 py-16 md:px-10">
         <motion.div className="mb-12 max-w-3xl text-left" variants={revealVariants}>
-          <Badge text="Recursos em destaque" Icon={BarChartBoxLineIcon} className="mb-4 bg-primary-300 border-slate-200 text-slate-900" />
+          <Badge text="Simples e prático" Icon={BarChartBoxLineIcon} className="mb-4 bg-primary-300 border-slate-200 text-slate-900" />
           <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
             Descubra como o app simplifica seus relatórios financeiros
           </h2>
@@ -79,7 +79,7 @@ export default function Resources() {
             <div className="relative w-full h-[170px] sm:h-[190px] md:h-[210px] bg-slate-100/70 overflow-hidden">
               <div className="absolute inset-0 block md:hidden">
                 <Image
-                  src="/assets/images/img-resources-mobile.png"
+                  src="/assets/images/img-resources-mobile.webp"
                   alt="Visão do recurso Saldo Verde"
                   fill
                   className="object-cover object-center"
@@ -87,7 +87,7 @@ export default function Resources() {
               </div>
               <div className="absolute inset-0 hidden md:block">
                 <Image
-                  src="/assets/images/img-resources.png"
+                  src="/assets/images/img-resources.webp"
                   alt="Visão do recurso Saldo Verde"
                   fill
                   className="object-cover object-center"

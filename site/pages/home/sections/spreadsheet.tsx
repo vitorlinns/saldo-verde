@@ -75,7 +75,7 @@ export default function Spreadsheet() {
       viewport={{ once: true, amount: 0.2 }}
       variants={listVariants}
     >
-      <div className="mx-auto max-w-7xl rounded-[2.5rem] px-6 py-16 md:px-10 bg-primary-300 bg-[url('/assets/images/bg-s3.png')] bg-cover bg-center bg-no-repeat">
+      <div className="mx-auto max-w-7xl rounded-[2.5rem] px-6 py-16 md:px-10 bg-primary-300 bg-[url('/assets/images/background-spreadsheet.webp')] bg-cover bg-center bg-no-repeat">
         <motion.div className="mb-10 text-left max-w-3xl md:text-center md:mx-auto" variants={revealVariants}>
           <Badge
             text="Substitui a planilha com mais clareza"
@@ -90,8 +90,8 @@ export default function Spreadsheet() {
           </p>
         </motion.div>
 
-      <div className="grid gap-4 justify-items-center xl:grid-cols-[minmax(16rem,1fr)_minmax(18rem,18rem)_minmax(16rem,1fr)] xl:justify-items-stretch items-center">
-        <motion.div className="grid gap-4 w-full xl:max-w-[18rem]" variants={listVariants}>
+      <div className="grid place-items-center gap-4 xl:grid-cols-[minmax(16rem,18rem)_minmax(20rem,20rem)_minmax(16rem,18rem)] xl:justify-items-stretch xl:justify-center">
+        <motion.div className="grid gap-4 w-full max-w-none mx-auto xl:max-w-[18rem]" variants={listVariants}>
           {leftFeatures.map((feature) => {
             const Icon = feature.icon;
             return (
@@ -108,7 +108,7 @@ export default function Spreadsheet() {
           })}
         </motion.div>
 
-        <motion.div className="w-full xl:max-w-[20rem]" variants={itemVariants}>
+        <motion.div className="w-full max-w-[24rem] mx-auto xl:w-full xl:max-w-[20rem]" variants={itemVariants}>
           <Image
             src="/assets/mockups/tela.png"
             alt="Mockup do app"
@@ -119,7 +119,7 @@ export default function Spreadsheet() {
           />
         </motion.div>
 
-        <motion.div className="grid gap-4 w-full xl:max-w-[18rem]" variants={listVariants}>
+        <motion.div className="grid gap-4 w-full max-w-none mx-auto xl:max-w-[18rem]" variants={listVariants}>
           {rightFeatures.map((feature) => {
             const Icon = feature.icon;
             return (

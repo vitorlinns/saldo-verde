@@ -34,7 +34,7 @@ const cardVariants = {
 
 export default function AboutPage() {
   return (
-    <main>
+    <main className="scroll-smooth">
       <Head>
         <title>Sobre nós | Saldo Verde</title>
         <link rel="icon" href="/assets/brand/favicon.png" />
@@ -75,10 +75,10 @@ export default function AboutPage() {
               </div>
             </motion.div>
 
-            <motion.div className="hidden md:flex items-center justify-center" variants={revealVariants}>
-              <div className="relative h-[560px] w-full max-w-[620px] overflow-hidden">
+            <motion.div className="flex items-center justify-center mt-10 md:mt-0" variants={revealVariants}>
+              <div className="relative h-[420px] w-full max-w-[620px] overflow-hidden sm:h-[520px]">
                 <Image
-                  src="/assets/images/img-about.png"
+                  src="/assets/images/img-about.webp"
                   alt="Imagem do app Saldo Verde"
                   fill
                   className="object-contain"

@@ -24,8 +24,9 @@
     color: var(--color-black);
   }
 
-  html {
-    scroll-behavior: smooth;
+  html,
+  body {
+    scroll-behavior: smooth !important;
   }
 
   body {

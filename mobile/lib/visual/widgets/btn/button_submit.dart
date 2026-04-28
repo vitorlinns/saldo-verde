@@ -6,15 +6,15 @@ class ButtonSubmit extends StatelessWidget {
   final VoidCallback? onPressed;
   final double height;
   final double borderRadius;
-  final bool showArrow;
+  final double fontSize;
 
   const ButtonSubmit({
     super.key,
     required this.label,
     this.onPressed,
-    this.height = 56,
-    this.borderRadius = 20,
-    this.showArrow = true,
+    this.height = 62,
+    this.borderRadius = 14,
+    this.fontSize = 16,
   });
 
   @override
@@ -30,30 +30,15 @@ class ButtonSubmit extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
-          textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ) ?? const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+          textStyle: TextStyle(
+            fontFamily: 'Funnel Display',
+            fontSize: fontSize,
+            fontWeight: FontWeight.w700,
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 20),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Text(label),
-            if (showArrow) ...[
-              const SizedBox(width: 12),
-              const Text(
-                '>',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ],
+        child: Center(
+          child: Text(label),
         ),
       ),
     );

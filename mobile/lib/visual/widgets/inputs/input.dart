@@ -35,7 +35,7 @@ class AppInput extends StatelessWidget {
       validator: validator,
       onChanged: onChanged,
       style: const TextStyle(color: AppColors.white),
-      cursorColor: AppColors.primary,
+      cursorColor: AppColors.white,
       decoration: InputDecoration(
         labelText: label,
         floatingLabelBehavior: FloatingLabelBehavior.auto,
@@ -54,7 +54,7 @@ class AppInput extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          borderSide: const BorderSide(color: Color.fromRGBO(255, 255, 255, 0.12)),
         ),
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,

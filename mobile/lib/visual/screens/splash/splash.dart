@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../../core/utils/colors.dart';
+import '../../../core/utils/colors.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -43,10 +44,10 @@ class _SplashPageState extends State<SplashPage> {
       body: Container(
         color: AppColors.background,
         child: Center(
-          child: Image.asset(
-            'lib/assets/images/logo.png',
-            width: 180,
-            height: 180,
+          child: SvgPicture.asset(
+            'lib/assets/images/logo.svg',
+            width: 54,
+            height: 54,
             fit: BoxFit.contain,
           ),
         ),

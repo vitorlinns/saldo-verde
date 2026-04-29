@@ -12,7 +12,7 @@ class ButtonSubmit extends StatelessWidget {
     super.key,
     required this.label,
     this.onPressed,
-    this.height = 62,
+    this.height = 52,
     this.borderRadius = 14,
     this.fontSize = 16,
   });

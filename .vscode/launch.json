@@ -8,21 +8,36 @@
             "name": "mobile",
             "cwd": "mobile",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "env": {
+                "TMPDIR": "${workspaceFolder}/../tmp",
+                "PUB_CACHE": "${workspaceFolder}/../.pub-cache",
+                "GRADLE_OPTS": "-Djava.io.tmpdir=${workspaceFolder}/../tmp"
+            }
         },
         {
             "name": "mobile (profile mode)",
             "cwd": "mobile",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "profile",
+            "env": {
+                "TMPDIR": "${workspaceFolder}/../tmp",
+                "PUB_CACHE": "${workspaceFolder}/../.pub-cache",
+                "GRADLE_OPTS": "-Djava.io.tmpdir=${workspaceFolder}/../tmp"
+            }
         },
         {
             "name": "mobile (release mode)",
             "cwd": "mobile",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "env": {
+                "TMPDIR": "${workspaceFolder}/../tmp",
+                "PUB_CACHE": "${workspaceFolder}/../.pub-cache",
+                "GRADLE_OPTS": "-Djava.io.tmpdir=${workspaceFolder}/../tmp"
+            }
         }
     ]
 }

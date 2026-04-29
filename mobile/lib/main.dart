@@ -1,11 +1,23 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'visual/widgets/screens/login/login.dart';
 import 'visual/widgets/screens/onboard/onboard.dart';
 import 'visual/widgets/screens/splash/splash.dart';
+import 'core/utils/supabase_client.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(
+    fileName: '.env',
+    mergeWith: Platform.environment,
+    isOptional: false,
+  );
+
+  await initSupabase();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -29,10 +41,13 @@ class SaldoVerdeApp extends StatelessWidget {
         fontFamily: 'Funnel Display',
       ),
       builder: (context, child) {
-        return SafeArea(
-          top: false,
-          bottom: false,
-          child: child ?? const SizedBox.shrink(),
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.light,
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
       home: const SplashPage(),

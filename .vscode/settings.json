@@ -8,5 +8,9 @@
   },
   "files.associations": {
     "*.css": "tailwindcss"
+  },
+  "terminal.integrated.env.linux": {
+    "TMPDIR": "${workspaceFolder}/../tmp",
+    "PUB_CACHE": "${workspaceFolder}/../.pub-cache"
   }
 }

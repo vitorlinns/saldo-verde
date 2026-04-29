@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/utils/colors.dart';
 import '../../btn/button_submit.dart';
 import '../../inputs/input.dart';
@@ -12,6 +14,40 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool keepConnected = false;
+
+  Future<void> _signInWithGoogle() async {
+    try {
+      final googleSignIn = GoogleSignIn(scopes: ['email']);
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      final googleAuth = await googleUser.authentication;
+      final accessToken = googleAuth.accessToken;
+      final idToken = googleAuth.idToken;
+
+      if (accessToken == null || idToken == null) {
+        throw Exception('Não foi possível obter credenciais do Google.');
+      }
+
+      // ignore: experimental_member_use
+      final response = await Supabase.instance.client.auth.signInWithIdToken(
+        provider: Provider.google,
+        accessToken: accessToken,
+        idToken: idToken,
+      );
+
+      if (response.session == null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao iniciar login com Google.')),
+        );
+      }
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao iniciar login com Google: ${error.toString()}')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +72,13 @@ class _LoginPageState extends State<LoginPage> {
                       fit: BoxFit.contain,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 0),
                   Text(
                     'Entre ou crie sua conta.',
                     style: const TextStyle(
-                      color: AppColors.neutralText,
-                      fontSize: 18,
+                      color: AppColors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -56,47 +93,55 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color.fromRGBO(0, 0, 0, 0.2),
-                      blurRadius: 24,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
+                  
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () {
-                        },
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.white,
-                          foregroundColor: AppColors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
+                    AppInput(
+                      label: 'E-mail',
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 16),
+                    AppInput(label: 'Senha', obscureText: true),
+                    const SizedBox(height: 16),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Transform.translate(
+                        offset: const Offset(-6, 0),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Image.asset(
-                              'lib/assets/images/icons/google.png',
-                              width: 28,
-                              height: 28,
+                            Checkbox(
+                              value: keepConnected,
+                              onChanged: (value) {
+                                setState(() {
+                                  keepConnected = value ?? false;
+                                });
+                              },
+                              activeColor: AppColors.primary,
+                              checkColor: AppColors.black,
                             ),
-                            const SizedBox(width: 10),
-                            Flexible(
-                              child: const Text(
-                                'Entrar com Google',
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
+                            const SizedBox(width: 8),
+                            const Expanded(
+                              child: Text(
+                                'Manter conectado',
                                 style: TextStyle(
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {},
+                              child: const Text(
+                                'Esqueceu a senha?',
+                                style: TextStyle(
+                                  color: AppColors.danger,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -105,106 +150,74 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Ou',
-                      style: TextStyle(
-                        color: AppColors.neutralText,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                    ButtonSubmit(label: 'Entrar', onPressed: () {}),
+                    const SizedBox(height: 16),
+                    const Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Ou',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.neutralText,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    AppInput(
-                      label: 'E-mail',
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    const SizedBox(height: 16),
-                    AppInput(
-                      label: 'Senha',
-                      obscureText: true,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: keepConnected,
-                          onChanged: (value) {
-                            setState(() {
-                              keepConnected = value ?? false;
-                            });
-                          },
-                          activeColor: AppColors.primary,
-                          checkColor: AppColors.black,
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: _signInWithGoogle,
+                        icon: Image.asset(
+                          'lib/assets/images/icons/google.png',
+                          width: 28,
+                          height: 28,
                         ),
-                        const SizedBox(width: 8),
-                        const Expanded(
+                        label: const Flexible(
                           child: Text(
-                            'Manter conectado',
+                            'Entrar com Google',
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                             style: TextStyle(
-                              color: AppColors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                              color: AppColors.black,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    ButtonSubmit(
-                      label: 'Entrar',
-                      onPressed: () {
-                        // TODO: implementar autenticação e fluxo de próxima tela
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton(
-                        onPressed: () {
-                          // TODO: implementar recuperação de senha
-                        },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: const Size(0, 0),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: const Text(
-                          'Esqueceu a senha?',
-                          style: TextStyle(
-                            color: AppColors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.white,
+                          foregroundColor: AppColors.black,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 18,
+                            horizontal: 16,
+                          ),
+                          minimumSize: const Size.fromHeight(56),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
                       ),
                     ),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
                     'Não tem conta? ',
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: AppColors.white, fontSize: 14),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      // TODO: implementar fluxo de criação de conta
-                    },
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(0, 0),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
+                  GestureDetector(
+                    onTap: () {},
                     child: const Text(
-                      'Criar conta grátis',
+                      'Criar conta grátis!',
                       style: TextStyle(
                         color: AppColors.primary,
                         fontSize: 14,
@@ -221,4 +234,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-

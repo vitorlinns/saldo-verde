@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/utils/colors.dart';
 
 class SplashPage extends StatefulWidget {
@@ -16,10 +17,16 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
+    _prepareStartup();
+  }
+
+  Future<void> _prepareStartup() async {
     _timer = Timer(const Duration(seconds: 3), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/onboard');
-      }
+      if (!mounted) return;
+
+      final session = Supabase.instance.client.auth.currentSession;
+      debugPrint('Supabase launch session: $session');
+      Navigator.of(context).pushReplacementNamed('/onboard');
     });
   }
 

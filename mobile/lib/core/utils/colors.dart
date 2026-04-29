@@ -8,11 +8,12 @@ class AppColors {
   static const Color primaryVariant = Color(0xFF5CC665);
   static const Color primaryLight = Color(0xFF3E8A4B);
   static const Color primaryExtraLight = Color(0xFF132513);
-  static const Color black = Color(0xFF000000);
+  static const Color black = Color.fromARGB(255, 23, 23, 23);
   static const Color white = Color(0xFFFFFFFF);
-  static const Color background = Color(0xFF0E0E0E);
-  static const Color surface = Color.fromARGB(255, 22, 22, 22);
+  static const Color background = Color.fromARGB(255, 21, 21, 21);
+  static const Color surface = Color.fromARGB(255, 21, 21, 21);
   static const Color surfaceVariant = Color.fromARGB(255, 39, 39, 39);
   static const Color onPrimary = Color(0xFF101010);
   static const Color neutralText = Color(0xFFB8B8C2);
+  static const Color danger = Color.fromARGB(255, 247, 118, 118);
 }

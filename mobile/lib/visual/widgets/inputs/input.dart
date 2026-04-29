@@ -42,7 +42,7 @@ class AppInput extends StatelessWidget {
         labelStyle: TextStyle(color: AppColors.neutralText),
         floatingLabelStyle: const TextStyle(color: AppColors.primary),
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: const Color.fromARGB(103, 26, 26, 26),
         contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),

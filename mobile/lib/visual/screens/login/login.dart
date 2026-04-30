@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/utils/colors.dart';
+import '../../../core/utils/supabase_client.dart';
 import '../../widgets/btn/button_submit.dart';
 import '../../widgets/inputs/input.dart';
 import '../../widgets/snackbar/snack.dart';
@@ -20,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   bool keepConnected = false;
   bool _showPassword = false;
   bool _isSigningIn = false;
+  bool _isLoading = false;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -35,7 +38,9 @@ class _LoginPageState extends State<LoginPage> {
     return normalized.contains('@') && normalized.contains('.');
   }
 
-  void _submitLogin() {
+  Future<void> _submitLogin() async {
+    if (_isLoading) return;
+
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
@@ -52,7 +57,75 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    showAppSnackBar(context, 'Login enviado', type: SnackType.success);
+    setState(() {
+      _isLoading = true;
+    });
+
+    late final dynamic response;
+    try {
+      response = await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+    } catch (error) {
+      if (!mounted) return;
+
+      final errorMessage = error.toString().toLowerCase();
+      final friendlyMessage = error is AuthException ||
+              errorMessage.contains('invalid login credentials') ||
+              errorMessage.contains('invalid password') ||
+              errorMessage.contains('invalid email')
+          ? 'E-mail ou senha incorretos.'
+          : 'Ocorreu um erro ao fazer login. Tente novamente.';
+
+      showAppSnackBar(
+        context,
+        friendlyMessage,
+        type: SnackType.error,
+      );
+      return;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+
+    if (response.session == null || response.user == null) {
+      if (!mounted) return;
+      showAppSnackBar(
+        context,
+        'E-mail ou senha inválidos. Verifique seus dados e tente novamente.',
+        type: SnackType.error,
+      );
+      return;
+    }
+
+    final userId = response.user?.id ?? supabase.auth.currentUser?.id;
+    if (userId == null) {
+      if (!mounted) return;
+      showAppSnackBar(context, 'Não autorizado.', type: SnackType.error);
+      return;
+    }
+
+    try {
+      await supabase
+          .from('profiles')
+          .update({'keep_connected': keepConnected})
+          .eq('id', userId);
+    } catch (error) {
+      if (!mounted) return;
+      showAppSnackBar(context, error.toString(), type: SnackType.error);
+      return;
+    }
+
+    if (!mounted) return;
+    showAppSnackBar(
+      context,
+      'Login realizado com sucesso',
+      type: SnackType.success,
+    );
   }
 
   Future<void> _signInWithGoogle() async {
@@ -63,38 +136,89 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      final googleSignIn = GoogleSignIn(scopes: ['email']);
+      final googleServerClientId = dotenv.env['GOOGLE_SERVER_CLIENT_ID']?.trim();
+      if (googleServerClientId == null || googleServerClientId.isEmpty) {
+        if (!mounted) return;
+        showAppSnackBar(
+          context,
+          'Erro ao fazer login com google',
+          type: SnackType.error,
+        );
+        return;
+      }
+
+      final googleSignIn = GoogleSignIn(
+        scopes: ['email'],
+        serverClientId: googleServerClientId,
+      );
       final googleUser = await googleSignIn.signIn();
-      if (googleUser == null) return;
+      if (googleUser == null) {
+        if (!mounted) return;
+        showAppSnackBar(
+          context,
+          'Login com Google cancelado.',
+          type: SnackType.error,
+        );
+        return;
+      }
 
       final googleAuth = await googleUser.authentication;
-      final accessToken = googleAuth.accessToken;
       final idToken = googleAuth.idToken;
 
-      if (accessToken == null || idToken == null) {
-        throw Exception('Não foi possível obter credenciais do Google.');
+      if (idToken == null) {
+        if (!mounted) return;
+        showAppSnackBar(
+          context,
+          'Não foi possível obter o token do Google. Verifique a configuração do Google Sign-In.',
+          type: SnackType.error,
+        );
+        return;
       }
 
       // ignore: experimental_member_use
-      final response = await Supabase.instance.client.auth.signInWithIdToken(
+      final response = await supabase.auth.signInWithIdToken(
         provider: Provider.google,
-        accessToken: accessToken,
         idToken: idToken,
       );
 
-      if (response.session == null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao iniciar login com Google.')),
+      if (response.session == null || response.user == null) {
+        if (!mounted) return;
+        showAppSnackBar(
+          context,
+          'Não foi possível concluir o login com Google.',
+          type: SnackType.error,
         );
+        return;
       }
+
+      final userId = response.user?.id ?? supabase.auth.currentUser?.id;
+      if (userId == null) {
+        if (!mounted) return;
+        showAppSnackBar(
+          context,
+          'Não autorizado.',
+          type: SnackType.error,
+        );
+        return;
+      }
+
+      await supabase
+          .from('profiles')
+          .update({'keep_connected': keepConnected})
+          .eq('id', userId);
+
+      if (!mounted) return;
+      showAppSnackBar(
+        context,
+        'Login com Google realizado com sucesso.',
+        type: SnackType.success,
+      );
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Erro ao iniciar login com Google: ${error.toString()}',
-          ),
-        ),
+      showAppSnackBar(
+        context,
+        'Erro ao iniciar login com Google. Tente novamente.',
+        type: SnackType.error,
       );
     } finally {
       if (mounted) {
@@ -294,7 +418,11 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        ButtonSubmit(label: 'Entrar', onPressed: _submitLogin),
+                        ButtonSubmit(
+                          label: 'Entrar',
+                          isLoading: _isLoading,
+                          onPressed: _submitLogin,
+                        ),
                         const SizedBox(height: 16),
                         const Align(
                           alignment: Alignment.center,

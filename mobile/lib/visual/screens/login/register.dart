@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/utils/colors.dart';
+import '../../../core/utils/supabase_client.dart';
 import '../../widgets/btn/button_submit.dart';
 import '../../widgets/inputs/input.dart';
 import '../../widgets/snackbar/snack.dart';
@@ -131,7 +132,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return null;
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
     final email = _emailController.text.trim();
@@ -193,11 +194,52 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    late final dynamic response;
+    try {
+      response = await supabase.auth.signUp(email: email, password: password);
+    } catch (error) {
+      if (!mounted) return;
+      final message = error.toString();
+      if (message.contains('duplicate key value violates unique constraint') ||
+          message.contains('users_email_partial_key')) {
+        showAppSnackBar(
+          context,
+          'E-mail já cadastrado. Faça login ou recupere sua senha.',
+          type: SnackType.error,
+        );
+      } else {
+        showAppSnackBar(context, message, type: SnackType.error);
+      }
+      return;
+    }
+
+    final userId = response.user?.id ?? supabase.auth.currentUser?.id;
+    if (userId != null) {
+      try {
+        await supabase
+            .from('profiles')
+            .update({
+              'full_name': '$firstName $lastName',
+              'phone': phone,
+              'document': cpf.replaceAll(RegExp(r'[^0-9]'), ''),
+              'metadata': {'birthday': birthday},
+            })
+            .eq('id', userId);
+      } catch (error) {
+        if (!mounted) return;
+        showAppSnackBar(context, error.toString(), type: SnackType.error);
+        return;
+      }
+    }
+
+    if (!mounted) return;
     showAppSnackBar(
       context,
-      'Cadastro validado com sucesso',
+      'Conta criada com sucesso.',
       type: SnackType.success,
     );
+
+    Navigator.of(context).pop();
   }
 
   int _digitsBeforeCursor(String text, int cursorPosition) {

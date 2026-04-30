@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/utils/colors.dart';
+import '../../../core/utils/supabase_client.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -22,13 +23,39 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _prepareStartup() async {
+    final session = supabase.auth.currentSession;
+    final autoRoute = await _getInitialRoute(session);
+
     _timer = Timer(const Duration(seconds: 3), () {
       if (!mounted) return;
-
-      final session = Supabase.instance.client.auth.currentSession;
-      debugPrint('Supabase launch session: $session');
-      Navigator.of(context).pushReplacementNamed('/onboard');
+      Navigator.of(context).pushReplacementNamed(autoRoute);
     });
+  }
+
+  Future<String> _getInitialRoute(Session? session) async {
+    if (session == null) {
+      return '/onboard';
+    }
+
+    try {
+      final profile = await supabase
+          .from('profiles')
+          .select('keep_connected')
+          .eq('id', session.user.id)
+          .single();
+
+      final keepConnected =
+          (profile.data as Map<String, dynamic>?)?['keep_connected'] as bool?;
+      if (keepConnected == true) {
+        return '/onboard';
+      }
+    } catch (_) {
+      await supabase.auth.signOut();
+      return '/login';
+    }
+
+    await supabase.auth.signOut();
+    return '/login';
   }
 
   @override

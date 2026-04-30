@@ -46,6 +46,7 @@ throw Exception(
     url: _supabaseUrl,
     anonKey: _supabaseAnonKey,
     authCallbackUrlHostname: _authCallbackHostname,
+    debug: false,
   );
 }
 

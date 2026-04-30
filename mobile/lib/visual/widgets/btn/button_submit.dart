@@ -24,9 +24,9 @@ class ButtonSubmit extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       height: height,
-      child: FilledButton(
+      child: ElevatedButton(
         onPressed: isLoading ? () {} : onPressed,
-        style: FilledButton.styleFrom(
+        style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryButton,
           foregroundColor: AppColors.black,
           disabledBackgroundColor: AppColors.primaryButton,
@@ -41,25 +41,24 @@ class ButtonSubmit extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 20),
         ),
-        child: Center(
-          child: isLoading
-              ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.2,
-                        valueColor: AlwaysStoppedAnimation(AppColors.black),
-                      ),
+        child: isLoading
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.2,
+                      valueColor: AlwaysStoppedAnimation(AppColors.black),
                     ),
-                    const SizedBox(width: 12),
-                    Text(label),
-                  ],
-                )
-              : Text(label),
-        ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(label),
+                ],
+              )
+            : Text(label),
       ),
     );
   }

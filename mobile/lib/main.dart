@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'visual/screens/login/login.dart';
-import 'visual/screens/onboard/onboard.dart';
-import 'visual/screens/splash/splash.dart';
 import 'core/utils/colors.dart';
 import 'core/utils/supabase_client.dart';
 
@@ -40,6 +38,8 @@ Future<void> main() async {
   );
 
   await initSupabase();
+  final initialRoute = await _getInitialRoute();
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -47,18 +47,21 @@ Future<void> main() async {
       statusBarBrightness: Brightness.dark,
     ),
   );
-  runApp(const SaldoVerdeApp());
+  runApp(SaldoVerdeApp(initialRoute: initialRoute));
+}
+
+Future<String> _getInitialRoute() async {
+  return '/login';
 }
 
 class SaldoVerdeApp extends StatelessWidget {
-  const SaldoVerdeApp({super.key});
+  const SaldoVerdeApp({super.key, required this.initialRoute});
+
+  final String initialRoute;
 
   Route<dynamic>? _buildSlideRoute(RouteSettings settings) {
     late final Widget page;
     switch (settings.name) {
-      case '/onboard':
-        page = const OnboardPage();
-        break;
       case '/login':
         page = const LoginPage();
         break;
@@ -71,8 +74,11 @@ class SaldoVerdeApp extends StatelessWidget {
       pageBuilder: (_, animation, secondaryAnimation) => page,
       transitionDuration: const Duration(milliseconds: 300),
       transitionsBuilder: (_, animation, secondaryAnimation, child) {
+        final beginOffset = settings.name == '/login'
+            ? const Offset(-1.0, 0.0)
+            : const Offset(1.0, 0.0);
         final tween = Tween<Offset>(
-          begin: const Offset(1.0, 0.0),
+          begin: beginOffset,
           end: Offset.zero,
         ).chain(CurveTween(curve: Curves.easeInOut));
         return SlideTransition(position: animation.drive(tween), child: child);
@@ -120,12 +126,8 @@ class SaldoVerdeApp extends StatelessWidget {
           ),
         );
       },
-      home: const SplashPage(),
+      initialRoute: initialRoute,
       onGenerateRoute: _buildSlideRoute,
-      routes: {
-        '/onboard': (context) => const OnboardPage(),
-        '/login': (context) => const LoginPage(),
-      },
     );
   }
 }

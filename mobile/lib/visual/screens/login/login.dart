@@ -457,18 +457,14 @@ class _LoginPageState extends State<LoginPage> {
                                     width: 28,
                                     height: 22,
                                   ),
-                            label: Flexible(
-                              child: Text(
-                                _isSigningIn
-                                    ? 'Carregando...'
-                                    : 'Entrar com Google',
-                                textAlign: TextAlign.center,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: const TextStyle(
-                                  color: AppColors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                            label: Text(
+                              _isSigningIn ? 'Carregando...' : 'Entrar com Google',
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                color: AppColors.white,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             style: FilledButton.styleFrom(

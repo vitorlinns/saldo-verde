@@ -1,0 +1,103 @@
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import ButtonGeneral from '../../components/btn/button_general';
+import ErrorMessage from '../../components/message/error';
+import SuccessMessage from '../../components/message/success';
+import InputGeneral from '../../components/inputs/input_general';
+
+export default function PasswordPage() {
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const navigate = useNavigate();
+
+  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const handleSave = async () => {
+    if (!password || !confirmPassword) {
+      setError('Preencha os dois campos de senha.');
+      setMessage('');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('A senha deve ter ao menos 8 caracteres.');
+      setMessage('');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('As senhas não conferem.');
+      setMessage('');
+      return;
+    }
+
+    setError('');
+    setIsSaving(true);
+    await delay(2000);
+    setIsSaving(false);
+    setMessage('Senha redefinida com sucesso. Redirecionando para o login...');
+    setTimeout(() => navigate('/login'), 2000);
+  };
+
+  return (
+    <main className="min-h-screen bg-black text-white">
+      <section className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[1fr_0.9fr]">
+        <div className="hidden lg:block bg-primary-black" />
+
+        <div className="flex items-center justify-center bg-black px-6 py-12">
+          <div className="w-full max-w-md rounded-[2rem] border border-border bg-black/95 p-8 backdrop-blur-xl shadow-xl shadow-black/20 sm:p-10">
+            <div className="mb-6 space-y-4">
+              <div className="flex justify-left">
+                <img src="/api/site-logo" alt="Logo" className="h-12 w-auto" />
+              </div>
+
+              <div>
+                <h2 className="text-3xl font-medium tracking-tight text-white sm:text-3xl">
+                  Criar nova senha
+                </h2>
+                <p className="mt-2 text-sm text-white/70">
+                  Digite e confirme sua nova senha para finalizar a recuperação de conta.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <InputGeneral
+                id="new-password"
+                type="password"
+                value={password}
+                onChange={setPassword}
+                placeholder="Nova senha"
+                className="mt-0"
+              />
+
+              <InputGeneral
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                placeholder="Confirmar senha"
+                className="mt-0"
+              />
+
+              <ButtonGeneral
+                type="button"
+                onClick={handleSave}
+                label="Redefinir senha"
+                loading={isSaving}
+                className="mt-2"
+              />
+
+
+              {message ? <SuccessMessage>{message}</SuccessMessage> : null}
+              {error ? <ErrorMessage>{error}</ErrorMessage> : null}
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}

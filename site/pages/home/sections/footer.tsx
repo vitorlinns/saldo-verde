@@ -6,6 +6,7 @@ import InstagramLineIcon from 'remixicon-react/InstagramLineIcon';
 
 import Input from '../../../components/ui/input/input';
 import ButtonCta from '../../../components/ui/btn/button-cta';
+import { COPYRIGHT_TEXT } from '../../../src/data/site-info';
 
 const navLinks = [
   { label: 'Início', href: '/' },
@@ -126,7 +127,7 @@ export default function Footer() {
         <div className="h-px w-full bg-slate-200 opacity-60" />
         <div className="mx-auto max-w-7xl px-6 py-5 md:px-10">
           <p className="text-sm text-slate-500 opacity-80">
-            ©Saldo Verde | Todos os direitos reservados.
+            {COPYRIGHT_TEXT}
           </p>
         </div>
       </div>

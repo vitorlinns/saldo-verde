@@ -1,12 +1,15 @@
 {
   "name": "saldo-verde",
   "private": true,
-  "workspaces": ["site"],
+  "workspaces": ["site", "app/frontend", "app/backend", "app/supabase"],
   "scripts": {
     "dev": "npm --workspace site run dev --",
     "build": "npm --workspace site run build --",
     "start": "npm --workspace site run start --",
     "lint": "npm --workspace site run lint --",
+    "dev:app": "npm --workspace app/frontend run dev --",
+    "build:app": "npm --workspace app/frontend run build -- && npm --workspace app/backend run build --",
+    "start:app": "npm --workspace app/frontend run start --",
     "dev:node22": "PATH=/home/usuario/.local/bin:$PATH npm --workspace site run dev --",
     "build:node22": "PATH=/home/usuario/.local/bin:$PATH npm --workspace site run build --",
     "start:node22": "PATH=/home/usuario/.local/bin:$PATH npm --workspace site run start --"

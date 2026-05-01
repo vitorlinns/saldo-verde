@@ -10,6 +10,12 @@ export function createBrowserSupabaseClient(): SupabaseClient {
     );
   }
 
+  if (supabaseAnonKey.startsWith('sb_secret') || supabaseAnonKey.toLowerCase().includes('secret')) {
+    throw new Error(
+      'Forbidden use of secret API key in browser. Set VITE_SUPABASE_ANON_KEY to the public/anon key, not the service role secret.'
+    );
+  }
+
   return createClient(supabaseUrl, supabaseAnonKey);
 }
 

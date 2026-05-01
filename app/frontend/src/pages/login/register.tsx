@@ -134,7 +134,7 @@ export default function RegisterPage() {
           <div className="w-full max-w-md rounded-[2rem] border border-border bg-black/95 p-8 backdrop-blur-xl shadow-xl shadow-black/20 sm:p-10">
             <div className="mb-6 space-y-4">
               <div className="flex justify-left">
-                <img src="/api/site-logo" alt="Logo" className="h-12 w-auto" />
+                <img src="/assets/brand/isologo.png" alt="Logo" className="h-12 w-auto" />
               </div>
 
               <h2 className="text-3xl font-medium tracking-tight text-white sm:text-3xl">

@@ -9,6 +9,8 @@ import SuccessMessage from '../../components/message/success';
 import InputGeneral from '../../components/inputs/input_general';
 
 const createClient = (): SupabaseClient => createBrowserSupabaseClient();
+const TEST_USER_EMAIL = 'teste@saldoverde.pro';
+const TEST_USER_PASSWORD = 'Teste123!';
 
 export default function LoginPage() {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
@@ -33,7 +35,7 @@ export default function LoginPage() {
         const currentSession = data.session ?? null;
         setSession(currentSession);
         if (currentSession) {
-          navigate('/home', { replace: true });
+          navigate('/dashboard', { replace: true });
         }
       });
 
@@ -41,7 +43,7 @@ export default function LoginPage() {
         const currentSession = sessionData ?? null;
         setSession(currentSession);
         if (currentSession) {
-          navigate('/home', { replace: true });
+          navigate('/dashboard', { replace: true });
         }
       });
 
@@ -105,6 +107,50 @@ export default function LoginPage() {
     }
   };
 
+  const handleTestUserSignIn = async () => {
+    if (!supabase) {
+      setError('Não foi possível iniciar o login de teste. Por favor, tente novamente.');
+      return;
+    }
+
+    setIsAuthenticating(true);
+    setError('');
+    setMessage('Usando usuário de teste...');
+
+    try {
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: TEST_USER_EMAIL,
+        password: TEST_USER_PASSWORD,
+      });
+
+      if (signUpError && !/already registered/i.test(signUpError.message)) {
+        setError(signUpError.message);
+        setMessage('');
+        return;
+      }
+
+      const { data: signInResult, error: signInError } = await supabase.auth.signInWithPassword({
+        email: TEST_USER_EMAIL,
+        password: TEST_USER_PASSWORD,
+      });
+
+      if (signInError) {
+        setError(signInError.message);
+        setMessage('');
+      } else {
+        setEmail(TEST_USER_EMAIL);
+        setPassword(TEST_USER_PASSWORD);
+        setMessage('Login de teste realizado. Redirecionando...');
+      }
+    } catch (err) {
+      setError('Ocorreu um erro ao entrar com o usuário de teste.');
+      console.error('Test user login error:', err);
+      setMessage('');
+    } finally {
+      setIsAuthenticating(false);
+    }
+  };
+
   const handleGoogleSignIn = async () => {
     if (!supabase) {
       setError('Não foi possível iniciar o login. Por favor, tente novamente.');
@@ -145,7 +191,7 @@ export default function LoginPage() {
           <div className="w-full max-w-md rounded-[2rem] border border-border bg-black/95 p-8 backdrop-blur-xl shadow-xl shadow-black/20 sm:p-10">
             <div className="mb-6 space-y-4">
               <div className="flex justify-left">
-                <img src="/api/site-logo" alt="Logo" className="h-12 w-auto" />
+                <img src="/assets/brand/isologo.png" alt="Logo" className="h-12 w-auto" />
               </div>
 
               <h2 className="text-3xl font-medium tracking-tight text-white sm:text-3xl">
@@ -192,6 +238,21 @@ export default function LoginPage() {
                 <div className="text-center text-sm text-white">Ou</div>
 
                 <ButtonGoogle type="button" onClick={handleGoogleSignIn} loading={isGoogleLoading} />
+
+                <div className="pt-2 text-center text-sm text-white/70">
+                  Use o usuário de teste abaixo para acessar rapidamente:
+                </div>
+                <div className="rounded-2xl border border-border bg-white/5 p-3 text-sm text-white">
+                  <p><strong>Email:</strong> teste@saldoverde.pro</p>
+                  <p><strong>Senha:</strong> Teste123!</p>
+                </div>
+                <ButtonGeneral
+                  type="button"
+                  onClick={handleTestUserSignIn}
+                  label="Entrar com usuário de teste"
+                  loading={isAuthenticating}
+                  variant="secondary"
+                />
               </div>
 
               <div className="mt-4 flex items-center justify-center gap-2 text-sm text-white">

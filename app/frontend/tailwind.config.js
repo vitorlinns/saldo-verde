@@ -18,10 +18,15 @@ module.exports = {
         },
         white: '#ffffff',
         black: '#040404',
+        gray: 'rgb(72, 72, 72)',
+        background: '#0b0b0b',
         border: '#b8b8b81d',
         danger: 'rgb(248, 103, 103)',
         danger_bg: 'rgba(248, 103, 103, 0.13)',
-        gray: 'rgb(72, 72, 72)'
+        success:'#82de7f',
+        success_bg: '#82de7f36',
+        warning: '#f4a639',
+        warning_bg: '#f4a63941'
 
       },
       fontFamily: {

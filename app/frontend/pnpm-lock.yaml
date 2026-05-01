@@ -20,6 +20,9 @@ importers:
       react-router-dom:
         specifier: ^6.17.0
         version: 6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      remixicon-react:
+        specifier: ^1.0.0
+        version: 1.0.0(react@18.3.1)
       saldo-verde-supabase:
         specifier: file:../supabase
         version: file:../supabase
@@ -850,6 +853,11 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
 
+  remixicon-react@1.0.0:
+    resolution: {integrity: sha512-KOXlc8EdKdujr2f/2idyFSQRjUB8p0HNiWZYBBzRsTRlTXFuSAFfnGq9culNjhCGmc92Jbtfr9OP0MXWvTMdsQ==}
+    peerDependencies:
+      react: '>=0.14.0'
+
   resolve@1.22.12:
     resolution: {integrity: sha512-TyeJ1zif53BPfHootBGwPRYT1RUt6oGWsaQr8UyZW/eAm9bKoijtvruSDEmZHm92CwS9nj7/fWttqPCgzep8CA==}
     engines: {node: '>= 0.4'}
@@ -1652,6 +1660,10 @@ snapshots:
   readdirp@3.6.0:
     dependencies:
       picomatch: 2.3.2
+
+  remixicon-react@1.0.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   resolve@1.22.12:
     dependencies:

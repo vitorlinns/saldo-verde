@@ -56,7 +56,7 @@ export default function HeroSection() {
               className="text-4xl font-medium leading-tight tracking-tight text-slate-950 sm:text-5xl"
               variants={textVariants}
             >
-              Pare de chegar no fim do mês sem saber pra onde foi o dinheiro.
+              Saldo Veder te ajuda a chegar no fim do mês e saber pra onde foi seu dinheiro.
             </motion.h1>
             <motion.p
               className="mt-5 max-w-3xl text-lg leading-8 text-slate-700 sm:text-xl"

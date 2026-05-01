@@ -1,0 +1,32 @@
+{
+  "version": 3,
+  "builds": [
+    {
+      "src": "site/package.json",
+      "use": "@vercel/next"
+    },
+    {
+      "src": "app/frontend/package.json",
+      "use": "@vercel/static-build"
+    }
+  ],
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "app.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/frontend/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/site/$1"
+    }
+  ]
+}

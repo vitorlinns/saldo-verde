@@ -15,6 +15,16 @@
       "handle": "filesystem"
     },
     {
+      "src": "/assets/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "app.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/frontend/dist/assets/$1"
+    },
+    {
       "src": "/(.*)",
       "has": [
         {
@@ -22,7 +32,7 @@
           "value": "app.saldoverde.pro"
         }
       ],
-      "dest": "/app/frontend/index.html"
+      "dest": "/app/frontend/dist/index.html"
     },
     {
       "src": "/(.*)",

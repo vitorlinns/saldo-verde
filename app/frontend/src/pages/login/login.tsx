@@ -29,6 +29,8 @@ export default function LoginPage() {
   const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
   useEffect(() => {
+    setIsGoogleLoading(false);
+
     try {
       const client = createClient();
       setSupabase(client);
@@ -39,6 +41,7 @@ export default function LoginPage() {
 
         const { data } = await client.auth.getSession();
         currentSession = data.session ?? null;
+        setIsGoogleLoading(false);
 
         if (hasAuthParams) {
           window.history.replaceState(null, '', window.location.pathname);
@@ -66,6 +69,7 @@ export default function LoginPage() {
         authListener.subscription.unsubscribe();
       };
     } catch (err) {
+      setIsGoogleLoading(false);
       const message = err instanceof Error ? err.message : 'Não foi possível iniciar o login. Por favor, tente novamente.';
       setError(message);
       console.error('LoginPage init error:', err);

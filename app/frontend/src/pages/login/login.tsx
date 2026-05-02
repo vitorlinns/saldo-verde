@@ -66,7 +66,8 @@ export default function LoginPage() {
         authListener.subscription.unsubscribe();
       };
     } catch (err) {
-      setError('Não foi possível iniciar o login. Por favor, tente novamente.');
+      const message = err instanceof Error ? err.message : 'Não foi possível iniciar o login. Por favor, tente novamente.';
+      setError(message);
       console.error('LoginPage init error:', err);
     }
   }, [navigate]);

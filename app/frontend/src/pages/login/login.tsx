@@ -9,6 +9,7 @@ import SuccessMessage from '../../components/message/success';
 import InputGeneral from '../../components/inputs/input_general';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? window.location.origin;
+const OAUTH_REDIRECT_TO = import.meta.env.VITE_OAUTH_REDIRECT_TO ?? `${window.location.origin}/login`;
 
 const TEST_USER_EMAIL = 'teste@saldoverde.pro';
 const TEST_USER_PASSWORD = 'Teste123!';
@@ -32,14 +33,25 @@ export default function LoginPage() {
       const client = createClient();
       setSupabase(client);
 
-      client.auth.getSession().then(({ data }) => {
-        const currentSession = data.session ?? null;
+      const initializeSession = async () => {
+        const hasAuthParams = window.location.hash.includes('access_token=') || window.location.search.includes('access_token=');
+        let currentSession: Session | null = null;
+
+        const { data } = await client.auth.getSession();
+        currentSession = data.session ?? null;
+
+        if (hasAuthParams) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+
         setSession(currentSession);
         if (currentSession) {
           const destination = isProfileComplete(currentSession) ? '/dashboard' : '/perfil';
           navigate(destination, { replace: true });
         }
-      });
+      };
+
+      initializeSession();
 
       const { data: authListener } = client.auth.onAuthStateChange((_event, sessionData) => {
         const currentSession = sessionData ?? null;
@@ -183,12 +195,36 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (!supabase) {
+      setError('Não foi possível iniciar o login com Google. Por favor, tente novamente.');
+      return;
+    }
+
     setIsGoogleLoading(true);
     setError('');
     setMessage('');
 
     try {
-      window.location.href = `${BACKEND_URL}/auth/oauth/google`;
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: OAUTH_REDIRECT_TO,
+        },
+      });
+
+      if (oauthError) {
+        setError(oauthError.message || 'Ocorreu um erro ao tentar fazer login com Google.');
+        setIsGoogleLoading(false);
+        return;
+      }
+
+      if (data.url) {
+        window.location.assign(data.url);
+        return;
+      }
+
+      setError('Não foi possível iniciar o fluxo de autenticação com Google.');
+      setIsGoogleLoading(false);
     } catch (err) {
       setError('Ocorreu um erro ao tentar fazer login com Google. Por favor, tente novamente.');
       console.error('Google login error:', err);

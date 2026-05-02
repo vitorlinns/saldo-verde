@@ -138,19 +138,4 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
     return res.status(200).json({ message: 'Logout realizado com sucesso.' });
   });
 
-  app.get('/auth/oauth/google', (req, res) => {
-    const frontendOrigin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173';
-    const supabaseUrl = process.env.SUPABASE_URL;
-
-    if (!supabaseUrl) {
-      return res.status(500).json({ error: 'SUPABASE_URL is not configured.' });
-    }
-
-    const redirectTo = `${frontendOrigin}/login`;
-    const authUrl = new URL(`${supabaseUrl}/auth/v1/authorize`);
-    authUrl.searchParams.set('provider', 'google');
-    authUrl.searchParams.set('redirect_to', redirectTo);
-
-    return res.redirect(authUrl.toString());
-  });
 }

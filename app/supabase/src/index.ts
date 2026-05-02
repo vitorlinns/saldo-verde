@@ -1,8 +1,33 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
+type BrowserEnv = {
+  VITE_SUPABASE_URL?: string;
+  VITE_SUPABASE_ANON_KEY?: string;
+};
+
+type NodeProcessLike = {
+  versions?: unknown;
+  env: Record<string, string | undefined>;
+};
+
+function getBrowserEnv(): BrowserEnv {
+  const meta = import.meta as ImportMeta & { env?: BrowserEnv };
+  return meta.env ?? {};
+}
+
+function getNodeProcess(): NodeProcessLike | undefined {
+  if (typeof globalThis !== 'object' || globalThis === null) {
+    return undefined;
+  }
+
+  const maybeProcess = (globalThis as { process?: NodeProcessLike }).process;
+  return maybeProcess;
+}
+
 export function createBrowserSupabaseClient(): SupabaseClient {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? '';
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
+  const browserEnv = getBrowserEnv();
+  const supabaseUrl = browserEnv.VITE_SUPABASE_URL ?? '';
+  const supabaseAnonKey = browserEnv.VITE_SUPABASE_ANON_KEY ?? '';
 
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error(
@@ -16,10 +41,16 @@ export function createBrowserSupabaseClient(): SupabaseClient {
     );
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      detectSessionInUrl: true,
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  });
 }
 
-const nodeProcess = typeof process !== 'undefined' ? process : undefined;
+const nodeProcess = getNodeProcess();
 
 export function createServerSupabaseClient(): SupabaseClient {
   if (!nodeProcess || !nodeProcess.versions) {

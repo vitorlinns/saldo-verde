@@ -22,8 +22,8 @@ export default function FinanceWidget({
 }: FinanceWidgetProps) {
   const variantStyles = {
     primary: 'border-border bg-black text-white',
-    success: 'border-success/50 bg-success_bg text-success',
-    danger: 'border-danger/50 bg-danger_bg text-danger',
+    success: 'border-border bg-black text-success',
+    danger: 'border-border bg-black text-danger',
   };
 
   const titleIcon =

@@ -62,7 +62,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
         </button>
       </div>
 
-      <div ref={menuRef} className="flex w-full justify-end gap-3 sm:w-auto">
+      <div ref={menuRef} className="flex flex-1 justify-end gap-3">
         <div className="relative">
           <button
             type="button"

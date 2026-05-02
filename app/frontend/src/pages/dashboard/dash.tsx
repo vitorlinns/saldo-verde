@@ -11,6 +11,15 @@ import ActionsWidget from '../../components/widgets/actions';
 import HistoricalWidget from '../../components/widgets/historical';
 import Graphic from '../../components/widgets/graphic';
 import Footer from '../../components/footer/footer';
+import {
+  getAllMonthlySummaries,
+  getMonthlySummaries,
+  getRecentRecords,
+  getStoredBalance,
+  getStoredRecords,
+  parseAmount,
+  type RecordItem,
+} from '../../lib/records-storage';
 
 const createClient = (): SupabaseClient => createBrowserSupabaseClient();
 
@@ -19,6 +28,9 @@ export default function DashboardPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showValues, setShowValues] = useState(true);
+  const recentRecords = getRecentRecords(5);
+  const balance = getStoredBalance();
+  const monthlyRecords = getStoredRecords();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,9 +71,32 @@ export default function DashboardPage() {
     navigate('/login', { replace: true });
   };
 
-  const totalEntradas = 29357;
-  const totalSaidas = 2300;
-  const saldoTotal = totalEntradas - totalSaidas;
+  const totalEntradas = monthlyRecords.reduce((sum, record) => {
+    return record.type === 'income' ? sum + parseAmount(record.amount) : sum;
+  }, 0);
+
+  const totalSaidas = monthlyRecords.reduce((sum, record) => {
+    return record.type === 'expense' ? sum + parseAmount(record.amount) : sum;
+  }, 0);
+
+  const monthLabels = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+  const allSummaries = getAllMonthlySummaries();
+  const summaryMap = new Map(allSummaries.map((summary) => [summary.monthKey, summary]));
+  const currentDate = new Date();
+
+  const chartData = Array.from({ length: 6 }, (_, index) => {
+    const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 5 + index, 1);
+    const monthKey = `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, '0')}`;
+    const summary = summaryMap.get(monthKey);
+
+    return {
+      label: `${monthLabels[monthDate.getMonth()]} ${monthDate.getFullYear()}`,
+      entradas: summary?.totalIncome ?? 0,
+      saidas: summary?.totalExpense ?? 0,
+    };
+  });
+
+  const saldoTotal = balance;
 
   const toggleShowValues = () => setShowValues((current) => !current);
 
@@ -74,7 +109,7 @@ export default function DashboardPage() {
       <div className="min-h-screen h-full grid w-full gap-6 lg:grid-cols-[280px_1fr] lg:items-stretch">
         <Sidebar email={session?.user.email ?? null} />
 
-        <div className="mr-4">
+        <div className="mr-4 flex min-h-screen flex-col">
           <AppBar
             session={session}
             onSignOut={handleSignOut}
@@ -83,7 +118,7 @@ export default function DashboardPage() {
             onToggleValues={toggleShowValues}
           />
 
-          <section className="space-y-6">
+          <section className="flex-1 space-y-6">
             <div>
               <h1 className="text-3xl font-semibold text-white">Dashboard</h1>
             </div>
@@ -112,11 +147,11 @@ export default function DashboardPage() {
               />
             </div>
 
-            <Graphic totalEntradas={totalEntradas} totalSaidas={totalSaidas} showValues={showValues} />
+            <Graphic data={chartData} showValues={showValues} />
 
             <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr] items-stretch">
               <div className="space-y-6 h-full">
-                <HistoricalWidget showValues={showValues} />
+                <HistoricalWidget showValues={showValues} records={recentRecords} />
               </div>
 
               <aside className="flex h-full flex-col gap-6">

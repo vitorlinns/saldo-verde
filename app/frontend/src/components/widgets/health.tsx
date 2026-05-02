@@ -27,7 +27,7 @@ export default function HealthWidget({ totalEntradas, totalSaidas, showValues }:
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Heart className="h-5 w-5 text-white" />
-          <h3 className="text-xl font-semibold text-white">Saúde financeira</h3>
+          <h3 className="text-xl font-regular text-white">Saúde financeira</h3>
         </div>
         <Badge label={healthStatus} variant={healthVariant} />
       </div>

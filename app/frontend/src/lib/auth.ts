@@ -1,7 +1,30 @@
-import { createBrowserSupabaseClient } from 'saldo-verde-supabase';
+import { createClient as createSupabaseJsClient } from '@supabase/supabase-js';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
-export const createClient = (): SupabaseClient => createBrowserSupabaseClient();
+export const createClient = (): SupabaseClient => {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? '';
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      'Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY in the frontend environment. Add them to .env and restart the dev server.'
+    );
+  }
+
+  if (supabaseAnonKey.startsWith('sb_secret') || supabaseAnonKey.toLowerCase().includes('secret')) {
+    throw new Error(
+      'Forbidden use of secret API key in browser. Set VITE_SUPABASE_ANON_KEY to the public/anon key, not the service role secret.'
+    );
+  }
+
+  return createSupabaseJsClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      detectSessionInUrl: true,
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  });
+};
 
 export const signOutWithBackend = async (
   supabase: SupabaseClient | null,

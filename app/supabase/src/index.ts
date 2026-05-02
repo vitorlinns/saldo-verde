@@ -5,6 +5,11 @@ type BrowserEnv = {
   VITE_SUPABASE_ANON_KEY?: string;
 };
 
+type BrowserSupabaseOptions = {
+  supabaseUrl?: string;
+  supabaseAnonKey?: string;
+};
+
 type NodeProcessLike = {
   versions?: unknown;
   env: Record<string, string | undefined>;
@@ -24,10 +29,10 @@ function getNodeProcess(): NodeProcessLike | undefined {
   return maybeProcess;
 }
 
-export function createBrowserSupabaseClient(): SupabaseClient {
+export function createBrowserSupabaseClient(options: BrowserSupabaseOptions = {}): SupabaseClient {
   const browserEnv = getBrowserEnv();
-  const supabaseUrl = browserEnv.VITE_SUPABASE_URL ?? '';
-  const supabaseAnonKey = browserEnv.VITE_SUPABASE_ANON_KEY ?? '';
+  const supabaseUrl = options.supabaseUrl ?? browserEnv.VITE_SUPABASE_URL ?? '';
+  const supabaseAnonKey = options.supabaseAnonKey ?? browserEnv.VITE_SUPABASE_ANON_KEY ?? '';
 
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error(

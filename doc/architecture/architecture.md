@@ -119,11 +119,13 @@ O usuário não deve acessar rotas restritas até que o perfil esteja completo.
 
 - Uso de `createClient` com `SUPABASE_SERVICE_ROLE_KEY` para operações administrativas.
 - Leitura/escrita em tabelas protegidas como `deleted_accounts` e `auth.users`.
+- Autenticação sensível (login via senha) é roteada pelo backend para manter a chave secreta no servidor.
 
 ### Frontend
 
 - Uso de `createBrowserSupabaseClient()` para autenticação e sessão do usuário.
-- Cliente frontend consome o backend apenas onde necessário (cadastro, conteúdo de site, notificações, perfil).
+- O frontend nunca deve receber o `SUPABASE_SERVICE_ROLE_KEY`.
+- Cliente frontend consome o backend para cadastro, login e outras operações que exigem regras de segurança.
 
 ## Ambiente e variáveis
 
@@ -133,6 +135,8 @@ Variáveis relevantes:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `FRONTEND_ORIGIN`
 - `VITE_BACKEND_URL`
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
 ## Observações de arquitetura
 

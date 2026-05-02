@@ -1,14 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createBrowserSupabaseClient } from 'saldo-verde-supabase';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import ButtonGeneral from '../../components/btn/button_general';
 import InputGeneral from '../../components/inputs/input_general';
 import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
-const createClient = (): SupabaseClient => createBrowserSupabaseClient();
 
 const validateCpf = (value: string) => {
   const cpf = value.replace(/\D/g, '');
@@ -55,7 +52,6 @@ const isAdult = (value: string) => {
 };
 
 export default function RegisterPage() {
-  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [email, setEmail] = useState('');
   const [cpf, setCpf] = useState('');
   const [birthdate, setBirthdate] = useState('');
@@ -68,16 +64,6 @@ export default function RegisterPage() {
   const navigate = useNavigate();
 
   const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-  useEffect(() => {
-    try {
-      const client = createClient();
-      setSupabase(client);
-    } catch (err) {
-      setError('Não foi possível iniciar o registro. Por favor, tente novamente.');
-      console.error('RegisterPage init error:', err);
-    }
-  }, []);
 
   useEffect(() => {
     const fetchFooterText = async () => {
@@ -126,12 +112,6 @@ export default function RegisterPage() {
 
     if (password !== confirmPassword) {
       setError('As senhas não conferem.');
-      setMessage('');
-      return;
-    }
-
-    if (!supabase) {
-      setError('Não foi possível iniciar o registro. Por favor, tente novamente.');
       setMessage('');
       return;
     }

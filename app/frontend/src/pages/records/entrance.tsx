@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createClient, isProfileComplete } from '../../lib/auth';
+import { createClient, isProfileComplete, signOutWithBackend } from '../../lib/auth';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import Sidebar from '../../components/sidebar/sidebar';
 import AppBar from '../../components/appbar/appbar';
@@ -74,7 +74,7 @@ export default function EntrancePage() {
   const handleSignOut = async () => {
     if (!supabase) return;
     setIsSigningOut(true);
-    await supabase.auth.signOut();
+    await signOutWithBackend(supabase);
     setIsSigningOut(false);
     navigate('/login', { replace: true });
   };

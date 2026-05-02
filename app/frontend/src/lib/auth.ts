@@ -3,6 +3,26 @@ import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
 export const createClient = (): SupabaseClient => createBrowserSupabaseClient();
 
+export const signOutWithBackend = async (
+  supabase: SupabaseClient | null,
+  backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001'
+) => {
+  if (!supabase) return;
+
+  try {
+    await fetch(`${backendUrl}/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (err) {
+    console.warn('Backend logout failed:', err);
+  }
+
+  await supabase.auth.signOut();
+};
+
 const requiredProfileFields = [
   'first_name',
   'last_name',

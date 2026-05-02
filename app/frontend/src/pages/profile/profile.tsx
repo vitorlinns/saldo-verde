@@ -1,19 +1,16 @@
 import { useEffect, useState, type CSSProperties, type FormEvent, type InputHTMLAttributes } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createBrowserSupabaseClient } from 'saldo-verde-supabase';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import Sidebar from '../../components/sidebar/sidebar';
 import AppBar from '../../components/appbar/appbar';
 import Footer from '../../components/footer/footer';
-import { isGoogleSession, isProfileComplete } from '../../lib/auth';
+import { createClient, isGoogleSession, isProfileComplete, signOutWithBackend } from '../../lib/auth';
 import InputGeneral from '../../components/inputs/input_general';
 import ButtonSubmit from '../../components/btn/button_submit';
 import UploadImg from '../../components/upload/upload_img';
 import Snackbar from '../../components/snackbar/snackbar';
 import SuccessMessage from '../../components/message/success';
 import { AlertCircle, Save } from 'lucide-react';
-
-const createClient = (): SupabaseClient => createBrowserSupabaseClient();
 
 const formatValue = (value?: string | null) => (value?.trim() ? value : '');
 
@@ -29,6 +26,23 @@ const formatBirthdate = (value: string) => {
   if (digits.length <= 2) return digits;
   if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
   return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
+};
+
+const formatBrazilCpf = (value: string) => {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+  if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+};
+
+const formatBrazilPhone = (value: string) => {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  if (digits.length === 0) return '';
+  if (digits.length <= 2) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 };
 
 const isDigits = (value: string) => /^\d+$/.test(value);
@@ -151,8 +165,8 @@ export default function ProfilePage() {
         : metadata?.first_name ?? session.user.email?.split('@')[0] ?? ''
     );
     setLastName(metadata?.last_name ?? '');
-    setCpf(metadata?.cpf ?? '');
-    setPhone(metadata?.phone ?? '');
+    setCpf(formatBrazilCpf(metadata?.cpf ?? ''));
+    setPhone(formatBrazilPhone(metadata?.phone ?? ''));
     setBirthdate(metadata?.birthdate ?? '');
     setCep(metadata?.cep ?? '');
     setStreet(metadata?.street ?? '');
@@ -176,7 +190,7 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     if (!supabase) return;
     setIsSigningOut(true);
-    await supabase.auth.signOut();
+    await signOutWithBackend(supabase);
     setIsSigningOut(false);
     navigate('/login', { replace: true });
   };
@@ -415,8 +429,8 @@ export default function ProfilePage() {
     { label: 'Primeiro nome', value: firstName, onChange: setFirstName, maxLength: 40 },
     { label: 'Sobrenome', value: lastName, onChange: setLastName, maxLength: 40 },
     { label: 'Email', value: email, onChange: () => {}, readOnly: true, type: 'email', style: { cursor: 'not-allowed' } },
-    { label: 'CPF', value: cpf, onChange: setCpf, maxLength: 11, inputMode: 'numeric', pattern: '[0-9]*', readOnly: fieldsLocked, style: fieldsLocked ? { cursor: 'not-allowed' } : undefined },
-    { label: 'Telefone', value: phone, onChange: setPhone, maxLength: 15, inputMode: 'tel', pattern: '[0-9]*' },
+    { label: 'CPF', value: cpf, onChange: (value: string) => setCpf(formatBrazilCpf(value)), maxLength: 14, inputMode: 'numeric', pattern: '.*', readOnly: fieldsLocked, style: fieldsLocked ? { cursor: 'not-allowed' } : undefined },
+    { label: 'Telefone', value: phone, onChange: (value: string) => setPhone(formatBrazilPhone(value)), maxLength: 15, inputMode: 'tel', pattern: '.*' },
     {
       label: 'Data de nascimento',
       value: birthdate,

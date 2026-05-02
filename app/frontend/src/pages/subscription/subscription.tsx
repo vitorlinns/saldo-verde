@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createBrowserSupabaseClient } from 'saldo-verde-supabase';
+import { createClient, isProfileComplete, signOutWithBackend } from '../../lib/auth';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import { CreditCard, ShieldCheck, Clock3, Star } from 'lucide-react';
 import Sidebar from '../../components/sidebar/sidebar';
 import AppBar from '../../components/appbar/appbar';
 import Footer from '../../components/footer/footer';
-import { isProfileComplete } from '../../lib/auth';
 
-const createClient = (): SupabaseClient => createBrowserSupabaseClient();
+// createClient is imported from '../../lib/auth'
 
 const formatPlanLabel = (plan?: string) => {
   const normalized = plan?.toLowerCase().trim() ?? '';
@@ -129,7 +128,7 @@ export default function SubscriptionPage() {
             session={session}
             onSignOut={async () => {
               if (!supabase) return;
-              await supabase.auth.signOut();
+              await signOutWithBackend(supabase);
               navigate('/login', { replace: true });
             }}
             isSigningOut={false}

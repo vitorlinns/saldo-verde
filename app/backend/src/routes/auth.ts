@@ -103,4 +103,54 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
     return res.status(201).json({ user: data.user, message: 'Conta criada com sucesso.' });
   });
 
+  app.post('/login', async (req, res) => {
+    if (!supabase) {
+      return res.status(503).json({ error: 'Supabase is not configured' });
+    }
+
+    const { email, password } = req.body;
+
+    if (!email || typeof email !== 'string' || !password || typeof password !== 'string') {
+      return res.status(400).json({ error: 'Email e senha são obrigatórios.' });
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return res.status(401).json({ error: 'Email ou senha inválidos.' });
+    }
+
+    if (!data.session || !data.user) {
+      return res.status(401).json({ error: 'Não foi possível autenticar o usuário.' });
+    }
+
+    return res.status(200).json({ session: data.session, user: data.user, message: 'Login realizado com sucesso.' });
+  });
+
+  app.post('/logout', async (_req, res) => {
+    if (!supabase) {
+      return res.status(503).json({ error: 'Supabase is not configured' });
+    }
+
+    return res.status(200).json({ message: 'Logout realizado com sucesso.' });
+  });
+
+  app.get('/auth/oauth/google', (req, res) => {
+    const frontendOrigin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173';
+    const supabaseUrl = process.env.SUPABASE_URL;
+
+    if (!supabaseUrl) {
+      return res.status(500).json({ error: 'SUPABASE_URL is not configured.' });
+    }
+
+    const redirectTo = `${frontendOrigin}/login`;
+    const authUrl = new URL(`${supabaseUrl}/auth/v1/authorize`);
+    authUrl.searchParams.set('provider', 'google');
+    authUrl.searchParams.set('redirect_to', redirectTo);
+
+    return res.redirect(authUrl.toString());
+  });
 }

@@ -8,6 +8,8 @@ import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 import InputGeneral from '../../components/inputs/input_general';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? window.location.origin;
+
 const TEST_USER_EMAIL = 'teste@saldoverde.pro';
 const TEST_USER_PASSWORD = 'Teste123!';
 
@@ -87,19 +89,36 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const [result] = await Promise.all([
-        supabase.auth.signInWithPassword({
-          email,
-          password,
-        }),
-        delay(2000),
-      ]);
+      const response = await fetch(`${BACKEND_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (result.error) {
-        setError(result.error.message);
-      } else {
-        setMessage('Login realizado com sucesso. Redirecionando...');
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'Email ou senha inválidos.');
+        return;
       }
+
+      const { session: loginSession, user } = result;
+      if (!loginSession) {
+        setError('Falha ao autenticar. Tente novamente.');
+        return;
+      }
+
+      const { error: setSessionError } = await supabase.auth.setSession(loginSession);
+      if (setSessionError) {
+        setError(setSessionError.message);
+        return;
+      }
+
+      setMessage('Login realizado com sucesso. Redirecionando...');
+      const destination = isProfileComplete({ user: { ...user, user_metadata: user.user_metadata } } as Session) ? '/dashboard' : '/perfil';
+      setTimeout(() => navigate(destination, { replace: true }), 1500);
     } catch (err) {
       setError('Ocorreu um erro ao tentar fazer login. Por favor, tente novamente.');
       console.error('Login error:', err);
@@ -119,30 +138,41 @@ export default function LoginPage() {
     setMessage('Usando usuário de teste...');
 
     try {
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: TEST_USER_EMAIL,
-        password: TEST_USER_PASSWORD,
+      const response = await fetch(`${BACKEND_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: TEST_USER_EMAIL,
+          password: TEST_USER_PASSWORD,
+        }),
       });
 
-      if (signUpError && !/already registered/i.test(signUpError.message)) {
-        setError(signUpError.message);
+      const result = await response.json();
+      if (!response.ok) {
+        setError(result.error || 'Não foi possível entrar com o usuário de teste.');
         setMessage('');
         return;
       }
 
-      const { data: signInResult, error: signInError } = await supabase.auth.signInWithPassword({
-        email: TEST_USER_EMAIL,
-        password: TEST_USER_PASSWORD,
-      });
-
-      if (signInError) {
-        setError(signInError.message);
+      const { session: loginSession } = result;
+      if (!loginSession) {
+        setError('Falha ao autenticar o usuário de teste.');
         setMessage('');
-      } else {
-        setEmail(TEST_USER_EMAIL);
-        setPassword(TEST_USER_PASSWORD);
-        setMessage('Login de teste realizado. Redirecionando...');
+        return;
       }
+
+      const { error: setSessionError } = await supabase.auth.setSession(loginSession);
+      if (setSessionError) {
+        setError(setSessionError.message);
+        setMessage('');
+        return;
+      }
+
+      setEmail(TEST_USER_EMAIL);
+      setPassword(TEST_USER_PASSWORD);
+      setMessage('Login de teste realizado. Redirecionando...');
     } catch (err) {
       setError('Ocorreu um erro ao entrar com o usuário de teste.');
       console.error('Test user login error:', err);
@@ -153,32 +183,15 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!supabase) {
-      setError('Não foi possível iniciar o login. Por favor, tente novamente.');
-      return;
-    }
-
     setIsGoogleLoading(true);
     setError('');
     setMessage('');
 
     try {
-      const [result] = await Promise.all([
-        supabase.auth.signInWithOAuth({
-          provider: 'google',
-        }),
-        delay(2000),
-      ]);
-
-      if (result.error) {
-        setError(result.error.message);
-      } else {
-        setMessage('Redirecionando para o login com Google...');
-      }
+      window.location.href = `${BACKEND_URL}/auth/oauth/google`;
     } catch (err) {
       setError('Ocorreu um erro ao tentar fazer login com Google. Por favor, tente novamente.');
       console.error('Google login error:', err);
-    } finally {
       setIsGoogleLoading(false);
     }
   };

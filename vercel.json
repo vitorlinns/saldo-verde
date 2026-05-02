@@ -22,16 +22,6 @@
           "value": "app.saldoverde.pro"
         }
       ],
-      "dest": "/app/frontend/$1"
-    },
-    {
-      "src": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "app.saldoverde.pro"
-        }
-      ],
       "dest": "/app/frontend/index.html"
     },
     {

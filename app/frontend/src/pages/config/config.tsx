@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createBrowserSupabaseClient } from 'saldo-verde-supabase';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, isProfileComplete, signOutWithBackend } from '../../lib/auth';
 import { Power, ShieldCheck, Trash2 } from 'lucide-react';
 import Sidebar from '../../components/sidebar/sidebar';
-import { isProfileComplete } from '../../lib/auth';
 import AppBar from '../../components/appbar/appbar';
 import Footer from '../../components/footer/footer';
 import ButtonDanger from '../../components/btn/button_danger';
@@ -29,7 +28,7 @@ export default function ConfigPage() {
 
   useEffect(() => {
     try {
-      const client = createBrowserSupabaseClient();
+      const client = createClient();
       setSupabase(client);
 
       client.auth.getSession().then(({ data }) => {
@@ -64,7 +63,7 @@ export default function ConfigPage() {
   const handleSignOut = async () => {
     if (!supabase) return;
     setIsSigningOut(true);
-    await supabase.auth.signOut();
+    await signOutWithBackend(supabase);
     setIsSigningOut(false);
     navigate('/login', { replace: true });
   };
@@ -85,6 +84,13 @@ export default function ConfigPage() {
     setSnackbarOpen(true);
 
     try {
+      await fetch(`${BACKEND_URL}/logout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       const { error } = await supabase.auth.signOut({ scope: 'global' });
       if (error) {
         setSnackbarType('error');
@@ -132,7 +138,7 @@ export default function ConfigPage() {
       } else {
         setSnackbarType('success');
         setSnackbarMessage(result.message || 'Conta excluída com sucesso.');
-        await supabase.auth.signOut();
+        await signOutWithBackend(supabase);
         navigate('/login', { replace: true });
       }
     } catch (err) {

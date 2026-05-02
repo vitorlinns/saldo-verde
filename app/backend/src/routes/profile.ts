@@ -2,6 +2,29 @@ import type { Express } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { isValidCpf, isValidPhone, isValidCep, parseBirthdate, getAge, normalizeDigits } from '../lib/validation';
 
+const requiredProfileFields = [
+  'first_name',
+  'last_name',
+  'cpf',
+  'phone',
+  'birthdate',
+  'cep',
+  'street',
+  'number',
+  'complement',
+  'neighborhood',
+  'city',
+  'state',
+];
+
+const isMetadataComplete = (metadata: Record<string, unknown> | null | undefined) => {
+  if (!metadata) return false;
+  return requiredProfileFields.every((field) => {
+    const value = metadata[field];
+    return typeof value === 'string' && value.trim().length > 0;
+  });
+};
+
 export function registerProfileRoutes(app: Express, supabase: SupabaseClient | null) {
   app.get('/profile/:id', async (req, res) => {
     if (!supabase) {
@@ -9,6 +32,7 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
     }
 
     const userId = req.params.id;
+
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -31,6 +55,10 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
     if (!userId || typeof userId !== 'string') {
       return res.status(400).json({ error: 'Invalid user id' });
     }
+
+    const { data: currentUserData } = await supabase.auth.admin.getUserById(userId);
+    const currentMetadata = currentUserData?.user?.user_metadata as Record<string, unknown> | undefined;
+    const wasProfileComplete = isMetadataComplete(currentMetadata);
 
     const {
       first_name,
@@ -132,6 +160,24 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
 
     if (error) {
       return res.status(400).json({ error: error.message });
+    }
+
+    if (!wasProfileComplete) {
+      await supabase
+        .from('user_notifications')
+        .insert({
+          user_id: userId,
+          kind: 'profile-complete',
+          title: 'Cadastro concluído',
+          message: 'Tudo certo! Seu perfil está completo e você já pode usar a plataforma normalmente.',
+          unread: true,
+        });
+
+      await supabase
+        .from('user_notifications')
+        .update({ unread: false })
+        .eq('user_id', userId)
+        .eq('kind', 'complete-profile');
     }
 
     return res.status(200).json({ user: data.user, message: 'Perfil atualizado com sucesso.' });

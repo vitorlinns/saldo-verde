@@ -6,8 +6,8 @@ begin;
 -- Tabela usada para bloquear reuso de email/CPF de contas excluidas.
 create table if not exists public.deleted_accounts (
   id bigint generated always as identity primary key,
-  email text,
-  cpf text,
+  email varchar(255),
+  cpf varchar(11),
   deleted_at timestamptz not null default now(),
   created_at timestamptz not null default now(),
   constraint deleted_accounts_email_or_cpf_chk check (
@@ -28,18 +28,18 @@ create index if not exists deleted_accounts_cpf_idx
 -- Perfil basico para leituras em /profile/:id (id = auth.users.id).
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
-  first_name text,
-  last_name text,
-  cpf text,
-  phone text,
-  birthdate text,
-  cep text,
-  street text,
-  number text,
-  complement text,
-  neighborhood text,
-  city text,
-  state text,
+  first_name varchar(255),
+  last_name varchar(255),
+  cpf varchar(11),
+  phone varchar(20),
+  birthdate varchar(10),
+  cep varchar(8),
+  street varchar(255),
+  number varchar(50),
+  complement varchar(255),
+  neighborhood varchar(255),
+  city varchar(255),
+  state varchar(2),
   avatar_url text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -65,8 +65,44 @@ alter table public.profiles add column if not exists updated_at timestamptz not 
 alter table public.profiles drop column if exists birthday;
 alter table public.profiles drop column if exists document;
 
+alter table public.deleted_accounts
+  alter column email type varchar(255),
+  alter column cpf type varchar(11);
+
+alter table public.profiles
+  alter column first_name type varchar(255),
+  alter column last_name type varchar(255),
+  alter column cpf type varchar(11),
+  alter column phone type varchar(20),
+  alter column birthdate type varchar(10),
+  alter column cep type varchar(8),
+  alter column street type varchar(255),
+  alter column number type varchar(50),
+  alter column complement type varchar(255),
+  alter column neighborhood type varchar(255),
+  alter column city type varchar(255),
+  alter column state type varchar(2);
+
 create index if not exists profiles_cpf_idx
   on public.profiles (cpf);
+
+create table if not exists public.user_notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  kind varchar(64) not null,
+  title varchar(255) not null,
+  message text not null,
+  unread boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint user_notifications_user_kind_uq unique (user_id, kind)
+);
+
+create index if not exists user_notifications_user_id_idx
+  on public.user_notifications (user_id);
+
+create index if not exists user_notifications_created_at_idx
+  on public.user_notifications (created_at desc);
 
 -- Trigger generico de updated_at.
 create or replace function public.set_updated_at()
@@ -82,6 +118,12 @@ $$;
 drop trigger if exists profiles_set_updated_at on public.profiles;
 create trigger profiles_set_updated_at
 before update on public.profiles
+for each row
+execute function public.set_updated_at();
+
+drop trigger if exists user_notifications_set_updated_at on public.user_notifications;
+create trigger user_notifications_set_updated_at
+before update on public.user_notifications
 for each row
 execute function public.set_updated_at();
 
@@ -191,6 +233,74 @@ after insert or update on auth.users
 for each row
 execute function public.handle_auth_user_upsert_profile();
 
+drop trigger if exists auth_user_profile on auth.users;
+drop function if exists public.create_profile_after_signup();
+
+create or replace function public.handle_auth_user_default_notifications()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_complete boolean;
+begin
+  v_complete :=
+    coalesce(length(trim(new.raw_user_meta_data ->> 'first_name')) > 0, false)
+    and coalesce(length(trim(new.raw_user_meta_data ->> 'last_name')) > 0, false)
+    and coalesce(length(trim(new.raw_user_meta_data ->> 'cpf')) > 0, false)
+    and coalesce(length(trim(new.raw_user_meta_data ->> 'phone')) > 0, false)
+    and coalesce(length(trim(new.raw_user_meta_data ->> 'birthdate')) > 0, false)
+    and coalesce(length(trim(new.raw_user_meta_data ->> 'cep')) > 0, false)
+    and coalesce(length(trim(new.raw_user_meta_data ->> 'street')) > 0, false)
+    and coalesce(length(trim(new.raw_user_meta_data ->> 'number')) > 0, false)
+    and coalesce(length(trim(new.raw_user_meta_data ->> 'complement')) > 0, false)
+    and coalesce(length(trim(new.raw_user_meta_data ->> 'neighborhood')) > 0, false)
+    and coalesce(length(trim(new.raw_user_meta_data ->> 'city')) > 0, false)
+    and coalesce(length(trim(new.raw_user_meta_data ->> 'state')) > 0, false);
+
+  insert into public.user_notifications (user_id, kind, title, message, unread)
+  values (
+    new.id,
+    'welcome',
+    'Bem-vindo ao Saldo Verde',
+    'Sua conta foi criada com sucesso. Explore as funcionalidades e organize suas finanças aqui.',
+    true
+  )
+  on conflict (user_id, kind) do nothing;
+
+  if v_complete then
+    insert into public.user_notifications (user_id, kind, title, message, unread)
+    values (
+      new.id,
+      'profile-complete',
+      'Cadastro concluído',
+      'Tudo certo! Seu perfil está completo e você já pode usar a plataforma normalmente.',
+      true
+    )
+    on conflict (user_id, kind) do nothing;
+  else
+    insert into public.user_notifications (user_id, kind, title, message, unread)
+    values (
+      new.id,
+      'complete-profile',
+      'Complete seu cadastro',
+      'Finalize seu perfil para liberar o acesso total à plataforma.',
+      true
+    )
+    on conflict (user_id, kind) do nothing;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists auth_users_default_notifications on auth.users;
+create trigger auth_users_default_notifications
+after insert on auth.users
+for each row
+execute function public.handle_auth_user_default_notifications();
+
 -- Backfill para usuarios ja existentes no projeto.
 insert into public.profiles (
   id,
@@ -250,8 +360,77 @@ on conflict (id) do update
       avatar_url = coalesce(excluded.avatar_url, public.profiles.avatar_url),
       updated_at = now();
 
+insert into public.user_notifications (user_id, kind, title, message, unread)
+select
+  u.id,
+  'welcome',
+  'Bem-vindo ao Saldo Verde',
+  'Sua conta foi criada com sucesso. Explore as funcionalidades e organize suas finanças aqui.',
+  true
+from auth.users u
+on conflict (user_id, kind) do nothing;
+
+insert into public.user_notifications (user_id, kind, title, message, unread)
+select
+  u.id,
+  case
+    when
+      coalesce(length(trim(u.raw_user_meta_data ->> 'first_name')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'last_name')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'cpf')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'phone')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'birthdate')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'cep')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'street')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'number')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'complement')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'neighborhood')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'city')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'state')) > 0, false)
+    then 'profile-complete'
+    else 'complete-profile'
+  end as kind,
+  case
+    when
+      coalesce(length(trim(u.raw_user_meta_data ->> 'first_name')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'last_name')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'cpf')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'phone')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'birthdate')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'cep')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'street')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'number')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'complement')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'neighborhood')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'city')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'state')) > 0, false)
+    then 'Cadastro concluído'
+    else 'Complete seu cadastro'
+  end as title,
+  case
+    when
+      coalesce(length(trim(u.raw_user_meta_data ->> 'first_name')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'last_name')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'cpf')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'phone')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'birthdate')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'cep')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'street')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'number')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'complement')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'neighborhood')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'city')) > 0, false)
+      and coalesce(length(trim(u.raw_user_meta_data ->> 'state')) > 0, false)
+    then 'Tudo certo! Seu perfil está completo e você já pode usar a plataforma normalmente.'
+    else 'Finalize seu perfil para liberar o acesso total à plataforma.'
+  end as message,
+  true
+from auth.users u
+on conflict (user_id, kind) do nothing;
+
 -- RLS habilitado e sem politicas publicas (backend usa service role).
 alter table public.deleted_accounts enable row level security;
 alter table public.profiles enable row level security;
+alter table public.user_notifications enable row level security;
 
 commit;

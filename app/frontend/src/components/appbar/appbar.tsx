@@ -1,10 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
-import { Bell, ClipboardList, Eye, EyeOff } from 'lucide-react';
+import { Bell, Eye, EyeOff, MessageSquare } from 'lucide-react';
+import BoxNotification from './box_notification';
+import NotificationCardAppbar from './notification_card_appbar';
 import AppBarBox from './box';
 import ButtonDanger from '../../components/btn/button_danger';
 import ButtonSubmit from '../../components/btn/button_submit';
+
+interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  date: string;
+  time?: string;
+  unread?: boolean;
+}
 
 interface AppBarProps {
   session: Session | null;
@@ -15,7 +26,7 @@ interface AppBarProps {
 }
 
 export default function AppBar({ session, onSignOut, isSigningOut, showValues, onToggleValues }: AppBarProps) {
-  const [openMenu, setOpenMenu] = useState<'profile' | 'notifications' | null>(null);
+  const [openMenu, setOpenMenu] = useState<'profile' | 'notifications' | 'support' | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const email = session?.user.email ?? 'Usuário';
@@ -23,12 +34,57 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
     typeof session?.user.user_metadata?.first_name === 'string'
       ? session.user.user_metadata.first_name
       : email.split('@')[0];
+  const avatarUrl =
+    typeof session?.user.user_metadata?.avatar_url === 'string'
+      ? session.user.user_metadata.avatar_url
+      : typeof session?.user.user_metadata?.picture === 'string'
+      ? session.user.user_metadata.picture
+      : '';
   const initials = email
     .split('@')[0]
     .split(/[._\- ]+/)
     .map((part) => part[0]?.toUpperCase() ?? '')
     .slice(0, 2)
     .join('');
+
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(true);
+
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
+
+  useEffect(() => {
+    if (!session) return;
+
+    const fetchNotifications = async () => {
+      setLoadingNotifications(true);
+      try {
+        const response = await fetch(`${BACKEND_URL}/notifications`, {
+          headers: {
+            Authorization: `Bearer ${session.access_token ?? ''}`,
+          },
+        });
+
+        if (!response.ok) {
+          setNotifications([]);
+          return;
+        }
+
+        const data = await response.json();
+        if (Array.isArray(data.notifications)) {
+          setNotifications(data.notifications);
+        } else {
+          setNotifications([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch notifications', error);
+        setNotifications([]);
+      } finally {
+        setLoadingNotifications(false);
+      }
+    };
+
+    fetchNotifications();
+  }, [session, BACKEND_URL]);
 
   useEffect(() => {
     if (!openMenu) return;
@@ -39,14 +95,24 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
       }
     };
 
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpenMenu(null);
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('touchstart', handleClickOutside);
+    document.addEventListener('keydown', handleEscKey);
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('keydown', handleEscKey);
     };
   }, [openMenu]);
+
+  const recentNotifications = notifications.slice(-4).reverse();
 
   return (
     <div className="mt-4 mb-8 flex justify-between rounded-xl border border-border bg-black p-3 shadow-xl shadow-black/20">
@@ -66,6 +132,36 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
         <div className="relative">
           <button
             type="button"
+            onClick={() => setOpenMenu((current) => (current === 'support' ? null : 'support'))}
+            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-black/90 text-lg text-white shadow-black/10 transition hover:bg-white/5"
+            aria-label="Abrir suporte"
+          >
+            <MessageSquare className="h-5 w-5" />
+          </button>
+
+          {openMenu === 'support' ? (
+            <AppBarBox>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-semibold text-white">Suporte</p>
+                  <p className="mt-2 text-sm text-white/70">
+                    Precisa de ajuda com sua conta ou assinatura? Entre em contato com nosso suporte técnico.
+                  </p>
+                </div>
+                <a
+                  href="mailto:suporte@saldoverde.pro"
+                  className="inline-flex w-full items-center justify-center rounded-xl border border-primary-500 bg-primary-500 px-4 py-3 text-sm font-semibold text-black transition hover:bg-primary-400"
+                >
+                  Enviar email ao suporte
+                </a>
+              </div>
+            </AppBarBox>
+          ) : null}
+        </div>
+
+        <div className="relative">
+          <button
+            type="button"
             onClick={() => setOpenMenu((current) => (current === 'notifications' ? null : 'notifications'))}
             className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-black/90 text-lg text-white shadow-black/10 transition hover:bg-white/5"
             aria-label="Abrir notificações"
@@ -77,43 +173,32 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
           </button>
 
           {openMenu === 'notifications' ? (
-            <AppBarBox>
+            <BoxNotification>
               <div className="space-y-4">
-                <div className="space-y-3">
-                  <div className="rounded-xl border border-border bg-black/90 p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 text-primary-300">
-                      <ClipboardList className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">Finalize seu cadastro</p>
-                      <p className="mt-2 text-xs text-white/70">Complete suas informações para começar a usar o sistema.</p>
-                    </div>
+                {loadingNotifications ? (
+                  <div className="rounded-2xl border border-border bg-black/90 p-4 text-sm text-white/70">
+                    Carregando notificações...
                   </div>
-                </div>
-                <div className="rounded-xl border border-border bg-black/90 p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 text-primary-300">
-                      <ClipboardList className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">Sua fatura irá vencer em 3 dias</p>
-                      <p className="mt-2 text-xs text-white/70">Verifique seus lançamentos e evite juros.</p>
-                    </div>
+                ) : notifications.length > 0 ? (
+                  <div className="space-y-3">
+                    {recentNotifications.map((notification) => (
+                      <NotificationCardAppbar
+                        key={notification.id}
+                        title={notification.title}
+                        unread={notification.unread}
+                        onClick={() => {
+                          navigate('/notificacoes');
+                          setOpenMenu(null);
+                        }}
+                      />
+                    ))}
                   </div>
-                </div>
-                <div className="rounded-xl border border-border bg-black/90 p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 text-primary-300">
-                      <ClipboardList className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">Atualização do plano</p>
-                      <p className="mt-2 text-xs text-white/70">Seu admin adicionou novas regras de faturamento.</p>
-                    </div>
+                ) : (
+                  <div className="rounded-2xl border border-border bg-black/90 p-4 text-sm text-white/70">
+                    Nenhuma notificação disponível.
                   </div>
-                </div>
-                </div>
+                )}
+
                 <ButtonSubmit
                   type="button"
                   label="Ver todas notificações"
@@ -124,7 +209,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
                   icon={<Bell className="h-4 w-4" />}
                 />
               </div>
-            </AppBarBox>
+            </BoxNotification>
           ) : null}
         </div>
 
@@ -132,10 +217,14 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
           <button
             type="button"
             onClick={() => setOpenMenu((current) => (current === 'profile' ? null : 'profile'))}
-            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-black/90 text-lg font-semibold text-white shadow-black/10 transition hover:bg-white/5"
+            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-black/90 text-lg font-semibold text-white shadow-black/10 transition hover:bg-white/5 overflow-hidden"
             aria-label="Abrir menu de perfil"
           >
-            {initials}
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={firstName} className="h-full w-full object-cover" />
+            ) : (
+              initials
+            )}
           </button>
 
           {openMenu === 'profile' ? (

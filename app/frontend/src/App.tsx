@@ -1,4 +1,5 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import LoginPage from './pages/login/login';
 import RegisterPage from './pages/login/register';
 import RecoverPage from './pages/login/recover';
@@ -9,10 +10,45 @@ import EntrancePage from './pages/records/entrance';
 import ExpensesPage from './pages/records/expenses';
 import AllRecordsPage from './pages/records/all_records';
 import ReportsPage from './pages/reports/reports';
+import NotificationsPage from './pages/notifications/notifications';
+import ProfilePage from './pages/profile/profile';
+import ConfigPage from './pages/config/config';
+import SubscriptionPage from './pages/subscription/subscription';
+import Preloader from './components/preloader/preloader';
 
-export default function App() {
+function AppRoutes() {
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
+  const firstLocation = useRef(true);
+  const timeoutId = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (firstLocation.current) {
+      firstLocation.current = false;
+      return;
+    }
+
+    setLoading(true);
+    if (timeoutId.current) {
+      window.clearTimeout(timeoutId.current);
+    }
+
+    timeoutId.current = window.setTimeout(() => {
+      setLoading(false);
+      timeoutId.current = null;
+    }, 280);
+
+    return () => {
+      if (timeoutId.current) {
+        window.clearTimeout(timeoutId.current);
+        timeoutId.current = null;
+      }
+    };
+  }, [location.pathname]);
+
   return (
-    <BrowserRouter>
+    <>
+      <Preloader visible={loading} />
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
@@ -24,10 +60,24 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/entrada" element={<EntrancePage />} />
         <Route path="/saida" element={<ExpensesPage />} />
+        <Route path="/perfil" element={<ProfilePage />} />
+        <Route path="/assinatura" element={<SubscriptionPage />} />
+        <Route path="/configuracoes" element={<ConfigPage />} />
         <Route path="/registros" element={<AllRecordsPage />} />
         <Route path="/relatorios" element={<ReportsPage />} />
+        <Route path="/notificacoes" element={<NotificationsPage />} />
+        <Route path="/perfil" element={<ProfilePage />} />
+        <Route path="/configuracoes" element={<ConfigPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
     </BrowserRouter>
   );
 }

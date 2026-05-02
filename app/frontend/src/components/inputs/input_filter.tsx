@@ -35,7 +35,7 @@ export default function InputFilter({
       autoCorrect="off"
       autoCapitalize="off"
       spellCheck={false}
-      className={`h-10 min-w-[3rem] rounded-xl border border-border bg-black/80 px-4 text-sm font-semibold text-white outline-none transition ${className}`}
+      className={`h-10 min-w-[3rem] rounded-xl border border-border bg-black/80 px-4 text-sm font-semibold text-white outline-none transition placeholder:text-white placeholder:opacity-50 ${className}`}
       style={inputStyle}
       {...props}
     />

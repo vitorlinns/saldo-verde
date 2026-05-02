@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ButtonGeneral from '../../components/btn/button_general';
 import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 import InputGeneral from '../../components/inputs/input_general';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
 
 export default function PasswordPage() {
   const [password, setPassword] = useState('');
@@ -11,7 +13,23 @@ export default function PasswordPage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedEmail = sessionStorage.getItem('recoverEmail');
+    const recoverVerified = sessionStorage.getItem('recoverVerified');
+    const storedCode = sessionStorage.getItem('recoverCode');
+
+    if (!storedEmail || recoverVerified !== 'true' || !storedCode) {
+      navigate('/recuperar-conta', { replace: true });
+      return;
+    }
+
+    setEmail(storedEmail);
+    setCode(storedCode);
+  }, [navigate]);
 
   const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -34,12 +52,45 @@ export default function PasswordPage() {
       return;
     }
 
+    if (!email || !code) {
+      setError('Dados de recuperação ausentes. Reinicie o fluxo de recuperação.');
+      setMessage('');
+      return;
+    }
+
     setError('');
+    setMessage('');
     setIsSaving(true);
-    await delay(2000);
-    setIsSaving(false);
-    setMessage('Senha redefinida com sucesso. Redirecionando para o login...');
-    setTimeout(() => navigate('/login'), 2000);
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/recover/reset`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          code,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || 'Não foi possível redefinir a senha.');
+      } else {
+        setMessage('Senha redefinida com sucesso. Redirecionando para o login...');
+        sessionStorage.removeItem('recoverEmail');
+        sessionStorage.removeItem('recoverCode');
+        sessionStorage.removeItem('recoverVerified');
+        setTimeout(() => navigate('/login'), 2000);
+      }
+    } catch (err) {
+      console.error('Password reset error:', err);
+      setError('Ocorreu um erro ao redefinir a senha. Tente novamente.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (

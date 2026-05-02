@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createBrowserSupabaseClient } from 'saldo-verde-supabase';
+import { createClient, isProfileComplete } from '../../lib/auth';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import ButtonGeneral from '../../components/btn/button_general';
 import ButtonGoogle from '../../components/btn/button_google';
@@ -8,7 +8,6 @@ import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 import InputGeneral from '../../components/inputs/input_general';
 
-const createClient = (): SupabaseClient => createBrowserSupabaseClient();
 const TEST_USER_EMAIL = 'teste@saldoverde.pro';
 const TEST_USER_PASSWORD = 'Teste123!';
 
@@ -35,7 +34,8 @@ export default function LoginPage() {
         const currentSession = data.session ?? null;
         setSession(currentSession);
         if (currentSession) {
-          navigate('/dashboard', { replace: true });
+          const destination = isProfileComplete(currentSession) ? '/dashboard' : '/perfil';
+          navigate(destination, { replace: true });
         }
       });
 
@@ -43,7 +43,8 @@ export default function LoginPage() {
         const currentSession = sessionData ?? null;
         setSession(currentSession);
         if (currentSession) {
-          navigate('/dashboard', { replace: true });
+          const destination = isProfileComplete(currentSession) ? '/dashboard' : '/perfil';
+          navigate(destination, { replace: true });
         }
       });
 

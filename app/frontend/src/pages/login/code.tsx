@@ -1,14 +1,26 @@
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ButtonGeneral from '../../components/btn/button_general';
 import ErrorMessage from '../../components/message/error';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
+
 export default function CodePage() {
   const [code, setCode] = useState(Array(6).fill(''));
+  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const navigate = useNavigate();
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
+
+  useEffect(() => {
+    const storedEmail = sessionStorage.getItem('recoverEmail');
+    if (!storedEmail) {
+      navigate('/recuperar-conta', { replace: true });
+      return;
+    }
+    setEmail(storedEmail);
+  }, [navigate]);
 
   const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -36,11 +48,40 @@ export default function CodePage() {
       return;
     }
 
+    if (!email) {
+      setError('Email de recuperação não encontrado.');
+      return;
+    }
+
     setError('');
     setIsVerifying(true);
-    await delay(2000);
-    setIsVerifying(false);
-    navigate('/recuperar-conta/nova-senha');
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/recover/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          code: code.join(''),
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || 'Código inválido ou expirado.');
+      } else {
+        sessionStorage.setItem('recoverCode', code.join(''));
+        sessionStorage.setItem('recoverVerified', 'true');
+        navigate('/recuperar-conta/nova-senha');
+      }
+    } catch (err) {
+      console.error('Recover verify error:', err);
+      setError('Ocorreu um erro ao verificar o código. Tente novamente.');
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   return (

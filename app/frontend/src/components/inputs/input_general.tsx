@@ -41,7 +41,7 @@ export default function InputGeneral({
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck={false}
-        className="w-full rounded-xl border border-border bg-black px-4 py-3 pr-12 text-base text-white outline-none transition"
+        className="w-full rounded-xl border border-border bg-black px-4 py-3 pr-12 text-base text-white outline-none transition placeholder:text-white placeholder:opacity-50"
         style={inputStyle}
         {...props}
       />

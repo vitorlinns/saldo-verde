@@ -7,6 +7,7 @@ import InputGeneral from '../../components/inputs/input_general';
 import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
 const createClient = (): SupabaseClient => createBrowserSupabaseClient();
 
 const validateCpf = (value: string) => {
@@ -14,12 +15,50 @@ const validateCpf = (value: string) => {
   return cpf.length === 11;
 };
 
+const formatBirthdate = (value: string) => {
+  const digits = value.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
+};
+
+const parseBirthdateText = (value: string) => {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length !== 8) return null;
+  const day = Number(digits.slice(0, 2));
+  const month = Number(digits.slice(2, 4));
+  const year = Number(digits.slice(4, 8));
+  if (!day || !month || !year) return null;
+
+  const birthDate = new Date(year, month - 1, day);
+  if (Number.isNaN(birthDate.getTime())) return null;
+  if (birthDate.getDate() !== day || birthDate.getMonth() !== month - 1 || birthDate.getFullYear() !== year) {
+    return null;
+  }
+
+  return birthDate;
+};
+
+const isAdult = (value: string) => {
+  const birthDate = parseBirthdateText(value);
+  if (!birthDate) return false;
+
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  const dayDiff = today.getDate() - birthDate.getDate();
+  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+    age -= 1;
+  }
+
+  return age >= 18;
+};
+
 export default function RegisterPage() {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [cpf, setCpf] = useState('');
+  const [birthdate, setBirthdate] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -55,7 +94,7 @@ export default function RegisterPage() {
   }, []);
 
   const handleRegister = async () => {
-    if (!firstName.trim() || !lastName.trim() || !email.trim() || !cpf.trim() || !password || !confirmPassword) {
+    if (!email.trim() || !cpf.trim() || !birthdate.trim() || !password || !confirmPassword) {
       setError('Preencha todos os campos para continuar.');
       setMessage('');
       return;
@@ -69,6 +108,12 @@ export default function RegisterPage() {
 
     if (!validateCpf(cpf)) {
       setError('Informe um CPF válido com 11 dígitos.');
+      setMessage('');
+      return;
+    }
+
+    if (!isAdult(birthdate)) {
+      setError('É necessário ter 18 anos ou mais para se cadastrar.');
       setMessage('');
       return;
     }
@@ -96,25 +141,25 @@ export default function RegisterPage() {
     setMessage('');
 
     try {
-      const [result] = await Promise.all([
-        supabase.auth.signUp({
+      const response = await fetch(`${BACKEND_URL}/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           email,
           password,
-          options: {
-            data: {
-              first_name: firstName.trim(),
-              last_name: lastName.trim(),
-              cpf: cpf.replace(/\D/g, ''),
-            },
-          },
+          cpf,
+          birthdate,
         }),
-        delay(2000),
-      ]);
+      });
 
-      if (result.error) {
-        setError(result.error.message);
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'Não foi possível criar a conta.');
       } else {
-        setMessage('Conta criada com sucesso. Verifique seu email para confirmar o registro.');
+        setMessage(result.message || 'Conta criada com sucesso. Verifique seu email para confirmar o registro.');
         setTimeout(() => navigate('/login'), 2500);
       }
     } catch (err) {
@@ -144,23 +189,6 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-3">
-              <InputGeneral
-                id="firstName"
-                type="text"
-                value={firstName}
-                onChange={setFirstName}
-                placeholder="Primeiro nome"
-                className="mt-0"
-              />
-
-              <InputGeneral
-                id="lastName"
-                type="text"
-                value={lastName}
-                onChange={setLastName}
-                placeholder="Sobrenome"
-                className="mt-0"
-              />
 
               <InputGeneral
                 id="email"
@@ -178,6 +206,18 @@ export default function RegisterPage() {
                 onChange={setCpf}
                 placeholder="CPF"
                 className="mt-0"
+              />
+
+              <InputGeneral
+                id="birthdate"
+                type="text"
+                value={birthdate}
+                onChange={(value) => setBirthdate(formatBirthdate(value))}
+                placeholder="Data de nascimento"
+                className="mt-0"
+                maxLength={10}
+                inputMode="numeric"
+                pattern="[0-9/]*"
               />
 
               <InputGeneral

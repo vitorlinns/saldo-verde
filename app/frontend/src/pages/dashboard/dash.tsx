@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createBrowserSupabaseClient } from 'saldo-verde-supabase';
+import { createClient, isProfileComplete } from '../../lib/auth';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import ButtonGeneral from '../../components/btn/button_general';
 import Sidebar from '../../components/sidebar/sidebar';
@@ -20,8 +20,6 @@ import {
   parseAmount,
   type RecordItem,
 } from '../../lib/records-storage';
-
-const createClient = (): SupabaseClient => createBrowserSupabaseClient();
 
 export default function DashboardPage() {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
@@ -43,6 +41,11 @@ export default function DashboardPage() {
         setSession(currentSession);
         if (!currentSession) {
           navigate('/login', { replace: true });
+          return;
+        }
+
+        if (!isProfileComplete(currentSession)) {
+          navigate('/perfil', { replace: true });
         }
       });
 
@@ -51,6 +54,11 @@ export default function DashboardPage() {
         setSession(currentSession);
         if (!currentSession) {
           navigate('/login', { replace: true });
+          return;
+        }
+
+        if (!isProfileComplete(currentSession)) {
+          navigate('/perfil', { replace: true });
         }
       });
 
@@ -107,7 +115,7 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-background text-white">
       <div className="min-h-screen h-full grid w-full gap-6 lg:grid-cols-[280px_1fr] lg:items-stretch">
-        <Sidebar email={session?.user.email ?? null} />
+<Sidebar email={session?.user.email ?? null} disableProtectedLinks={session ? !isProfileComplete(session) : false} />
 
         <div className="mr-4 flex min-h-screen flex-col">
           <AppBar

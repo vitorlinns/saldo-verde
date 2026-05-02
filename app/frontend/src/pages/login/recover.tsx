@@ -2,27 +2,52 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ButtonGeneral from '../../components/btn/button_general';
 import ErrorMessage from '../../components/message/error';
+import SuccessMessage from '../../components/message/success';
 import InputGeneral from '../../components/inputs/input_general';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
 
 export default function RecoverPage() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const navigate = useNavigate();
-
-  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const handleRecover = async () => {
     if (!email.trim()) {
       setError('Informe seu email para continuar.');
+      setMessage('');
       return;
     }
 
     setError('');
+    setMessage('');
     setIsSending(true);
-    await delay(2000);
-    setIsSending(false);
-    navigate('/recuperar-conta/codigo');
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/recover/request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || 'Não foi possível enviar o email de recuperação.');
+      } else {
+        sessionStorage.setItem('recoverEmail', email.trim().toLowerCase());
+        setMessage(data.message || 'Se o email existir, você receberá instruções de recuperação.');
+        navigate('/recuperar-conta/codigo');
+      }
+    } catch (err) {
+      console.error('Recover request error:', err);
+      setError('Ocorreu um erro ao enviar o pedido de recuperação. Tente novamente.');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (

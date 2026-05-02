@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createBrowserSupabaseClient } from 'saldo-verde-supabase';
+import { createClient, isProfileComplete } from '../../lib/auth';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import Sidebar from '../../components/sidebar/sidebar';
 import AppBar from '../../components/appbar/appbar';
@@ -10,8 +10,6 @@ import FilterRecords from '../../components/filter/filter_records';
 import SearchRecords from '../../components/filter/search_records';
 import AllRecordsCard from '../../components/cards/all_records';
 import { getStoredRecords, type RecordItem } from '../../lib/records-storage';
-
-const createClient = (): SupabaseClient => createBrowserSupabaseClient();
 
 export default function AllRecordsPage() {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
@@ -40,6 +38,11 @@ export default function AllRecordsPage() {
         setSession(currentSession);
         if (!currentSession) {
           navigate('/login', { replace: true });
+          return;
+        }
+
+        if (!isProfileComplete(currentSession)) {
+          navigate('/perfil', { replace: true });
         }
       });
 
@@ -48,6 +51,11 @@ export default function AllRecordsPage() {
         setSession(currentSession);
         if (!currentSession) {
           navigate('/login', { replace: true });
+          return;
+        }
+
+        if (!isProfileComplete(currentSession)) {
+          navigate('/perfil', { replace: true });
         }
       });
 
@@ -113,7 +121,7 @@ export default function AllRecordsPage() {
   return (
     <main className="min-h-screen bg-background text-white">
       <div className="min-h-screen h-full grid w-full gap-6 lg:grid-cols-[280px_1fr] lg:items-stretch">
-        <Sidebar email={session?.user.email ?? null} />
+<Sidebar email={session?.user.email ?? null} disableProtectedLinks={session ? !isProfileComplete(session) : false} />
 
         <div className="mr-4 flex min-h-screen flex-col">
           <AppBar

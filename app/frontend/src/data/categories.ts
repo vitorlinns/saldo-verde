@@ -4,8 +4,8 @@ export interface CategoryRule {
 }
 
 export const categoryRules: CategoryRule[] = [
-  { name: 'Salário', keywords: ['salario', 'salário', 'salario', 'pagamento', 'quinzena'] },
-  { name: 'Venda', keywords: ['venda', 'fatura', 'pedido', 'boleto'] },
+  { name: 'Salário', keywords: ['salario', 'salário', 'salario', 'pagamento', 'quinzena', 'din din'] },
+  { name: 'Venda', keywords: ['venda', 'fatura', 'pedido', 'boleto', 'mercado livre', 'Mercado Livre', 'mercado livre', 'shopee', 'Shopee', 'shein', 'Shein'] },
   { name: 'Reembolso', keywords: ['reembolso', 'devolução'] },
   { name: 'Pix', keywords: ['pix', 'pagar', 'recebido'] },
   { name: 'Honorários', keywords: ['honorario', 'honorários', 'consultoria', 'freelance', 'freela'] },

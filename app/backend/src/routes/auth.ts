@@ -1,5 +1,8 @@
-import type { Express } from 'express';
+import type { Express, Request, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import {
+  consumeRateLimit,
+} from '../lib/rate-limiter';
 import {
   normalizeDigits,
   isValidCpf,
@@ -9,10 +12,88 @@ import {
   getAge,
 } from '../lib/validation';
 
+const LOGIN_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_RATE_LIMIT_MAX = 10;
+const REFRESH_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const REFRESH_RATE_LIMIT_MAX = 20;
+
+function parseCookies(cookieHeader: string | undefined) {
+  const cookies: Record<string, string> = {};
+  if (!cookieHeader) {
+    return cookies;
+  }
+
+  for (const part of cookieHeader.split(';')) {
+    const [rawKey, ...rawValue] = part.trim().split('=');
+    if (!rawKey) {
+      continue;
+    }
+
+    cookies[rawKey] = decodeURIComponent(rawValue.join('='));
+  }
+
+  return cookies;
+}
+
+function getAccessTokenFromRequest(req: Request) {
+  const authHeader = req.headers.authorization;
+  if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+    return authHeader.slice(7);
+  }
+
+  const cookies = parseCookies(req.headers.cookie);
+  return cookies.sv_at ?? null;
+}
+
+function getRefreshTokenFromRequest(req: Request) {
+  const cookies = parseCookies(req.headers.cookie);
+  return cookies.sv_rt ?? null;
+}
+
+function setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
+  const isProd = process.env.NODE_ENV === 'production';
+
+  res.cookie('sv_at', accessToken, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax',
+    maxAge: 15 * 60 * 1000,
+    path: '/',
+  });
+
+  res.cookie('sv_rt', refreshToken, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'strict',
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    path: '/api/auth',
+  });
+}
+
+function clearAuthCookies(res: Response) {
+  const isProd = process.env.NODE_ENV === 'production';
+
+  res.cookie('sv_at', '', {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax',
+    maxAge: 0,
+    path: '/',
+  });
+
+  res.cookie('sv_rt', '', {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'strict',
+    maxAge: 0,
+    path: '/api/auth',
+  });
+}
+
 export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null) {
   app.post('/register', async (req, res) => {
     if (!supabase) {
-      return res.status(503).json({ error: 'Supabase is not configured' });
+      return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
     }
 
     const { email, password, cpf, birthdate } = req.body;
@@ -74,7 +155,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
       if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already been registered')) {
         return res.status(409).json({ error: 'Email já cadastrado.' });
       }
-      return res.status(400).json({ error: error.message });
+      return res.status(400).json({ error: 'Não foi possível concluir o cadastro. Revise os dados e tente novamente.' });
     }
 
     // Auto-login after registration
@@ -95,9 +176,9 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
     });
   });
 
-  app.post('/login', async (req, res) => {
+  const handleLogin = async (req: Request, res: Response) => {
     if (!supabase) {
-      return res.status(503).json({ error: 'Supabase is not configured' });
+      return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
     }
 
     const { email, password } = req.body;
@@ -106,8 +187,20 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
       return res.status(400).json({ error: 'Email e senha são obrigatórios.' });
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+    const rateLimitKey = `${req.ip || 'unknown'}:${normalizedEmail}`;
+    const rateLimitResult = consumeRateLimit('express-auth-login', rateLimitKey, {
+      windowMs: LOGIN_RATE_LIMIT_WINDOW_MS,
+      max: LOGIN_RATE_LIMIT_MAX,
+    });
+
+    if (!rateLimitResult.allowed) {
+      res.setHeader('Retry-After', String(rateLimitResult.retryAfterSeconds));
+      return res.status(429).json({ error: 'Muitas tentativas de login. Aguarde alguns minutos antes de tentar novamente.' });
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: normalizedEmail,
       password,
     });
 
@@ -119,12 +212,85 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
       return res.status(401).json({ error: 'Não foi possível autenticar o usuário.' });
     }
 
+    setAuthCookies(res, data.session.access_token, data.session.refresh_token);
+
     return res.status(200).json({ session: data.session, user: data.user, message: 'Login realizado com sucesso.' });
+  };
+
+  app.post('/login', handleLogin);
+  app.post('/auth/login', handleLogin);
+
+  app.post('/auth/refresh', async (req, res) => {
+    if (!supabase) {
+      return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
+    }
+
+    const refreshToken = getRefreshTokenFromRequest(req);
+    if (!refreshToken) {
+      return res.status(401).json({ error: 'Refresh token ausente.' });
+    }
+
+    const rateLimitResult = consumeRateLimit('express-auth-refresh', req.ip || 'unknown', {
+      windowMs: REFRESH_RATE_LIMIT_WINDOW_MS,
+      max: REFRESH_RATE_LIMIT_MAX,
+    });
+
+    if (!rateLimitResult.allowed) {
+      res.setHeader('Retry-After', String(rateLimitResult.retryAfterSeconds));
+      return res.status(429).json({ error: 'Muitas tentativas de renovação. Aguarde alguns minutos antes de tentar novamente.' });
+    }
+
+    const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+    if (error || !data.session || !data.user) {
+      return res.status(401).json({ error: 'Sessão expirada. Faça login novamente.' });
+    }
+
+    setAuthCookies(res, data.session.access_token, data.session.refresh_token);
+    return res.status(200).json({ session: data.session, user: data.user, message: 'Sessão renovada com sucesso.' });
+  });
+
+  app.get('/auth/me', async (req, res) => {
+    if (!supabase) {
+      return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
+    }
+
+    const accessToken = getAccessTokenFromRequest(req);
+    if (!accessToken) {
+      return res.status(401).json({ error: 'Sessão ausente.' });
+    }
+
+    const { data, error } = await supabase.auth.getUser(accessToken);
+    if (error || !data.user) {
+      return res.status(401).json({ error: 'Sessão inválida.' });
+    }
+
+    return res.status(200).json({ user: data.user, authenticated: true });
+  });
+
+  app.post('/auth/logout', async (req, res) => {
+    if (!supabase) {
+      return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
+    }
+
+    const accessToken = getAccessTokenFromRequest(req);
+    if (accessToken) {
+      try {
+        const { data: userData } = await supabase.auth.getUser(accessToken);
+        if (userData?.user?.id) {
+          await supabase.auth.admin.signOut(userData.user.id);
+        }
+      } catch (error) {
+        console.warn('[auth/logout] admin signOut failed:', error);
+      }
+    }
+
+    clearAuthCookies(res);
+    return res.status(200).json({ message: 'Logout realizado com sucesso.' });
   });
 
   app.post('/logout', async (_req, res) => {
     if (!supabase) {
-      return res.status(503).json({ error: 'Supabase is not configured' });
+      return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
     }
 
     return res.status(200).json({ message: 'Logout realizado com sucesso.' });

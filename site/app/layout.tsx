@@ -19,6 +19,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
+      <head>
+        {/* Preload critical fonts */}
+        <link rel="preload" href="/assets/fonts/funnel-display/FunnelDisplay-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/assets/fonts/funnel-display/FunnelDisplay-SemiBold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/assets/fonts/funnel-display/FunnelDisplay-Bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      </head>
       <body suppressHydrationWarning>
         <ClearServiceWorker />
         <SmoothScroll>{children}</SmoothScroll>

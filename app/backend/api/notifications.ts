@@ -24,12 +24,12 @@ export default async function handler(req: any, res: any) {
   if (handleOptions(req, res)) return;
 
   if (req.method !== 'GET') {
-    return sendJson(res, 405, { error: 'Method not allowed' });
+    return sendJson(res, 405, { error: 'Método não permitido.' });
   }
 
   const user = await getSessionUser(req);
   if (!user) {
-    return sendJson(res, 401, { error: 'Invalid session' });
+    return sendJson(res, 401, { error: 'Sessão inválida.' });
   }
 
   const unreadOnly = req.query?.unread === 'true';
@@ -56,7 +56,7 @@ export default async function handler(req: any, res: any) {
   const { data, error } = await query;
 
   if (error) {
-    return sendJson(res, 500, { error: 'Failed to fetch notifications' });
+    return sendJson(res, 500, { error: 'Não foi possível carregar as notificações.' });
   }
 
   const notifications = ((data ?? []) as NotificationRow[]).map((item: NotificationRow) => {

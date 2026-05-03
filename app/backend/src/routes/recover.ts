@@ -9,7 +9,7 @@ const isValidEmail = (value: unknown): value is string =>
 export function registerRecoverRoutes(app: Express, supabase: SupabaseClient | null) {
   app.post('/recover/request', async (req, res) => {
     if (!supabase) {
-      return res.status(503).json({ error: 'Supabase is not configured' });
+      return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
     }
 
     const { email } = req.body;
@@ -60,7 +60,7 @@ export function registerRecoverRoutes(app: Express, supabase: SupabaseClient | n
 
   app.post('/recover/reset', async (req, res) => {
     if (!supabase) {
-      return res.status(503).json({ error: 'Supabase is not configured' });
+      return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
     }
 
     const { email, code, password } = req.body;

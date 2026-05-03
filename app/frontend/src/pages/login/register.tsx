@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createClient, isProfileComplete } from '../../lib/auth';
 import { API_BASE_URL } from '../../config';
 import ButtonGeneral from '../../components/btn/button_general';
+import AuthSidePanel from '../../components/login/auth-side-panel';
 import InputGeneral from '../../components/inputs/input_general';
 import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
@@ -15,6 +16,14 @@ const REGISTER_URL = `${BACKEND_URL}/register`;
 const validateCpf = (value: string) => {
   const cpf = value.replace(/\D/g, '');
   return cpf.length === 11;
+};
+
+const formatCpf = (value: string) => {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+  if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
 };
 
 const formatBirthdate = (value: string) => {
@@ -182,18 +191,22 @@ export default function RegisterPage() {
   return (
     <main className="min-h-screen bg-background text-white">
       <section className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[1fr_0.9fr]">
-        <div className="hidden lg:block bg-primary-black" />
+        <AuthSidePanel />
 
-        <div className="flex items-center justify-center bg-background px-6 py-12">
-          <div className="w-full max-w-md rounded-[1rem] border border-border bg-surface p-8 sm:p-10">
+        <div className="relative overflow-hidden flex items-center justify-center bg-background px-6 py-12">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(130,222,127,0.10),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.012),transparent_28%)]" />
+          <div className="relative z-10 w-full max-w-md rounded-[1rem] border border-border bg-surface p-8 sm:p-10">
             <div className="mb-6 space-y-4">
               <div className="flex justify-left">
-                <img src="/assets/brand/isologo.png" alt="Logo" className="h-12 w-auto" />
+                <img src="/assets/brand/isologo.webp" alt="Logo" className="h-12 w-auto" />
               </div>
 
               <h2 className="text-3xl font-regular tracking-tight text-white sm:text-3xl">
                 Crie sua conta
               </h2>
+              <p className="mt-2 text-regurlar text-white/70">
+                  Atente-se ao digitar e-mail e cpf, não será possível alterá-los depois.
+                </p>
            
             </div>
 
@@ -207,16 +220,18 @@ export default function RegisterPage() {
                 placeholder="Email"
                 className="mt-0"
                 maxLength={45}
+                autoComplete="email"
               />
 
               <InputGeneral
                 id="cpf"
                 type="text"
                 value={cpf}
-                onChange={setCpf}
+                onChange={(value) => setCpf(formatCpf(value))}
                 placeholder="CPF"
                 className="mt-0"
-                maxLength={11}
+                maxLength={14}
+                inputMode="numeric"
               />
 
               <InputGeneral
@@ -238,6 +253,7 @@ export default function RegisterPage() {
                 placeholder="Criar senha"
                 className="mt-0"
                 maxLength={20}
+                autoComplete="new-password"
               />
 
               <InputGeneral
@@ -248,6 +264,7 @@ export default function RegisterPage() {
                 placeholder="Confirmar senha"
                 className="mt-0"
                 maxLength={20}
+                autoComplete="new-password"
               />
 
               <div className="text-center text-xs leading-relaxed text-white/70">
@@ -272,7 +289,7 @@ export default function RegisterPage() {
               </div>
 
               <div className="mt-4 flex items-center justify-center gap-2 text-sm text-white">
-                <span>Já tem conta?</span>
+                <span>Já possui conta?</span>
                 <Link to="/login" className="font-semibold text-primary-300 transition hover:text-primary-400">
                   Entrar
                 </Link>

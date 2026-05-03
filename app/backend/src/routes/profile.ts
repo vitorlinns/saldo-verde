@@ -29,17 +29,17 @@ const isMetadataComplete = (metadata: Record<string, unknown> | null | undefined
 export function registerProfileRoutes(app: Express, supabase: SupabaseClient | null) {
   app.get('/profile/:id', async (req, res) => {
     if (!supabase) {
-      return res.status(503).json({ error: 'Supabase is not configured' });
+      return res.status(503).json({ error: 'Serviço indisponível no momento.' });
     }
 
     const sessionUser = await getSessionUser(supabase, req);
     if (!sessionUser) {
-      return res.status(401).json({ error: 'Invalid session' });
+      return res.status(401).json({ error: 'Sessão inválida.' });
     }
 
     const userId = req.params.id;
     if (sessionUser.id !== userId) {
-      return res.status(403).json({ error: 'Not allowed to access this profile' });
+      return res.status(403).json({ error: 'Você não tem permissão para acessar este perfil.' });
     }
 
     const { data, error } = await supabase
@@ -49,7 +49,7 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
       .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(400).json({ error: 'Não foi possível carregar o perfil.' });
     }
 
     return res.json({ profile: data });
@@ -57,21 +57,21 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
 
   app.put('/profile/:id', async (req, res) => {
     if (!supabase) {
-      return res.status(503).json({ error: 'Supabase is not configured' });
+      return res.status(503).json({ error: 'Serviço indisponível no momento.' });
     }
 
     const sessionUser = await getSessionUser(supabase, req);
     if (!sessionUser) {
-      return res.status(401).json({ error: 'Invalid session' });
+      return res.status(401).json({ error: 'Sessão inválida.' });
     }
 
     const userId = req.params.id;
     if (!userId || typeof userId !== 'string') {
-      return res.status(400).json({ error: 'Invalid user id' });
+      return res.status(400).json({ error: 'Identificador inválido.' });
     }
 
     if (sessionUser.id !== userId) {
-      return res.status(403).json({ error: 'Not allowed to update this profile' });
+      return res.status(403).json({ error: 'Você não tem permissão para atualizar este perfil.' });
     }
 
     const currentMetadata = sessionUser.user_metadata as Record<string, unknown> | undefined;
@@ -176,7 +176,7 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
     });
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(400).json({ error: 'Não foi possível atualizar o perfil. Revise os dados e tente novamente.' });
     }
 
     if (!wasProfileComplete) {

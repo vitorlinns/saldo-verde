@@ -10,13 +10,20 @@ Documentar a implementação atual do fluxo de login em `saldo-verde`, incluindo
   - `app/frontend/src/pages/login/login.tsx`
   - `app/frontend/src/lib/auth.ts`
 - Backend:
+  - `app/backend/api/auth/login.ts`
+  - `app/backend/api/auth/refresh.ts`
+  - `app/backend/api/auth/me.ts`
+  - `app/backend/api/auth/logout.ts`
+  - `app/backend/api/auth/_cookies.ts`
   - `app/backend/api/logout.ts`
   - `app/backend/api/_auth.ts`
   - `app/backend/src/routes/auth.ts`
 
 ## Visão geral do fluxo
 
-A tela de login não faz autenticação por meio de um endpoint backend próprio. O processo de autenticação é executado diretamente via Supabase Auth no cliente frontend.
+A tela de login autentica via endpoint backend próprio (`POST /api/auth/login`).
+
+O backend valida credenciais no Supabase e retorna a sessão para o frontend, além de definir cookies `httpOnly` para reforçar o controle de sessão (`sv_at` e `sv_rt`).
 
 Quando o usuário acessa a página de login:
 
@@ -32,7 +39,8 @@ Quando o usuário acessa a página de login:
 ### Dependências principais
 
 - `createClient` de `app/frontend/src/lib/auth.ts`
-- `supabase.auth.signInWithPassword` para login com email e senha
+- `fetch(POST /api/auth/login)` para login com email e senha
+- `supabase.auth.setSession(...)` para manter compatibilidade com o fluxo atual do app
 - `supabase.auth.signInWithOAuth` para login via Google
 - `useNavigate` do React Router para redirecionar após login
 
@@ -45,21 +53,28 @@ Quando o usuário acessa a página de login:
 
 ### Regras de autenticação
 
-- O login com email/senha chama `supabase.auth.signInWithPassword({ email, password })`.
+- O login com email/senha chama `POST /api/auth/login`.
+- Em sucesso, o frontend recebe `session` e chama `supabase.auth.setSession(session)`.
 - O frontend valida:
   - Email e senha não podem estar em branco.
   - O e-mail precisa ter formato válido (regex `EMAIL_REGEX`) antes de qualquer chamada à API.
-- Mensagens de erro retornadas pelo Supabase são normalizadas por `normalizeAuthError()` antes de exibição — erros internos em inglês nunca chegam ao usuário.
+- Mensagens de erro retornadas pelo backend são normalizadas por `normalizeAuthError()` antes de exibição — erros internos nunca chegam ao usuário.
 
 ### Proteção contra brute force (throttle de frontend)
 
-Após `MAX_ATTEMPTS` (3) tentativas de login mal-sucedidas consecutivas, a tela entra em modo de bloqueio por `LOCKOUT_MS` (30 segundos). Durante o bloqueio:
+Após `MAX_ATTEMPTS` (3) tentativas de login mal-sucedidas consecutivas, a tela entra em bloqueio progressivo, persistido em `localStorage` (`saldo-verde:login-throttle`):
 
-- O botão continua visível, mas ao clicar exibe o tempo restante.
-- O contador é armazenado em estado local (`lockedUntil`).
-- Após o período, o usuário pode tentar novamente normalmente.
+- 1º bloqueio: 60 segundos
+- 2º bloqueio: 5 minutos
+- 3º+ bloqueios: 15 minutos
 
-> Nota: este controle é exclusivamente no frontend. O Supabase também aplica rate-limiting próprio no servidor.
+Durante o bloqueio:
+
+- O botão de login fica desabilitado e exibe contador regressivo.
+- O estado de bloqueio sobrevive a recarregamento de página.
+- Após login bem-sucedido, o estado de bloqueio é limpo.
+
+> Nota: além do throttle de frontend, o backend aplica rate limit dedicado por `ip + email` em `/api/auth/login`.
 
 ### Test user
 
@@ -131,6 +146,11 @@ Fluxo:
 ### Rotas presentes
 
 - `POST /register`
+- `POST /login`
+- `POST /auth/login`
+- `POST /auth/refresh`
+- `GET /auth/me`
+- `POST /auth/logout`
 
 ### Escopo de `register`
 
@@ -151,11 +171,14 @@ Após validação, a conta é criada com `supabase.auth.admin.createUser(...)` e
 
 ### Importante
 
-O `POST /register` existe apenas para o cadastro. O login em si não passa por essa rota.
+- `POST /register` existe apenas para cadastro.
+- O login profissional passa por `/api/auth/login`.
+- `/api/auth/refresh` renova sessão a partir do refresh token em cookie `httpOnly`.
+- `/api/auth/me` valida sessão a partir do access token (Bearer ou cookie `sv_at`).
 
 ## Observações importantes
 
-- A autenticação de login é gerenciada no frontend pelo cliente Supabase (fluxo recomendado para SPAs).
+- A autenticação de login é centralizada no backend (`/api/auth/login`), com retorno de sessão para compatibilidade do cliente atual.
 - O cliente Supabase é instanciado como singleton via `createClient()` — não deve ser armazenado em estado React.
 - O logout é composto: invalidação server-side via Admin API + limpeza de estado local.
 - Mensagens de erro do Supabase (em inglês / com detalhes internos) nunca chegam diretamente ao usuário.

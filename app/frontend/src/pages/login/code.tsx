@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ButtonGeneral from '../../components/btn/button_general';
+import AuthSidePanel from '../../components/login/auth-side-panel';
 import ErrorMessage from '../../components/message/error';
 
 const BACKEND_URL = '/api';
@@ -85,19 +86,19 @@ export default function CodePage() {
   };
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-background text-white">
       <section className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[1fr_0.9fr]">
-        <div className="hidden lg:block bg-primary-black" />
+        <AuthSidePanel />
 
-        <div className="flex items-center justify-center bg-black px-6 py-12">
-          <div className="w-full max-w-md rounded-[2rem] border border-border bg-black/95 p-8 backdrop-blur-xl shadow-xl shadow-black/20 sm:p-10">
+        <div className="flex items-center justify-center bg-background px-6 py-12">
+          <div className="w-full max-w-md rounded-[1rem] border border-border bg-surface p-8 sm:p-10">
             <div className="mb-6 space-y-4">
               <div className="flex justify-left">
-                <img src="/assets/brand/isologo.png" alt="Logo" className="h-12 w-auto" />
+                <img src="/assets/brand/isologo.webp" alt="Logo" className="h-12 w-auto" />
               </div>
 
               <div>
-                <h2 className="text-3xl font-medium tracking-tight text-white sm:text-3xl">
+                <h2 className="text-3xl font-regular tracking-tight text-white sm:text-3xl">
                   Código de verificação
                 </h2>
                 <p className="mt-2 text-sm text-white/70">
@@ -117,7 +118,7 @@ export default function CodePage() {
                     onKeyDown={(event) => handleKeyDown(index, event)}
                     maxLength={1}
                     inputMode="numeric"
-                    className="h-14 w-12 rounded-xl border border-border bg-black px-3 text-center text-2xl text-white outline-none transition focus:border-primary-300"
+                    className="h-14 w-12 rounded-[0.5rem] border border-border bg-black px-3 text-center text-2xl text-white outline-none transition focus:border-primary-300"
                   />
                 ))}
               </div>
@@ -125,7 +126,7 @@ export default function CodePage() {
               <ButtonGeneral
                 type="button"
                 onClick={handleSubmit}
-                label="Verificar código"
+                label="Enviar código"
                 loading={isVerifying}
                 className="w-full"
               />

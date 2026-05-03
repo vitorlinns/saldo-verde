@@ -1,22 +1,10 @@
-import { createSupabaseClient } from './_supabase';
-import { handleOptions, sendJson } from './_http';
-import { consumeRateLimit } from '../src/lib/rate-limiter';
+import { createSupabaseClient } from '../_supabase';
+import { handleOptions, sendJson } from '../_http';
+import { consumeRateLimit } from '../../src/lib/rate-limiter';
+import { getClientIp, setAuthCookies } from './_cookies';
 
 const LOGIN_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const LOGIN_RATE_LIMIT_MAX = 10;
-
-function getClientIp(req: any) {
-  const forwardedFor = req.headers?.['x-forwarded-for'];
-  if (Array.isArray(forwardedFor) && forwardedFor.length > 0) {
-    return String(forwardedFor[0]).split(',')[0].trim();
-  }
-
-  if (typeof forwardedFor === 'string' && forwardedFor.length > 0) {
-    return forwardedFor.split(',')[0].trim();
-  }
-
-  return req.socket?.remoteAddress ?? 'unknown';
-}
 
 export default async function handler(req: any, res: any) {
   if (handleOptions(req, res)) return;
@@ -32,7 +20,7 @@ export default async function handler(req: any, res: any) {
 
   const normalizedEmail = email.trim().toLowerCase();
   const rateLimitKey = `${getClientIp(req)}:${normalizedEmail}`;
-  const rateLimitResult = consumeRateLimit('serverless-auth-login', rateLimitKey, {
+  const rateLimitResult = consumeRateLimit('serverless-auth-login-v2', rateLimitKey, {
     windowMs: LOGIN_RATE_LIMIT_WINDOW_MS,
     max: LOGIN_RATE_LIMIT_MAX,
   });
@@ -46,11 +34,14 @@ export default async function handler(req: any, res: any) {
   try {
     supabase = createSupabaseClient();
   } catch (error) {
-    console.error('[login] supabase init error:', error);
+    console.error('[auth/login] supabase init error:', error);
     return sendJson(res, 503, { error: 'Serviço de login indisponível no momento.' });
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: normalizedEmail,
+    password,
+  });
 
   if (error) {
     return sendJson(res, 401, { error: 'E-mail ou senha inválidos.' });
@@ -59,6 +50,8 @@ export default async function handler(req: any, res: any) {
   if (!data.session || !data.user) {
     return sendJson(res, 401, { error: 'Não foi possível autenticar o usuário.' });
   }
+
+  setAuthCookies(res, data.session.access_token, data.session.refresh_token);
 
   return sendJson(res, 200, {
     session: data.session,

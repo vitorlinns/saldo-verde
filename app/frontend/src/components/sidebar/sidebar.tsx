@@ -21,7 +21,7 @@ export default function Sidebar({ email, disableProtectedLinks = false }: Sideba
   return (
     <aside className="hidden xl:sticky xl:top-0 xl:h-screen xl:min-w-[260px] xl:flex xl:flex-col xl:gap-6 xl:overflow-hidden xl:border xl:border-border xl:bg-black/80 xl:p-6 xl:shadow-xl xl:shadow-black/20">
       <div className="flex items-center gap-3">
-        <img src="/assets/brand/isologo.png" alt="Saldo Verde" className="h-12 w-auto" />
+        <img src="/assets/brand/isologo.webp" alt="Saldo Verde" className="h-12 w-auto" />
       </div>
       <div className="h-px bg-border" />
 

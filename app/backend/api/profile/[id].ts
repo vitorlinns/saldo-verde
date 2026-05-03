@@ -42,7 +42,7 @@ const updateUserMetadata = async (
 
   return {
     data: null,
-    error: { message: 'Supabase admin update API is not available.' },
+    error: { message: 'Atualização de perfil indisponível no momento.' },
   };
 };
 
@@ -50,12 +50,12 @@ export default async function handler(req: any, res: any) {
   if (handleOptions(req, res)) return;
 
   if (req.method !== 'GET' && req.method !== 'PUT') {
-    return sendJson(res, 405, { error: 'Method not allowed' });
+    return sendJson(res, 405, { error: 'Método não permitido.' });
   }
 
   const userId = req.query.id;
   if (typeof userId !== 'string' || !userId) {
-    return sendJson(res, 400, { error: 'Invalid user id' });
+    return sendJson(res, 400, { error: 'Identificador de usuário inválido.' });
   }
 
   const supabase = createSupabaseClient();
@@ -63,11 +63,11 @@ export default async function handler(req: any, res: any) {
 
   if (req.method === 'GET') {
     if (!sessionUser) {
-      return sendJson(res, 401, { error: 'Invalid session' });
+      return sendJson(res, 401, { error: 'Sessão inválida.' });
     }
 
     if (sessionUser.id !== userId) {
-      return sendJson(res, 403, { error: 'Not allowed to access this profile' });
+      return sendJson(res, 403, { error: 'Você não tem permissão para acessar este perfil.' });
     }
 
     const { data, error } = await supabase
@@ -77,18 +77,18 @@ export default async function handler(req: any, res: any) {
       .single();
 
     if (error) {
-      return sendJson(res, 400, { error: error.message });
+      return sendJson(res, 400, { error: 'Não foi possível carregar o perfil.' });
     }
 
     return sendJson(res, 200, { profile: data });
   }
 
   if (!sessionUser) {
-    return sendJson(res, 401, { error: 'Invalid session' });
+    return sendJson(res, 401, { error: 'Sessão inválida.' });
   }
 
   if (sessionUser.id !== userId) {
-    return sendJson(res, 403, { error: 'Not allowed to update this profile' });
+    return sendJson(res, 403, { error: 'Você não tem permissão para atualizar este perfil.' });
   }
 
   const currentMetadata = sessionUser.user_metadata as Record<string, unknown> | undefined;
@@ -117,13 +117,13 @@ export default async function handler(req: any, res: any) {
   });
 
   if (missingRequired) {
-    return sendJson(res, 400, { error: 'Campos obrigatorios ausentes no perfil.' });
+    return sendJson(res, 400, { error: 'Campos obrigatórios ausentes no perfil.' });
   }
 
   const { data, error } = await updateUserMetadata(supabase, userId, normalizedPayload);
 
   if (error) {
-    return sendJson(res, 400, { error: error.message });
+    return sendJson(res, 400, { error: 'Não foi possível atualizar o perfil. Revise os dados e tente novamente.' });
   }
 
   if (!wasProfileComplete) {
@@ -132,8 +132,8 @@ export default async function handler(req: any, res: any) {
       .insert({
         user_id: userId,
         kind: 'profile-complete',
-        title: 'Cadastro concluido',
-        message: 'Tudo certo! Seu perfil esta completo e voce ja pode usar a plataforma normalmente.',
+          title: 'Cadastro concluído',
+          message: 'Tudo certo! Seu perfil está completo e você já pode usar a plataforma normalmente.',
         unread: true,
       });
 

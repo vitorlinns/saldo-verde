@@ -29,7 +29,7 @@ export default async function handler(req: any, res: any) {
   if (handleOptions(req, res)) return;
 
   if (req.method !== 'POST') {
-    return sendJson(res, 405, { error: 'Method not allowed' });
+    return sendJson(res, 405, { error: 'Método não permitido.' });
   }
 
   const { email, password, cpf, birthdate } = req.body ?? {};
@@ -103,7 +103,7 @@ export default async function handler(req: any, res: any) {
     ) {
       return sendJson(res, 409, { error: 'Email já cadastrado.' });
     }
-    return sendJson(res, 400, { error: error.message });
+    return sendJson(res, 400, { error: 'Não foi possível concluir o cadastro. Revise os dados e tente novamente.' });
   }
 
   // Auto-login after registration

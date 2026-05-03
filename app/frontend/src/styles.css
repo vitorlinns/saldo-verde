@@ -1,4 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;500;600;700;800&display=swap');
+@font-face {
+  font-family: 'Funnel Display';
+  src: url('/assets/fonts/funnel-display/FunnelDisplay-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Funnel Display';
+  src: url('/assets/fonts/funnel-display/FunnelDisplay-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Funnel Display';
+  src: url('/assets/fonts/funnel-display/FunnelDisplay-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Funnel Display';
+  src: url('/assets/fonts/funnel-display/FunnelDisplay-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Funnel Display';
+  src: url('/assets/fonts/funnel-display/FunnelDisplay-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Funnel Display';
+  src: url('/assets/fonts/funnel-display/FunnelDisplay-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;

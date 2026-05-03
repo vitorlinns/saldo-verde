@@ -6,7 +6,7 @@ export default async function handler(req: any, res: any) {
   if (handleOptions(req, res)) return;
 
   if (req.method !== 'GET') {
-    return sendJson(res, 405, { error: 'Method not allowed' });
+    return sendJson(res, 405, { error: 'Método não permitido.' });
   }
 
   try {

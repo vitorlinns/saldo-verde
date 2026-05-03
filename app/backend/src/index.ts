@@ -38,7 +38,7 @@ app.use(
 app.use(express.json({ limit: '10kb' }));
 
 const footerTextPath = path.resolve(__dirname, '../../../site/src/data/site-info.json');
-const logoPath = path.resolve(__dirname, '../../../site/public/assets/brand/isologo.png');
+const logoPath = path.resolve(__dirname, '../../../site/public/assets/brand/isologo.webp');
 const assetsPath = path.resolve(__dirname, '../../../site/public/assets');
 
 app.use('/api', rateLimiter);

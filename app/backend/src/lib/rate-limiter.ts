@@ -3,28 +3,67 @@ import type { Request, Response, NextFunction } from 'express';
 const rateLimitWindowMs = 15 * 60 * 1000;
 const rateLimitMax = 30;
 const rateMap = new Map<string, { count: number; firstRequestAt: number }>();
+const namedRateMaps = new Map<string, Map<string, { count: number; firstRequestAt: number }>>();
 
-export function rateLimiter(req: Request, res: Response, next: NextFunction) {
-  const key = req.ip || 'unknown';
+interface RateLimitOptions {
+  windowMs: number;
+  max: number;
+}
+
+interface RateLimitResult {
+  allowed: boolean;
+  retryAfterSeconds: number;
+}
+
+function getNamedRateMap(name: string) {
+  const existing = namedRateMaps.get(name);
+  if (existing) {
+    return existing;
+  }
+
+  const next = new Map<string, { count: number; firstRequestAt: number }>();
+  namedRateMaps.set(name, next);
+  return next;
+}
+
+export function consumeRateLimit(name: string, key: string, options: RateLimitOptions): RateLimitResult {
+  const scopedRateMap = getNamedRateMap(name);
   const now = Date.now();
-  const entry = rateMap.get(key);
+  const entry = scopedRateMap.get(key);
 
   if (!entry) {
-    rateMap.set(key, { count: 1, firstRequestAt: now });
-    return next();
+    scopedRateMap.set(key, { count: 1, firstRequestAt: now });
+    return { allowed: true, retryAfterSeconds: 0 };
   }
 
-  if (now - entry.firstRequestAt > rateLimitWindowMs) {
-    rateMap.set(key, { count: 1, firstRequestAt: now });
-    return next();
+  if (now - entry.firstRequestAt > options.windowMs) {
+    scopedRateMap.set(key, { count: 1, firstRequestAt: now });
+    return { allowed: true, retryAfterSeconds: 0 };
   }
 
-  if (entry.count >= rateLimitMax) {
-    res.setHeader('Retry-After', String(Math.ceil((rateLimitWindowMs - (now - entry.firstRequestAt)) / 1000)));
-    return res.status(429).json({ error: 'Erro inesperado, tente novamente mais tarde.' });
+  if (entry.count >= options.max) {
+    return {
+      allowed: false,
+      retryAfterSeconds: Math.ceil((options.windowMs - (now - entry.firstRequestAt)) / 1000),
+    };
   }
 
   entry.count += 1;
-  rateMap.set(key, entry);
+  scopedRateMap.set(key, entry);
+  return { allowed: true, retryAfterSeconds: 0 };
+}
+
+export function rateLimiter(req: Request, res: Response, next: NextFunction) {
+  const key = req.ip || 'unknown';
+  const result = consumeRateLimit('global', key, {
+    windowMs: rateLimitWindowMs,
+    max: rateLimitMax,
+  });
+
+  if (!result.allowed) {
+    res.setHeader('Retry-After', String(result.retryAfterSeconds));
+    return res.status(429).json({ error: 'Erro inesperado, tente novamente mais tarde.' });
+  }
+
   next();
 }

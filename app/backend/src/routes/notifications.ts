@@ -15,12 +15,12 @@ const formatTime = (value: Date) => {
 export function registerNotificationsRoutes(app: Express, supabase: SupabaseClient | null) {
   app.get('/notifications', async (req, res) => {
     if (!supabase) {
-      return res.status(503).json({ error: 'Supabase is not configured' });
+      return res.status(503).json({ error: 'Serviço de notificações indisponível no momento.' });
     }
 
     const user = await getSessionUser(supabase, req);
     if (!user) {
-      return res.status(401).json({ error: 'Invalid session' });
+      return res.status(401).json({ error: 'Sessão inválida.' });
     }
 
     const unreadOnly = req.query.unread === 'true';
@@ -46,7 +46,7 @@ export function registerNotificationsRoutes(app: Express, supabase: SupabaseClie
     const { data, error } = await query;
 
     if (error) {
-      return res.status(500).json({ error: 'Failed to fetch notifications' });
+      return res.status(500).json({ error: 'Não foi possível carregar as notificações.' });
     }
 
     const notifications = (data ?? []).map((item) => {

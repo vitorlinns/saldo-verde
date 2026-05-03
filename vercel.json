@@ -69,6 +69,36 @@
       "dest": "/app/backend/api/logout.ts"
     },
     {
+      "src": "/register",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/register.ts"
+    },
+    {
+      "src": "/footer-text",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/footer-text.ts"
+    },
+    {
+      "src": "/api/footer-text",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/footer-text.ts"
+    },
+    {
       "src": "/notifications/([^/]+)",
       "has": [
         {
@@ -98,6 +128,16 @@
       ],
       "status": 404,
       "dest": "/404"
+    },
+    {
+      "src": "/api/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "app.saldoverde.pro"
+        }
+      ],
+      "dest": "https://api.saldoverde.pro/$1"
     },
     {
       "src": "/assets/(.*)",

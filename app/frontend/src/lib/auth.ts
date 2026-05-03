@@ -3,6 +3,8 @@ import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
 const BACKEND_API_BASE_URL = '/api';
 const RETRYABLE_NETWORK_MESSAGES = ['failed to fetch', 'networkerror', 'err_connection_closed'];
+const MAX_DAYS_WITHOUT_LOGIN = 7;
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 let supabaseClient: SupabaseClient | null = null;
 
@@ -81,8 +83,9 @@ export const signOutWithBackend = async (
   }
 
   try {
-    await fetch(`${backendUrl}/logout`, {
+    await fetch(`${backendUrl}/auth/logout`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -92,7 +95,8 @@ export const signOutWithBackend = async (
     console.warn('Backend logout failed:', err);
   }
 
-  await supabase.auth.signOut();
+  // Always clear local session, even if network logout/revocation fails.
+  await supabase.auth.signOut({ scope: 'local' });
 };
 
 const requiredProfileFields = [
@@ -127,4 +131,22 @@ export const isGoogleSession = (session: Session | null) => {
   return Array.isArray(session.user.identities)
     ? session.user.identities.some((identity) => identity.provider === 'google')
     : false;
+};
+
+export const shouldForceReLogin = (session: Session | null, maxDaysWithoutLogin = MAX_DAYS_WITHOUT_LOGIN) => {
+  if (!session) {
+    return false;
+  }
+
+  const lastSignInAt = session.user.last_sign_in_at;
+  if (!lastSignInAt) {
+    return false;
+  }
+
+  const lastSignInMs = new Date(lastSignInAt).getTime();
+  if (!Number.isFinite(lastSignInMs)) {
+    return false;
+  }
+
+  return Date.now() - lastSignInMs >= maxDaysWithoutLogin * DAY_IN_MS;
 };

@@ -2,6 +2,7 @@ import { getBearerToken } from './_auth';
 import { createSupabaseClient } from './_supabase';
 import { handleOptions, sendJson } from './_http';
 import { authAdminSignOut, authGetUser } from './_auth';
+import { clearAuthCookies } from './auth/_cookies';
 
 export default async function handler(req: any, res: any) {
   if (handleOptions(req, res)) return;
@@ -22,6 +23,8 @@ export default async function handler(req: any, res: any) {
       console.warn('[logout] admin signOut failed:', err);
     }
   }
+
+  clearAuthCookies(res);
 
   return sendJson(res, 200, { message: 'Logout realizado com sucesso.' });
 }

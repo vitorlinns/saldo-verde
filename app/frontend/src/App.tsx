@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { createClient, isProfileComplete, shouldForceReLogin, signOutWithBackend } from './lib/auth';
 import LoginPage from './pages/login/login';
 import RegisterPage from './pages/login/register';
 import RecoverPage from './pages/login/recover';
@@ -21,6 +22,58 @@ const AUTH_ROUTES = ['/login', '/criar-conta', '/recuperar-conta'] as const;
 
 function isAuthRoute(pathname: string) {
   return AUTH_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+}
+
+function RootRedirect() {
+  const [destination, setDestination] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const resolveDestination = async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getSession();
+        const currentSession = data.session ?? null;
+
+        if (!active) {
+          return;
+        }
+
+        if (!currentSession) {
+          setDestination('/login');
+          return;
+        }
+
+        if (shouldForceReLogin(currentSession)) {
+          await signOutWithBackend(supabase);
+          if (!active) {
+            return;
+          }
+          setDestination('/login');
+          return;
+        }
+
+        setDestination(isProfileComplete(currentSession) ? '/dashboard' : '/perfil');
+      } catch {
+        if (active) {
+          setDestination('/login');
+        }
+      }
+    };
+
+    resolveDestination();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (!destination) {
+    return null;
+  }
+
+  return <Navigate to={destination} replace />;
 }
 
 function AppRoutes() {
@@ -62,7 +115,7 @@ function AppRoutes() {
     <>
       <Preloader visible={loading} />
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<RootRedirect />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/criar-conta" element={<RegisterPage />} />
         <Route path="/recuperar-conta" element={<RecoverPage />} />

@@ -360,7 +360,7 @@ export default function LoginPage() {
           <div className="relative z-10 w-full max-w-md rounded-[1rem] border border-border bg-surface p-8 sm:p-10">
             <div className="mb-6 space-y-4">
               <div className="flex justify-left">
-                <img src="/assets/brand/isologo.webp" alt="Logo" className="h-12 w-auto" />
+                <img src="/assets/brand/isologo.webp" alt="Logo" className="block h-auto w-28 object-contain sm:w-32" />
               </div>
 
               <h2 className="text-3xl font-regular tracking-tight text-white sm:text-3xl">

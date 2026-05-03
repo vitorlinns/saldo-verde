@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
-import { createClient, isProfileComplete } from '../lib/auth';
+import { createClient, isProfileComplete, shouldForceReLogin, signOutWithBackend } from '../lib/auth';
 
 interface SessionContextType {
   session: Session | null;
@@ -18,9 +18,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const supabase = createClient();
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data }) => {
-      const currentSession = data.session ?? null;
+    const syncSession = async (currentSession: Session | null) => {
       setSession(currentSession);
       setIsLoading(false);
 
@@ -29,25 +27,26 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      if (shouldForceReLogin(currentSession)) {
+        await signOutWithBackend(supabase);
+        setSession(null);
+        navigate('/login', { replace: true });
+        return;
+      }
+
       if (!isProfileComplete(currentSession)) {
         navigate('/perfil', { replace: true });
       }
+    };
+
+    // Get initial session
+    supabase.auth.getSession().then(async ({ data }) => {
+      await syncSession(data.session ?? null);
     });
 
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, sessionData) => {
-      const currentSession = sessionData ?? null;
-      setSession(currentSession);
-      setIsLoading(false);
-
-      if (!currentSession) {
-        navigate('/login', { replace: true });
-        return;
-      }
-
-      if (!isProfileComplete(currentSession)) {
-        navigate('/perfil', { replace: true });
-      }
+      void syncSession(sessionData ?? null);
     });
 
     return () => {

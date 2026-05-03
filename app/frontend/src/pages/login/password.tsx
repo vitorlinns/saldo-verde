@@ -5,7 +5,7 @@ import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 import InputGeneral from '../../components/inputs/input_general';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? '/api';
 
 export default function PasswordPage() {
   const [password, setPassword] = useState('');

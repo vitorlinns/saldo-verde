@@ -14,7 +14,7 @@ interface ModalViewMessageProps {
   onMarked?: () => void;
 }
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? '/api';
 
 export default function ModalViewMessage({
   open,

@@ -13,7 +13,7 @@ import { AlertCircle, Save } from 'lucide-react';
 
 const formatValue = (value?: string | null) => (value?.trim() ? value : '');
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? '/api';
 
 const formatCep = (value: string) => {
   const digits = value.replace(/\D/g, '').slice(0, 8);

@@ -9,9 +9,9 @@ import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 import InputGeneral from '../../components/inputs/input_general';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? API_BASE_URL;
-const FOOTER_URL = `${BACKEND_URL}/api/footer-text`;
-const LOGIN_URL = `${BACKEND_URL}/api/login`;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? '/api';
+const FOOTER_URL = `${BACKEND_URL}/footer-text`;
+const LOGIN_URL = `${BACKEND_URL}/login`;
 const OAUTH_REDIRECT_TO = import.meta.env.VITE_OAUTH_REDIRECT_TO ?? `${window.location.origin}/login`;
 
 const TEST_USER_EMAIL = 'teste@saldoverde.pro';

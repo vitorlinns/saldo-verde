@@ -8,9 +8,9 @@ import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 import type { Session } from '@supabase/supabase-js';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? API_BASE_URL;
-const FOOTER_URL = `${BACKEND_URL}/api/footer-text`;
-const REGISTER_URL = `${BACKEND_URL}/api/register`;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? '/api';
+const FOOTER_URL = `${BACKEND_URL}/footer-text`;
+const REGISTER_URL = `${BACKEND_URL}/register`;
 
 const validateCpf = (value: string) => {
   const cpf = value.replace(/\D/g, '');

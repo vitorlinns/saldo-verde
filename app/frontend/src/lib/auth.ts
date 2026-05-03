@@ -5,6 +5,7 @@ const BACKEND_API_BASE_URL = '/api';
 const RETRYABLE_NETWORK_MESSAGES = ['failed to fetch', 'networkerror', 'err_connection_closed'];
 const MAX_DAYS_WITHOUT_LOGIN = 7;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const LOGOUT_REQUEST_TIMEOUT_MS = 5000;
 
 let supabaseClient: SupabaseClient | null = null;
 
@@ -83,20 +84,31 @@ export const signOutWithBackend = async (
   }
 
   try {
-    await fetch(`${backendUrl}/auth/logout`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), LOGOUT_REQUEST_TIMEOUT_MS);
+    try {
+      await fetch(`${backendUrl}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
   } catch (err) {
     console.warn('Backend logout failed:', err);
   }
 
   // Always clear local session, even if network logout/revocation fails.
-  await supabase.auth.signOut({ scope: 'local' });
+  try {
+    await supabase.auth.signOut({ scope: 'local' });
+  } catch (err) {
+    console.warn('Local logout failed:', err);
+  }
 };
 
 const requiredProfileFields = [

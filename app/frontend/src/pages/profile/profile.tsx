@@ -217,9 +217,12 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     if (!supabase) return;
     setIsSigningOut(true);
-    await signOutWithBackend(supabase);
-    setIsSigningOut(false);
-    navigate('/login', { replace: true });
+    try {
+      await signOutWithBackend(supabase);
+    } finally {
+      setIsSigningOut(false);
+      navigate('/login', { replace: true });
+    }
   };
 
   const toggleShowValues = () => setShowValues((current) => !current);

@@ -56,6 +56,8 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
 
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const notificationsCacheKey = session ? `unread-notifications:${session.user.id}` : null;
+  const CACHE_TTL_MS = 30_000;
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
 
@@ -103,10 +105,40 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
   useEffect(() => {
     if (!session) return;
 
-    const fetchNotifications = async () => {
+    const readCache = () => {
+      if (!notificationsCacheKey) return null;
+      const raw = window.sessionStorage.getItem(notificationsCacheKey);
+      if (!raw) return null;
+      try {
+        const parsed = JSON.parse(raw) as { timestamp: number; items: NotificationItem[] };
+        if (Date.now() - parsed.timestamp > CACHE_TTL_MS) return null;
+        return parsed.items;
+      } catch {
+        return null;
+      }
+    };
+
+    const writeCache = (items: NotificationItem[]) => {
+      if (!notificationsCacheKey) return;
+      window.sessionStorage.setItem(
+        notificationsCacheKey,
+        JSON.stringify({ timestamp: Date.now(), items })
+      );
+    };
+
+    const fetchNotifications = async (force = false) => {
+      if (!force) {
+        const cached = readCache();
+        if (cached) {
+          setNotifications(cached);
+          setLoadingNotifications(false);
+          return;
+        }
+      }
+
       setLoadingNotifications(true);
       try {
-        const response = await fetch(`${BACKEND_URL}/notifications?unread=true&limit=4&t=${Date.now()}`, {
+        const response = await fetch(`${BACKEND_URL}/notifications?unread=true&limit=4`, {
           headers: {
             Authorization: `Bearer ${session.access_token ?? ''}`,
           },
@@ -120,8 +152,10 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
         const data = await response.json();
         if (Array.isArray(data.notifications)) {
           setNotifications(data.notifications);
+          writeCache(data.notifications);
         } else {
           setNotifications([]);
+          writeCache([]);
         }
       } catch (error) {
         console.error('Failed to fetch notifications', error);
@@ -136,11 +170,15 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
       const notificationId = customEvent.detail?.id;
 
       if (notificationId) {
-        setNotifications((current) => current.filter((item) => item.id !== notificationId));
+        setNotifications((current) => {
+          const updated = current.filter((item) => item.id !== notificationId);
+          writeCache(updated);
+          return updated;
+        });
         return;
       }
 
-      void fetchNotifications();
+      void fetchNotifications(true);
     };
 
     void fetchNotifications();
@@ -149,15 +187,17 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
     return () => {
       window.removeEventListener('notification-read', handleNotificationRead as EventListener);
     };
-  }, [session, BACKEND_URL]);
+  }, [session, BACKEND_URL, notificationsCacheKey]);
 
   useEffect(() => {
     if (!session || openMenu !== 'notifications') return;
 
     const refreshNotifications = async () => {
+      if (notifications.length > 0) return;
+
       setLoadingNotifications(true);
       try {
-        const response = await fetch(`${BACKEND_URL}/notifications?unread=true&limit=4&t=${Date.now()}`, {
+        const response = await fetch(`${BACKEND_URL}/notifications?unread=true&limit=4`, {
           headers: {
             Authorization: `Bearer ${session.access_token ?? ''}`,
           },
@@ -183,7 +223,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
     };
 
     void refreshNotifications();
-  }, [openMenu, session, BACKEND_URL]);
+  }, [openMenu, session, BACKEND_URL, notifications.length]);
 
   useEffect(() => {
     if (!openMenu) return;

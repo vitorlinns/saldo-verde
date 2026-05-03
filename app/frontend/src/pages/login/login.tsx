@@ -293,21 +293,6 @@ export default function LoginPage() {
                 <div className="text-center text-sm text-white">Ou</div>
 
                 <ButtonGoogle type="button" onClick={handleGoogleSignIn} loading={isGoogleLoading} />
-
-                <div className="pt-2 text-center text-sm text-white/70">
-                  Use o usuário de teste abaixo para acessar rapidamente:
-                </div>
-                <div className="rounded-2xl border border-border bg-white/5 p-3 text-sm text-white">
-                  <p><strong>Email:</strong> teste@saldoverde.pro</p>
-                  <p><strong>Senha:</strong> Teste123!</p>
-                </div>
-                <ButtonGeneral
-                  type="button"
-                  onClick={handleTestUserSignIn}
-                  label="Entrar com usuário de teste"
-                  loading={isAuthenticating}
-                  variant="secondary"
-                />
               </div>
 
               <div className="mt-4 flex items-center justify-center gap-2 text-sm text-white">

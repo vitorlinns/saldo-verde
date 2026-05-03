@@ -2,6 +2,8 @@ import { createClient as createSupabaseJsClient } from '@supabase/supabase-js';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import { API_BASE_URL } from '../config';
 
+const BACKEND_API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL ?? API_BASE_URL}/api`;
+
 export const createClient = (): SupabaseClient => {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? '';
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
@@ -29,7 +31,7 @@ export const createClient = (): SupabaseClient => {
 
 export const signOutWithBackend = async (
   supabase: SupabaseClient | null,
-  backendUrl = import.meta.env.VITE_BACKEND_URL ?? API_BASE_URL
+  backendUrl = BACKEND_API_BASE_URL
 ) => {
   if (!supabase) return;
 

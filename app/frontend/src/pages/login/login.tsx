@@ -10,6 +10,8 @@ import SuccessMessage from '../../components/message/success';
 import InputGeneral from '../../components/inputs/input_general';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? API_BASE_URL;
+const FOOTER_URL = `${BACKEND_URL}/api/footer-text`;
+const LOGIN_URL = `${BACKEND_URL}/api/login`;
 const OAUTH_REDIRECT_TO = import.meta.env.VITE_OAUTH_REDIRECT_TO ?? `${window.location.origin}/login`;
 
 const TEST_USER_EMAIL = 'teste@saldoverde.pro';
@@ -80,7 +82,10 @@ export default function LoginPage() {
   useEffect(() => {
     const fetchFooterText = async () => {
       try {
-        const response = await fetch('/api/footer-text');
+        const response = await fetch(FOOTER_URL);
+        if (!response.ok) {
+          throw new Error(`Footer request failed with status ${response.status}`);
+        }
         const data = await response.json();
         setFooterText(data.copyright ?? footerText);
       } catch (err) {
@@ -107,7 +112,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch(`${BACKEND_URL}/login`, {
+      const response = await fetch(LOGIN_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -156,7 +161,7 @@ export default function LoginPage() {
     setMessage('Usando usuário de teste...');
 
     try {
-      const response = await fetch(`${BACKEND_URL}/login`, {
+      const response = await fetch(LOGIN_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

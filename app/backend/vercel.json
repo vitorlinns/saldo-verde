@@ -47,6 +47,10 @@
       "destination": "/api/register.ts"
     },
     {
+      "source": "/api/footer-text",
+      "destination": "/api/footer-text.ts"
+    },
+    {
       "source": "/notifications",
       "destination": "/api/notifications.ts"
     },

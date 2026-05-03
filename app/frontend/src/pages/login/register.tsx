@@ -9,6 +9,8 @@ import SuccessMessage from '../../components/message/success';
 import type { Session } from '@supabase/supabase-js';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? API_BASE_URL;
+const FOOTER_URL = `${BACKEND_URL}/api/footer-text`;
+const REGISTER_URL = `${BACKEND_URL}/api/register`;
 
 const validateCpf = (value: string) => {
   const cpf = value.replace(/\D/g, '');
@@ -71,7 +73,10 @@ export default function RegisterPage() {
   useEffect(() => {
     const fetchFooterText = async () => {
       try {
-        const response = await fetch('/api/footer-text');
+        const response = await fetch(FOOTER_URL);
+        if (!response.ok) {
+          throw new Error(`Footer request failed with status ${response.status}`);
+        }
         const data = await response.json();
         setFooterText(data.copyright ?? footerText);
       } catch (err) {
@@ -124,7 +129,7 @@ export default function RegisterPage() {
     setMessage('');
 
     try {
-      const response = await fetch(`${BACKEND_URL}/register`, {
+      const response = await fetch(REGISTER_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -212,7 +217,6 @@ export default function RegisterPage() {
                 className="mt-0"
                 maxLength={10}
                 inputMode="numeric"
-                pattern="[0-9/]*"
               />
 
               <InputGeneral

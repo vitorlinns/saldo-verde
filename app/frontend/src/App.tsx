@@ -68,18 +68,86 @@ function AppRoutes() {
         <Route path="/recuperar-conta" element={<RecoverPage />} />
         <Route path="/recuperar-conta/codigo" element={<CodePage />} />
         <Route path="/recuperar-conta/nova-senha" element={<PasswordPage />} />
-        <Route path="/home" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/entrada" element={<EntrancePage />} />
-        <Route path="/saida" element={<ExpensesPage />} />
-        <Route path="/perfil" element={<ProfilePage />} />
-        <Route path="/assinatura" element={<SubscriptionPage />} />
-        <Route path="/configuracoes" element={<ConfigPage />} />
-        <Route path="/registros" element={<AllRecordsPage />} />
-        <Route path="/relatorios" element={<ReportsPage />} />
-        <Route path="/notificacoes" element={<NotificationsPage />} />
-        <Route path="/perfil" element={<ProfilePage />} />
-        <Route path="/configuracoes" element={<ConfigPage />} />
+        <Route
+          path="/home"
+          element={
+            <SessionProvider>
+              <Navigate to="/dashboard" replace />
+            </SessionProvider>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <SessionProvider>
+              <DashboardPage />
+            </SessionProvider>
+          }
+        />
+        <Route
+          path="/entrada"
+          element={
+            <SessionProvider>
+              <EntrancePage />
+            </SessionProvider>
+          }
+        />
+        <Route
+          path="/saida"
+          element={
+            <SessionProvider>
+              <ExpensesPage />
+            </SessionProvider>
+          }
+        />
+        <Route
+          path="/perfil"
+          element={
+            <SessionProvider>
+              <ProfilePage />
+            </SessionProvider>
+          }
+        />
+        <Route
+          path="/assinatura"
+          element={
+            <SessionProvider>
+              <SubscriptionPage />
+            </SessionProvider>
+          }
+        />
+        <Route
+          path="/configuracoes"
+          element={
+            <SessionProvider>
+              <ConfigPage />
+            </SessionProvider>
+          }
+        />
+        <Route
+          path="/registros"
+          element={
+            <SessionProvider>
+              <AllRecordsPage />
+            </SessionProvider>
+          }
+        />
+        <Route
+          path="/relatorios"
+          element={
+            <SessionProvider>
+              <ReportsPage />
+            </SessionProvider>
+          }
+        />
+        <Route
+          path="/notificacoes"
+          element={
+            <SessionProvider>
+              <NotificationsPage />
+            </SessionProvider>
+          }
+        />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>
@@ -89,9 +157,7 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <SessionProvider>
-        <AppRoutes />
-      </SessionProvider>
+      <AppRoutes />
     </BrowserRouter>
   );
 }

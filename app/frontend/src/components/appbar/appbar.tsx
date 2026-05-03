@@ -100,7 +100,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
     };
 
     void fetchProfileName();
-  }, [session, BACKEND_URL, profileNameCacheKey, persistedFirstName]);
+  }, [session]);
 
   useEffect(() => {
     if (!session) return;

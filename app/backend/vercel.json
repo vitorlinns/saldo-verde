@@ -6,34 +6,57 @@
       "use": "@vercel/node"
     }
   ],
-  "routes": [
+  "headers": [
     {
-      "src": "/health",
-      "dest": "/api/health.ts"
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://app.saldoverde.pro"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        },
+        {
+          "key": "Access-Control-Max-Age",
+          "value": "86400"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/health",
+      "destination": "/api/health.ts"
     },
     {
-      "src": "/login",
-      "dest": "/api/login.ts"
+      "source": "/login",
+      "destination": "/api/login.ts"
     },
     {
-      "src": "/logout",
-      "dest": "/api/logout.ts"
+      "source": "/logout",
+      "destination": "/api/logout.ts"
     },
     {
-      "src": "/register",
-      "dest": "/api/register.ts"
+      "source": "/register",
+      "destination": "/api/register.ts"
     },
     {
-      "src": "/notifications",
-      "dest": "/api/notifications.ts"
+      "source": "/notifications",
+      "destination": "/api/notifications.ts"
     },
     {
-      "src": "/notifications/([^/]+)",
-      "dest": "/api/notifications/[id].ts?id=$1"
+      "source": "/notifications/:id",
+      "destination": "/api/notifications/[id].ts?id=:id"
     },
     {
-      "src": "/profile/([^/]+)",
-      "dest": "/api/profile/[id].ts?id=$1"
+      "source": "/profile/:id",
+      "destination": "/api/profile/[id].ts?id=:id"
     }
   ]
 }

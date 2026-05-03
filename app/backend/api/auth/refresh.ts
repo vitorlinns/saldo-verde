@@ -2,6 +2,7 @@ import { createSupabaseClient } from '../_supabase';
 import { handleOptions, sendJson } from '../_http';
 import { consumeRateLimit } from '../../src/lib/rate-limiter';
 import { getClientIp, getCookie, setAuthCookies } from './_cookies';
+import { authRefreshSession } from '../_auth';
 
 const REFRESH_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const REFRESH_RATE_LIMIT_MAX = 20;
@@ -36,7 +37,7 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 503, { error: 'Serviço de autenticação indisponível no momento.' });
   }
 
-  const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+  const { data, error } = await authRefreshSession(supabase.auth, refreshToken);
 
   if (error || !data.session || !data.user) {
     return sendJson(res, 401, { error: 'Sessão expirada. Faça login novamente.' });

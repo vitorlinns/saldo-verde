@@ -2,6 +2,7 @@ import { createSupabaseClient } from '../_supabase';
 import { handleOptions, sendJson } from '../_http';
 import { consumeRateLimit } from '../../src/lib/rate-limiter';
 import { getClientIp, setAuthCookies } from './_cookies';
+import { authSignInWithPassword } from '../_auth';
 
 const LOGIN_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const LOGIN_RATE_LIMIT_MAX = 10;
@@ -38,10 +39,7 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 503, { error: 'Serviço de login indisponível no momento.' });
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: normalizedEmail,
-    password,
-  });
+  const { data, error } = await authSignInWithPassword(supabase.auth, normalizedEmail, password);
 
   if (error) {
     return sendJson(res, 401, { error: 'E-mail ou senha inválidos.' });

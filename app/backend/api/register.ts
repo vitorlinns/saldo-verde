@@ -25,6 +25,40 @@ const getAge = (birthDate: Date): number => {
   return age;
 };
 
+async function createUserWithAdmin(auth: any, payload: any) {
+  if (auth?.admin?.createUser) {
+    return auth.admin.createUser(payload);
+  }
+
+  if (auth?.api?.createUser) {
+    return auth.api.createUser(payload);
+  }
+
+  return { data: null, error: new Error('Método de criação de usuário não disponível no cliente Supabase.') };
+}
+
+async function signInWithPasswordCompat(auth: any, email: string, password: string) {
+  if (auth?.signInWithPassword) {
+    return auth.signInWithPassword({ email, password });
+  }
+
+  if (auth?.signIn) {
+    const legacy = await auth.signIn({ email, password });
+    return {
+      data: {
+        user: legacy?.user ?? null,
+        session: legacy?.session ?? null,
+      },
+      error: legacy?.error ?? null,
+    };
+  }
+
+  return {
+    data: { user: null, session: null },
+    error: new Error('Método de login por senha não disponível no cliente Supabase.'),
+  };
+}
+
 export default async function handler(req: any, res: any) {
   if (handleOptions(req, res)) return;
 
@@ -85,7 +119,9 @@ export default async function handler(req: any, res: any) {
   }
 
   // Create user
-  const { data, error } = await supabase.auth.admin.createUser({
+  const auth = supabase.auth as any;
+
+  const { data, error } = await createUserWithAdmin(auth, {
     email,
     password,
     email_confirm: true,
@@ -107,10 +143,7 @@ export default async function handler(req: any, res: any) {
   }
 
   // Auto-login after registration
-  const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const { data: loginData, error: loginError } = await signInWithPasswordCompat(auth, email, password);
 
   if (loginError || !loginData.session) {
     return sendJson(res, 201, {

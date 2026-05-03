@@ -1,5 +1,3 @@
-import type { Request, Response, NextFunction } from 'express';
-
 const rateLimitWindowMs = 15 * 60 * 1000;
 const rateLimitMax = 30;
 const rateMap = new Map<string, { count: number; firstRequestAt: number }>();
@@ -53,7 +51,7 @@ export function consumeRateLimit(name: string, key: string, options: RateLimitOp
   return { allowed: true, retryAfterSeconds: 0 };
 }
 
-export function rateLimiter(req: Request, res: Response, next: NextFunction) {
+export function rateLimiter(req: any, res: any, next: any) {
   const key = req.ip || 'unknown';
   const result = consumeRateLimit('global', key, {
     windowMs: rateLimitWindowMs,

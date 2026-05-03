@@ -1,6 +1,7 @@
 import { createSupabaseClient } from '../_supabase';
 import { handleOptions, sendJson } from '../_http';
 import { clearAuthCookies, getAccessTokenFromRequest } from './_cookies';
+import { authAdminSignOut, authGetUser } from '../_auth';
 
 export default async function handler(req: any, res: any) {
   if (handleOptions(req, res)) return;
@@ -14,9 +15,9 @@ export default async function handler(req: any, res: any) {
   if (accessToken) {
     try {
       const supabase = createSupabaseClient();
-      const { data: userData } = await supabase.auth.getUser(accessToken);
+      const { data: userData } = await authGetUser(supabase.auth, accessToken);
       if (userData?.user?.id) {
-        await supabase.auth.admin.signOut(userData.user.id);
+        await authAdminSignOut(supabase.auth, userData.user.id);
       }
     } catch (error) {
       console.warn('[auth/logout] admin signOut failed:', error);

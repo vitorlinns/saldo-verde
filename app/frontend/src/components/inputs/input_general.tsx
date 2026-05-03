@@ -24,8 +24,7 @@ export default function InputGeneral({
 
   const inputStyle = {
     ...style,
-    WebkitBoxShadow: '0 0 0 1000px #000 inset',
-    boxShadow: '0 0 0 1000px #000 inset',
+   
     WebkitTextFillColor: '#fff',
   };
 
@@ -41,7 +40,7 @@ export default function InputGeneral({
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck={false}
-        className="w-full rounded-xl border border-border bg-black px-4 py-3 pr-12 text-base text-white outline-none transition placeholder:text-white placeholder:opacity-50"
+        className="w-full rounded-[0.5rem] border border-border bg-background px-4 py-3 pr-12 text-base text-white outline-none transition placeholder:text-white placeholder:opacity-30"
         style={inputStyle}
         {...props}
       />

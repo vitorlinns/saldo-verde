@@ -72,11 +72,20 @@ export const signOutWithBackend = async (
 ) => {
   if (!supabase) return;
 
+  let token: string | null = null;
+  try {
+    const { data } = await supabase.auth.getSession();
+    token = data.session?.access_token ?? null;
+  } catch {
+    // proceed without token
+  }
+
   try {
     await fetch(`${backendUrl}/logout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
   } catch (err) {

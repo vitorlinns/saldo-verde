@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createClient, isProfileComplete } from '../../lib/auth';
-import type { Session, SupabaseClient } from '@supabase/supabase-js';
+import type { Session } from '@supabase/supabase-js';
 import ButtonGeneral from '../../components/btn/button_general';
 import ButtonGoogle from '../../components/btn/button_google';
 import ErrorMessage from '../../components/message/error';
@@ -11,12 +11,25 @@ import InputGeneral from '../../components/inputs/input_general';
 const BACKEND_URL = '/api';
 const FOOTER_URL = `${BACKEND_URL}/footer-text`;
 const OAUTH_REDIRECT_TO = import.meta.env.VITE_OAUTH_REDIRECT_TO ?? `${window.location.origin}/login`;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_ATTEMPTS = 3;
+const LOCKOUT_MS = 30_000;
 
-const TEST_USER_EMAIL = 'teste@saldoverde.pro';
-const TEST_USER_PASSWORD = 'Teste123!';
+function normalizeAuthError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes('invalid login credentials') || lower.includes('invalid email or password')) {
+    return 'Email ou senha inválidos.';
+  }
+  if (lower.includes('email not confirmed')) {
+    return 'Confirme seu e-mail antes de fazer login.';
+  }
+  if (lower.includes('too many requests')) {
+    return 'Muitas tentativas. Aguarde um momento e tente novamente.';
+  }
+  return 'Ocorreu um erro ao tentar fazer login. Tente novamente.';
+}
 
 export default function LoginPage() {
-  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,23 +38,21 @@ export default function LoginPage() {
   const [footerText, setFooterText] = useState('© 2026 Saldo Verde. Todos os direitos reservados.');
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
   const navigate = useNavigate();
-
-  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
   useEffect(() => {
     setIsGoogleLoading(false);
 
     try {
       const client = createClient();
-      setSupabase(client);
 
       const initializeSession = async () => {
         const hasAuthParams = window.location.hash.includes('access_token=') || window.location.search.includes('access_token=');
-        let currentSession: Session | null = null;
 
         const { data } = await client.auth.getSession();
-        currentSession = data.session ?? null;
+        const currentSession = data.session ?? null;
         setIsGoogleLoading(false);
 
         if (hasAuthParams) {
@@ -71,8 +82,7 @@ export default function LoginPage() {
       };
     } catch (err) {
       setIsGoogleLoading(false);
-      const message = err instanceof Error ? err.message : 'Não foi possível iniciar o login. Por favor, tente novamente.';
-      setError(message);
+      setError('Não foi possível iniciar o login. Por favor, tente novamente.');
       console.error('LoginPage init error:', err);
     }
   }, [navigate]);
@@ -95,12 +105,26 @@ export default function LoginPage() {
   }, []);
 
   const handleSignIn = async () => {
+    if (lockedUntil && Date.now() < lockedUntil) {
+      const seconds = Math.ceil((lockedUntil - Date.now()) / 1000);
+      setError(`Aguarde ${seconds} segundo(s) para tentar novamente.`);
+      return;
+    }
+
     if (!email || !password) {
       setError('Informe email e senha para continuar.');
       return;
     }
 
-    if (!supabase) {
+    if (!EMAIL_REGEX.test(email)) {
+      setError('Informe um endereço de e-mail válido.');
+      return;
+    }
+
+    let supabase;
+    try {
+      supabase = createClient();
+    } catch {
       setError('Não foi possível iniciar o login. Por favor, tente novamente.');
       return;
     }
@@ -116,7 +140,14 @@ export default function LoginPage() {
       });
 
       if (signInError) {
-        setError(signInError.message || 'Email ou senha inválidos.');
+        const next = failedAttempts + 1;
+        setFailedAttempts(next);
+        if (next >= MAX_ATTEMPTS) {
+          setLockedUntil(Date.now() + LOCKOUT_MS);
+          setError(`Muitas tentativas malsucedidas. Aguarde ${LOCKOUT_MS / 1000} segundos antes de tentar novamente.`);
+        } else {
+          setError(normalizeAuthError(signInError.message));
+        }
         return;
       }
 
@@ -125,6 +156,8 @@ export default function LoginPage() {
         return;
       }
 
+      setFailedAttempts(0);
+      setLockedUntil(null);
       setMessage('Login realizado com sucesso. Redirecionando...');
       const destination = isProfileComplete(data.session as Session) ? '/dashboard' : '/perfil';
       setTimeout(() => navigate(destination, { replace: true }), 1500);
@@ -136,48 +169,11 @@ export default function LoginPage() {
     }
   };
 
-  const handleTestUserSignIn = async () => {
-    if (!supabase) {
-      setError('Não foi possível iniciar o login de teste. Por favor, tente novamente.');
-      return;
-    }
-
-    setIsAuthenticating(true);
-    setError('');
-    setMessage('Usando usuário de teste...');
-
-    try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email: TEST_USER_EMAIL,
-        password: TEST_USER_PASSWORD,
-      });
-
-      if (signInError) {
-        setError(signInError.message || 'Não foi possível entrar com o usuário de teste.');
-        setMessage('');
-        return;
-      }
-
-      if (!data.session) {
-        setError('Falha ao autenticar o usuário de teste.');
-        setMessage('');
-        return;
-      }
-
-      setEmail(TEST_USER_EMAIL);
-      setPassword(TEST_USER_PASSWORD);
-      setMessage('Login de teste realizado. Redirecionando...');
-    } catch (err) {
-      setError('Ocorreu um erro ao entrar com o usuário de teste.');
-      console.error('Test user login error:', err);
-      setMessage('');
-    } finally {
-      setIsAuthenticating(false);
-    }
-  };
-
   const handleGoogleSignIn = async () => {
-    if (!supabase) {
+    let supabase;
+    try {
+      supabase = createClient();
+    } catch {
       setError('Não foi possível iniciar o login com Google. Por favor, tente novamente.');
       return;
     }
@@ -215,19 +211,19 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-background text-white">
       <section className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[1fr_0.9fr]">
-        <div className="hidden lg:block bg-black" />
+        <div className="hidden lg:block bg-background" />
 
-        <div className="flex items-center justify-center bg-black px-6 py-12">
-          <div className="w-full max-w-md rounded-[2rem] border border-border bg-black/95 p-8 backdrop-blur-xl shadow-xl shadow-black/20 sm:p-10">
+        <div className="flex items-center justify-center bg-background px-6 py-12">
+          <div className="w-full max-w-md rounded-[1rem] border border-border bg-surface p-8 sm:p-10">
             <div className="mb-6 space-y-4">
               <div className="flex justify-left">
                 <img src="/assets/brand/isologo.png" alt="Logo" className="h-12 w-auto" />
               </div>
 
-              <h2 className="text-3xl font-medium tracking-tight text-white sm:text-3xl">
-                Faça login ou crie sua conta grátis!
+              <h2 className="text-3xl font-regular tracking-tight text-white sm:text-3xl">
+                Acesse sua conta
               </h2>
             </div>
 
@@ -238,8 +234,10 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={setEmail}
-                  placeholder="Email"
+                  placeholder="Digite seu e-mail"
                   className="mt-0"
+                  maxLength={45}
+                  
                 />
 
                 <InputGeneral
@@ -247,13 +245,14 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={setPassword}
-                  placeholder="Senha"
+                  placeholder="Digite sua senha"
                   className="mt-0"
+                  maxLength={20}
                 />
 
                 <div className="text-right text-sm text-white">
                   <Link to="/recuperar-conta" className="font-regular text-white">
-                    Esqueci minha senha
+                    Esqueceu a senha?
                   </Link>
                 </div>
               </div>
@@ -262,7 +261,7 @@ export default function LoginPage() {
                 <ButtonGeneral
                   type="button"
                   onClick={handleSignIn}
-                  label="Entrar"
+                  label="Acessar conta"
                   loading={isAuthenticating}
                   className="mt-2"
                 />
@@ -273,9 +272,9 @@ export default function LoginPage() {
               </div>
 
               <div className="mt-4 flex items-center justify-center gap-2 text-sm text-white">
-                <span>Não tem conta?</span>
-                <Link to="/criar-conta" className="font-semibold text-primary-300 transition hover:text-primary-400">
-                  Criar conta
+                <span>Não possui conta?</span>
+                <Link to="/criar-conta" className="font-regular text-primary-300 transition hover:text-primary-400">
+                  Criar conta.
                 </Link>
               </div>
 

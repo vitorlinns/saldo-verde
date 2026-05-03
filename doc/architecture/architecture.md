@@ -67,13 +67,17 @@ O backend foi refatorado para se apoiar em módulos claros:
 ### Autenticação e segurança
 
 - O backend usa `SUPABASE_SERVICE_ROLE_KEY` para operações administrativas no Supabase.
-- O frontend faz login diretamente com o cliente Supabase, sem proxy de login via backend.
-- Rotas protegidas no backend dependem da validação de token Bearer e usuário autenticado.
+- O frontend faz login diretamente com o cliente Supabase (`signInWithPassword` / `signInWithOAuth`), sem proxy via backend.
+- Logout é composto: o frontend envia `POST /logout` com `Authorization: Bearer <token>` para o backend invalidar a sessão server-side via `auth.admin.signOut(userId)`, depois chama `signOut()` localmente.
+- Rotas protegidas no backend dependem da validação de token Bearer e usuário autenticado via `getBearerToken()` / `getSessionUser()` em `api/_auth.ts`.
 - O middleware global aplica limites de taxa via `src/lib/rate-limiter.ts`.
 
 ### Fluxo de dados
 
 - Cadastro: `frontend -> POST /register -> backend -> Supabase Admin`
+- Login: `frontend -> Supabase Auth (direto)` → JWT retornado e armazenado pelo SDK
+- Logout: `frontend -> POST /logout (com JWT) -> backend (admin.signOut) + frontend (signOut local)`
+- Recuperação de senha: `frontend -> POST /recover/request -> /recover/verify -> /recover/reset -> backend -> Supabase Admin`
 - Notificações: `frontend -> GET /notifications -> backend -> Supabase / mensagem gerada em lib`
 - Perfil: `frontend -> GET/PUT /profile/:id -> backend -> Supabase`
 - Exclusão: `frontend -> DELETE /account/:id -> backend -> Supabase Admin`
@@ -119,13 +123,13 @@ O usuário não deve acessar rotas restritas até que o perfil esteja completo.
 
 - Uso de `createClient` com `SUPABASE_SERVICE_ROLE_KEY` para operações administrativas.
 - Leitura/escrita em tabelas protegidas como `deleted_accounts` e `auth.users`.
-- Autenticação sensível (login via senha) é roteada pelo backend para manter a chave secreta no servidor.
+- Autenticação sensível (cadastro, exclusão de conta, logout server-side) é roteada pelo backend para manter a service role key no servidor.
 
 ### Frontend
 
-- Uso de `createBrowserSupabaseClient()` para autenticação e sessão do usuário.
-- O frontend nunca deve receber o `SUPABASE_SERVICE_ROLE_KEY`.
-- Cliente frontend consome o backend para cadastro, login e outras operações que exigem regras de segurança.
+- Uso de `createClient()` (singleton) de `app/frontend/src/lib/auth.ts`, que encapsula `@supabase/supabase-js` com retry de rede e guards de segurança.
+- O frontend nunca deve receber o `SUPABASE_SERVICE_ROLE_KEY` — `VITE_SUPABASE_ANON_KEY` deve ser a chave pública anon.
+- O cliente Supabase no frontend é responsável por login, logout local e refresh de token. A criação de usuários e operações sensíveis passam pelo backend.
 
 ## Ambiente e variáveis
 
@@ -146,6 +150,5 @@ Variáveis relevantes:
 
 ## Direções futuras
 
-- Estender o backend com rotas reais de recuperação de senha e assinatura.
 - Adicionar contratos de API mais explícitos e documentação de rotas.
 - Garantir que a camada `site/` continue isolada do SaaS core.

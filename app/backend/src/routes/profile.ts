@@ -1,5 +1,6 @@
 import type { Express } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { getSessionUser } from '../lib/auth';
 import { isValidCpf, isValidPhone, isValidCep, parseBirthdate, getAge, normalizeDigits } from '../lib/validation';
 
 const requiredProfileFields = [
@@ -31,7 +32,15 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
       return res.status(503).json({ error: 'Supabase is not configured' });
     }
 
+    const sessionUser = await getSessionUser(supabase, req);
+    if (!sessionUser) {
+      return res.status(401).json({ error: 'Invalid session' });
+    }
+
     const userId = req.params.id;
+    if (sessionUser.id !== userId) {
+      return res.status(403).json({ error: 'Not allowed to access this profile' });
+    }
 
     const { data, error } = await supabase
       .from('profiles')
@@ -51,13 +60,21 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
       return res.status(503).json({ error: 'Supabase is not configured' });
     }
 
+    const sessionUser = await getSessionUser(supabase, req);
+    if (!sessionUser) {
+      return res.status(401).json({ error: 'Invalid session' });
+    }
+
     const userId = req.params.id;
     if (!userId || typeof userId !== 'string') {
       return res.status(400).json({ error: 'Invalid user id' });
     }
 
-    const { data: currentUserData } = await supabase.auth.admin.getUserById(userId);
-    const currentMetadata = currentUserData?.user?.user_metadata as Record<string, unknown> | undefined;
+    if (sessionUser.id !== userId) {
+      return res.status(403).json({ error: 'Not allowed to update this profile' });
+    }
+
+    const currentMetadata = sessionUser.user_metadata as Record<string, unknown> | undefined;
     const wasProfileComplete = isMetadataComplete(currentMetadata);
 
     const {

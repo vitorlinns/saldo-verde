@@ -59,7 +59,17 @@ export default async function handler(req: any, res: any) {
   }
 
   const supabase = createSupabaseClient();
+  const sessionUser = await getSessionUser(req);
+
   if (req.method === 'GET') {
+    if (!sessionUser) {
+      return sendJson(res, 401, { error: 'Invalid session' });
+    }
+
+    if (sessionUser.id !== userId) {
+      return sendJson(res, 403, { error: 'Not allowed to access this profile' });
+    }
+
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -73,7 +83,6 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 200, { profile: data });
   }
 
-  const sessionUser = await getSessionUser(req);
   if (!sessionUser) {
     return sendJson(res, 401, { error: 'Invalid session' });
   }

@@ -10,7 +10,7 @@ interface ButtonGoogleProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export default function ButtonGoogle({ label = 'Entrar com Google', className = '', loading = false, ...props }: ButtonGoogleProps) {
   return (
     <button
-      className={`flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white px-5 py-3 text-base font-semibold text-black transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 disabled:pointer-events-none ${className}`}
+      className={`flex w-full items-center justify-center gap-2 rounded-[0.5rem] border border-border bg-btn_google px-5 py-3 text-white font-medium text-black transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-70 disabled:pointer-events-none ${className}`}
       disabled={loading || props.disabled}
       {...props}
     >

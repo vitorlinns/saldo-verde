@@ -10,6 +10,8 @@ Documentar a implementação atual do fluxo de login em `saldo-verde`, incluindo
   - `app/frontend/src/pages/login/login.tsx`
   - `app/frontend/src/lib/auth.ts`
 - Backend:
+  - `app/backend/api/logout.ts`
+  - `app/backend/api/_auth.ts`
   - `app/backend/src/routes/auth.ts`
 
 ## Visão geral do fluxo
@@ -40,25 +42,28 @@ Quando o usuário acessa a página de login:
 - Ação de login via botão `Entrar`.
 - Link para recuperação de senha (`/recuperar-conta`).
 - Botão de login com Google.
-- Botão de login de usuário de teste que usa credenciais fixas.
 
 ### Regras de autenticação
 
 - O login com email/senha chama `supabase.auth.signInWithPassword({ email, password })`.
-- A validação de campos é feita no frontend de forma simples: email e senha devem ser informados.
-- A tela exibe mensagens de erro retornadas pelo Supabase quando a autenticação falha.
+- O frontend valida:
+  - Email e senha não podem estar em branco.
+  - O e-mail precisa ter formato válido (regex `EMAIL_REGEX`) antes de qualquer chamada à API.
+- Mensagens de erro retornadas pelo Supabase são normalizadas por `normalizeAuthError()` antes de exibição — erros internos em inglês nunca chegam ao usuário.
+
+### Proteção contra brute force (throttle de frontend)
+
+Após `MAX_ATTEMPTS` (3) tentativas de login mal-sucedidas consecutivas, a tela entra em modo de bloqueio por `LOCKOUT_MS` (30 segundos). Durante o bloqueio:
+
+- O botão continua visível, mas ao clicar exibe o tempo restante.
+- O contador é armazenado em estado local (`lockedUntil`).
+- Após o período, o usuário pode tentar novamente normalmente.
+
+> Nota: este controle é exclusivamente no frontend. O Supabase também aplica rate-limiting próprio no servidor.
 
 ### Test user
 
-Há suporte explícito a um `TEST_USER_EMAIL` e `TEST_USER_PASSWORD` definidos em `login.tsx`.
-
-O fluxo é:
-
-1. tenta criar o usuário com `supabase.auth.signUp(...)`
-2. ignora o erro de "already registered"
-3. autentica com `signInWithPassword`
-
-Isso permite acesso rápido ao ambiente de teste sem pré-cadastro manual.
+Removido. As credenciais de teste (`TEST_USER_EMAIL` / `TEST_USER_PASSWORD`) foram eliminadas do bundle de produção para evitar exposição de segredos no código-fonte. Acesso de teste deve ser feito diretamente no painel do Supabase.
 
 ### Login com Google
 
@@ -79,8 +84,13 @@ O estado de sessão é observado no hook `useEffect` com `onAuthStateChange`.
 
 ### Funções auxiliares
 
-- `createClient()` — encapsula `createBrowserSupabaseClient()` do pacote `saldo-verde-supabase`.
+- `createClient()` — inicializa o cliente Supabase como singleton (uma única instância reutilizada em todo o frontend). Lança erro se `VITE_SUPABASE_URL` ou `VITE_SUPABASE_ANON_KEY` estiverem ausentes, e impede o uso acidental da service role key no browser.
+- `signOutWithBackend(supabase)` — executa logout em duas etapas:
+  1. Obtém o `access_token` (JWT) da sessão ativa.
+  2. Envia `POST /api/logout` com `Authorization: Bearer <token>` para que o backend invalide a sessão server-side.
+  3. Chama `supabase.auth.signOut()` para limpar o estado local.
 - `isProfileComplete(session)` — determina se o usuário já completou todos os campos de perfil exigidos.
+- `isGoogleSession(session)` — detecta se a sessão foi criada via OAuth do Google.
 
 ### Critério de perfil completo
 
@@ -100,6 +110,21 @@ O perfil é considerado completo quando a sessão contém `user_metadata` com to
 - `state`
 
 Essa checagem é usada para decidir se o usuário segue para `/dashboard` ou permanece em `/perfil`.
+
+## Backend — `logout.ts`
+
+### `POST /api/logout`
+
+Endpoint chamado por `signOutWithBackend()` imediatamente antes do `signOut` local.
+
+Fluxo:
+
+1. Extrai o JWT do header `Authorization: Bearer <token>` via `getBearerToken()`.
+2. Verifica o usuário correspondente com `supabase.auth.getUser(token)` (Supabase Admin).
+3. Se o usuário existir, chama `supabase.auth.admin.signOut(userId)` para invalidar a sessão server-side (revoção de refresh token).
+4. Retorna `200` independentemente — erros de admin signOut são apenas logados, não bloqueiam o fluxo.
+
+> O token enviado é o `access_token` JWT da sessão Supabase. Se não for enviado (ex.: sessão já expirada), o endpoint retorna sucesso sem ação server-side.
 
 ## Backend — `auth.ts`
 
@@ -130,9 +155,11 @@ O `POST /register` existe apenas para o cadastro. O login em si não passa por e
 
 ## Observações importantes
 
-- A autenticação de login é gerenciada no frontend pelo cliente Supabase.
-- A página de login mantém a experiência de navegação por meio de hooks de sessão e redirecionamentos.
-- A lógica de cadastro ainda reside no backend porque envolve validação de CPF, verificação de conta reservada e criação de usuários no Supabase Admin.
+- A autenticação de login é gerenciada no frontend pelo cliente Supabase (fluxo recomendado para SPAs).
+- O cliente Supabase é instanciado como singleton via `createClient()` — não deve ser armazenado em estado React.
+- O logout é composto: invalidação server-side via Admin API + limpeza de estado local.
+- Mensagens de erro do Supabase (em inglês / com detalhes internos) nunca chegam diretamente ao usuário.
+- A lógica de cadastro permanece no backend pois envolve validação de CPF, verificação de conta reservada e criação via Supabase Admin API.
 
 ## Ajustes futuros
 

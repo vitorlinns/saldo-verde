@@ -68,11 +68,8 @@ No código atual, o backend lê `RESEND_API_KEY` em `app/backend/src/lib/email.t
 - O usuário informa um código de 6 dígitos.
 - Os campos aceitam apenas números e avançam automaticamente para o próximo dígito.
 - Ao submeter, a página valida que todos os 6 dígitos foram preenchidos.
-- Se válido, faz espera simulada de 2 segundos e redireciona para `/recuperar-conta/nova-senha`.
-
-### Limitações
-
-- O código é gerado e verificado pelo backend, mas o fluxo ainda depende do frontend para navegação de telas.
+- Chama `POST /recover/verify` com `{ email, code }` (email lido do `sessionStorage`).
+- Em caso de sucesso, armazena `recoverCode` e `recoverVerified=true` no `sessionStorage` e redireciona para `/recuperar-conta/nova-senha`.
 - O código expira em 15 minutos.
 
 ## Tela 3 — `PasswordPage`
@@ -83,30 +80,21 @@ No código atual, o backend lê `RESEND_API_KEY` em `app/backend/src/lib/email.t
 
 ### Comportamento
 
+- Verifica no `sessionStorage` se `recoverEmail`, `recoverCode` e `recoverVerified` estão presentes; caso contrário, redireciona para `/recuperar-conta`.
 - O usuário informa senha e confirmação de senha.
 - Validações locais:
   - ambos os campos devem estar preenchidos
   - senha deve ter ao menos 8 caracteres
   - senha e confirmação devem coincidir
-- Em seguida, simula processamento de 2 segundos.
-- Exibe mensagem de sucesso e redireciona para `/login`.
-
-### Limitações
-
-- Ainda não há integração com backend para atualizar a senha real do usuário.
-- Não há uso de token de recuperação, sessão temporária ou validação do usuário dono da conta.
+- Chama `POST /recover/reset` com `{ email, code, password }`.
+- Em caso de sucesso, limpa as chaves do `sessionStorage`, exibe mensagem de sucesso e redireciona para `/login`.
 
 ## Conclusão técnica
 
-O fluxo atual é uma implementação de experiência de front-end que modela a navegação esperada, mas não realiza a recuperação de conta de verdade.
+O fluxo está completamente implementado e integrado entre frontend e backend.
 
-### Pontos a serem completados em backend
+- Tela 1 → `POST /recover/request` → envia código por email via Resend
+- Tela 2 → `POST /recover/verify` → valida código
+- Tela 3 → `POST /recover/reset` → atualiza senha no Supabase via Admin API
 
-- envio de email de recuperação com token/código
-- validação do código/token recebido
-- atualização segura da senha no provedor de autenticação
-- expiração de token de recuperação
-
-### Observação de documentação
-
-Esta documentação descreve o estado atual do sistema, não um fluxo de recuperação completo implementado.
+O estado temporário entre telas é mantido via `sessionStorage` (`recoverEmail`, `recoverCode`, `recoverVerified`).

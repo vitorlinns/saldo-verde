@@ -180,19 +180,19 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-background text-white">
       <section className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[1fr_0.9fr]">
         <div className="hidden lg:block bg-primary-black" />
 
-        <div className="flex items-center justify-center bg-black px-6 py-12">
-          <div className="w-full max-w-md rounded-[2rem] border border-border bg-black/95 p-8 backdrop-blur-xl shadow-xl shadow-black/20 sm:p-10">
+        <div className="flex items-center justify-center bg-background px-6 py-12">
+          <div className="w-full max-w-md rounded-[1rem] border border-border bg-surface p-8 sm:p-10">
             <div className="mb-6 space-y-4">
               <div className="flex justify-left">
                 <img src="/assets/brand/isologo.png" alt="Logo" className="h-12 w-auto" />
               </div>
 
-              <h2 className="text-3xl font-medium tracking-tight text-white sm:text-3xl">
-                Criar conta grátis
+              <h2 className="text-3xl font-regular tracking-tight text-white sm:text-3xl">
+                Crie sua conta
               </h2>
            
             </div>
@@ -206,6 +206,7 @@ export default function RegisterPage() {
                 onChange={setEmail}
                 placeholder="Email"
                 className="mt-0"
+                maxLength={45}
               />
 
               <InputGeneral
@@ -215,6 +216,7 @@ export default function RegisterPage() {
                 onChange={setCpf}
                 placeholder="CPF"
                 className="mt-0"
+                maxLength={11}
               />
 
               <InputGeneral
@@ -235,6 +237,7 @@ export default function RegisterPage() {
                 onChange={setPassword}
                 placeholder="Criar senha"
                 className="mt-0"
+                maxLength={20}
               />
 
               <InputGeneral
@@ -244,6 +247,7 @@ export default function RegisterPage() {
                 onChange={setConfirmPassword}
                 placeholder="Confirmar senha"
                 className="mt-0"
+                maxLength={20}
               />
 
               <div className="text-center text-xs leading-relaxed text-white/70">

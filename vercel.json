@@ -69,6 +69,16 @@
       "dest": "/app/backend/api/logout.ts"
     },
     {
+      "src": "/notifications/([^/]+)",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/notifications/[id].ts?id=$1"
+    },
+    {
       "src": "/notifications",
       "has": [
         {

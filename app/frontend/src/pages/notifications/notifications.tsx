@@ -8,7 +8,7 @@ import Footer from '../../components/footer/footer';
 import ModalViewMessage from '../../components/modal/modal_view_message';
 import NotificationsCard from '../../components/cards/notifications_card';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? '/api';
+const BACKEND_URL = '/api';
 
 interface NotificationItem {
   id: string;

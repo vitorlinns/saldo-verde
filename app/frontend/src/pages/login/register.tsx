@@ -8,7 +8,7 @@ import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 import type { Session } from '@supabase/supabase-js';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? '/api';
+const BACKEND_URL = '/api';
 const FOOTER_URL = `${BACKEND_URL}/footer-text`;
 const REGISTER_URL = `${BACKEND_URL}/register`;
 

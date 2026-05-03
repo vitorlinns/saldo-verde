@@ -1,7 +1,7 @@
 import { createClient as createSupabaseJsClient } from '@supabase/supabase-js';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
-const BACKEND_API_BASE_URL = import.meta.env.VITE_BACKEND_URL ?? '/api';
+const BACKEND_API_BASE_URL = '/api';
 
 export const createClient = (): SupabaseClient => {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? '';

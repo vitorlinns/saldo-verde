@@ -59,7 +59,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
   const notificationsCacheKey = session ? `unread-notifications:${session.user.id}` : null;
   const CACHE_TTL_MS = 30_000;
 
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? '/api';
+  const BACKEND_URL = '/api';
 
   useEffect(() => {
     if (!session) {

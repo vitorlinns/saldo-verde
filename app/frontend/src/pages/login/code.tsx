@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import ButtonGeneral from '../../components/btn/button_general';
 import ErrorMessage from '../../components/message/error';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? '/api';
+const BACKEND_URL = '/api';
 
 export default function CodePage() {
   const [code, setCode] = useState(Array(6).fill(''));

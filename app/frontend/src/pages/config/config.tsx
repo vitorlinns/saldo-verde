@@ -10,7 +10,7 @@ import ButtonDanger from '../../components/btn/button_danger';
 import Modal from '../../components/modal/modal_deleted_account';
 import Snackbar from '../../components/snackbar/snackbar';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? '/api';
+const BACKEND_URL = '/api';
 
 export default function ConfigPage() {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);

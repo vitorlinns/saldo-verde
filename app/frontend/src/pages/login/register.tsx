@@ -142,10 +142,19 @@ export default function RegisterPage() {
         }),
       });
 
-      const result = await response.json();
+      const rawBody = await response.text();
+      let result: Record<string, any> = {};
+      if (rawBody) {
+        try {
+          result = JSON.parse(rawBody);
+        } catch {
+          result = { error: rawBody.slice(0, 180) };
+        }
+      }
 
       if (!response.ok) {
-        setError(result.error || 'Não foi possível criar a conta.');
+        const statusMessage = `Falha no cadastro (${response.status}).`;
+        setError(result.error || statusMessage);
       } else if (result.session) {
         // Auto-login: set session and redirect to profile setup
         const supabase = createClient();

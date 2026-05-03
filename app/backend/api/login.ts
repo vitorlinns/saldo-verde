@@ -13,7 +13,14 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 400, { error: 'Email e senha sao obrigatorios.' });
   }
 
-  const supabase = createSupabaseClient();
+  let supabase;
+  try {
+    supabase = createSupabaseClient();
+  } catch (error) {
+    console.error('[login] supabase init error:', error);
+    return sendJson(res, 503, { error: 'Serviço de login indisponível no momento.' });
+  }
+
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {

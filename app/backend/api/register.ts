@@ -60,7 +60,13 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 400, { error: 'Você deve ter 18 anos ou mais para se cadastrar.' });
   }
 
-  const supabase = createSupabaseClient();
+  let supabase;
+  try {
+    supabase = createSupabaseClient();
+  } catch (error) {
+    console.error('[register] supabase init error:', error);
+    return sendJson(res, 503, { error: 'Serviço de cadastro indisponível no momento.' });
+  }
 
   // Check deleted accounts
   const { data: reservedAccount, error: reservedError } = await supabase

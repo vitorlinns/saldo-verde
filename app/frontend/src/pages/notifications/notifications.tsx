@@ -162,13 +162,13 @@ export default function NotificationsPage() {
   };
 
   const handleCloseNotification = () => {
+    setSelectedNotification(null);
+  };
+
+  const handleNotificationMarked = () => {
     if (selectedNotification) {
       setNotifications((current) =>
-        current.map((notification) =>
-          notification.id === selectedNotification.id
-            ? { ...notification, unread: false }
-            : notification
-        )
+        current.filter((notification) => notification.id !== selectedNotification.id)
       );
     }
     setSelectedNotification(null);
@@ -283,7 +283,10 @@ export default function NotificationsPage() {
         message={selectedNotification?.message ?? ''}
         date={selectedNotification?.date ?? ''}
         time={selectedNotification?.time}
+        notificationId={selectedNotification?.id}
+        accessToken={session.access_token}
         onClose={handleCloseNotification}
+        onMarked={handleNotificationMarked}
       />
     </main>
   );

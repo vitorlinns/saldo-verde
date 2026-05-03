@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Check } from 'lucide-react';
 import ButtonSubmit from '../btn/button_submit';
 
@@ -7,16 +8,54 @@ interface ModalViewMessageProps {
   message: string;
   date: string;
   time?: string;
+  notificationId?: string;
+  accessToken?: string;
   onClose: () => void;
+  onMarked?: () => void;
 }
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
 
 export default function ModalViewMessage({
   open,
   message,
   date,
   time,
+  notificationId,
+  accessToken,
   onClose,
+  onMarked,
 }: ModalViewMessageProps) {
+  const [marking, setMarking] = useState(false);
+
+  const handleMarkAsRead = async () => {
+    if (!notificationId || !accessToken) {
+      onClose();
+      onMarked?.();
+      return;
+    }
+
+    setMarking(true);
+    try {
+      const response = await fetch(`${BACKEND_URL}/notifications/${notificationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.ok) {
+        onMarked?.();
+      }
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
+    } finally {
+      setMarking(false);
+      onClose();
+    }
+  };
+
   if (!open) {
     return null;
   }
@@ -44,9 +83,10 @@ export default function ModalViewMessage({
           <div className="flex justify-end">
             <ButtonSubmit
               type="button"
-              label="Marcar como lido"
+              label={marking ? 'Marcando...' : 'Marcar como lido'}
               icon={<Check className="h-4 w-4" />}
-              onClick={onClose}
+              onClick={handleMarkAsRead}
+              loading={marking}
               fullWidth={false}
               className="h-10"
             />

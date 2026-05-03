@@ -10,7 +10,7 @@
       "use": "@vercel/static-build"
     },
     {
-      "src": "app/backend/api/**/*.ts",
+      "src": "app/backend/api/**/[!_]*.ts",
       "use": "@vercel/node"
     }
   ],

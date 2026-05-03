@@ -44,8 +44,13 @@ export function getAccessTokenFromRequest(req: any) {
   return getCookie(req, 'sv_at');
 }
 
+function isProductionEnv() {
+  const nodeEnv = (globalThis as any)?.process?.env?.NODE_ENV as string | undefined;
+  return nodeEnv === 'production';
+}
+
 export function setAuthCookies(res: any, accessToken: string, refreshToken: string) {
-  const isProd = process.env.NODE_ENV === 'production';
+  const isProd = isProductionEnv();
 
   const accessCookie = [
     `sv_at=${encodeURIComponent(accessToken)}`,
@@ -69,7 +74,7 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
 }
 
 export function clearAuthCookies(res: any) {
-  const isProd = process.env.NODE_ENV === 'production';
+  const isProd = isProductionEnv();
 
   const expiredAccessCookie = [
     'sv_at=',

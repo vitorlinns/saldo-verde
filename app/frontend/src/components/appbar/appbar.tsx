@@ -30,7 +30,12 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
   const menuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const email = session?.user.email ?? 'Usuário';
-  const [persistedFirstName, setPersistedFirstName] = useState<string>('');
+  const profileNameCacheKey = session ? `profile-first-name:${session.user.id}` : null;
+  const [persistedFirstName, setPersistedFirstName] = useState<string>(() => {
+    if (!session) return '';
+    const cached = window.localStorage.getItem(`profile-first-name:${session.user.id}`);
+    return cached?.trim() ?? '';
+  });
   const firstNameFromMetadata =
     typeof session?.user.user_metadata?.first_name === 'string'
       ? session.user.user_metadata.first_name.trim()
@@ -60,6 +65,13 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
       return;
     }
 
+    if (profileNameCacheKey) {
+      const cached = window.localStorage.getItem(profileNameCacheKey)?.trim() ?? '';
+      if (cached && cached !== persistedFirstName) {
+        setPersistedFirstName(cached);
+      }
+    }
+
     const fetchProfileName = async () => {
       try {
         const response = await fetch(`${BACKEND_URL}/profile/${session.user.id}`, {
@@ -76,6 +88,9 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
         const data = await response.json();
         const dbFirstName = typeof data?.profile?.first_name === 'string' ? data.profile.first_name.trim() : '';
         setPersistedFirstName(dbFirstName);
+        if (profileNameCacheKey && dbFirstName) {
+          window.localStorage.setItem(profileNameCacheKey, dbFirstName);
+        }
       } catch (error) {
         console.error('Failed to fetch profile name', error);
         setPersistedFirstName('');
@@ -83,7 +98,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
     };
 
     void fetchProfileName();
-  }, [session, BACKEND_URL]);
+  }, [session, BACKEND_URL, profileNameCacheKey, persistedFirstName]);
 
   useEffect(() => {
     if (!session) return;
@@ -116,8 +131,59 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
       }
     };
 
-    fetchNotifications();
+    const handleNotificationRead = (event: Event) => {
+      const customEvent = event as CustomEvent<{ id?: string }>;
+      const notificationId = customEvent.detail?.id;
+
+      if (notificationId) {
+        setNotifications((current) => current.filter((item) => item.id !== notificationId));
+        return;
+      }
+
+      void fetchNotifications();
+    };
+
+    void fetchNotifications();
+    window.addEventListener('notification-read', handleNotificationRead as EventListener);
+
+    return () => {
+      window.removeEventListener('notification-read', handleNotificationRead as EventListener);
+    };
   }, [session, BACKEND_URL]);
+
+  useEffect(() => {
+    if (!session || openMenu !== 'notifications') return;
+
+    const refreshNotifications = async () => {
+      setLoadingNotifications(true);
+      try {
+        const response = await fetch(`${BACKEND_URL}/notifications`, {
+          headers: {
+            Authorization: `Bearer ${session.access_token ?? ''}`,
+          },
+        });
+
+        if (!response.ok) {
+          setNotifications([]);
+          return;
+        }
+
+        const data = await response.json();
+        if (Array.isArray(data.notifications)) {
+          setNotifications(data.notifications);
+        } else {
+          setNotifications([]);
+        }
+      } catch (error) {
+        console.error('Failed to refresh notifications', error);
+        setNotifications([]);
+      } finally {
+        setLoadingNotifications(false);
+      }
+    };
+
+    void refreshNotifications();
+  }, [openMenu, session, BACKEND_URL]);
 
   useEffect(() => {
     if (!openMenu) return;
@@ -145,7 +211,8 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
     };
   }, [openMenu]);
 
-  const recentNotifications = notifications.slice(-4).reverse();
+  const unreadNotifications = notifications.filter((item) => item.unread);
+  const recentNotifications = unreadNotifications.slice(0, 4);
 
   return (
     <div className="mt-4 mb-8 flex justify-between rounded-xl border border-border bg-black p-3 shadow-xl shadow-black/20">
@@ -212,7 +279,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
                   <div className="rounded-2xl border border-border bg-black/90 p-4 text-sm text-white/70">
                     Carregando notificações...
                   </div>
-                ) : notifications.length > 0 ? (
+                ) : unreadNotifications.length > 0 ? (
                   <div className="space-y-3">
                     {recentNotifications.map((notification) => (
                       <NotificationCardAppbar

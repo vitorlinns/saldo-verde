@@ -10,7 +10,7 @@ export default function NotificationCardAppbar({ title, unread = false, onClick 
       type="button"
       onClick={onClick}
       className={`w-full rounded-2xl border px-4 py-3 text-left transition hover:border-white/20 ${
-        unread ? 'border-primary-500 bg-white/5' : 'border-border bg-black/90'
+        unread ? 'border-border bg-white/5' : 'border-border bg-black/90'
       }`}
     >
       <div className="flex items-center gap-3">

@@ -15,7 +15,7 @@ export default function NotificationsCard({
   onView,
 }: NotificationCardProps) {
   return (
-    <div className={`rounded-2xl border border-border bg-black/90 p-5 shadow-xl shadow-black/20 ${unread ? 'ring-1 ring-primary-500/20' : ''}`}>
+    <div className="rounded-2xl border border-border bg-black/90 p-5 shadow-xl shadow-black/20">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-black/90">

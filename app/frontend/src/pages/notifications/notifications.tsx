@@ -167,6 +167,12 @@ export default function NotificationsPage() {
 
   const handleNotificationMarked = () => {
     if (selectedNotification) {
+      window.dispatchEvent(
+        new CustomEvent('notification-read', {
+          detail: { id: selectedNotification.id },
+        })
+      );
+
       setNotifications((current) =>
         current.filter((notification) => notification.id !== selectedNotification.id)
       );

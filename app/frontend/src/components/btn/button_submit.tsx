@@ -24,7 +24,7 @@ export default function ButtonSubmit({
       {...props}
     >
       <span className="inline-flex items-center justify-center gap-2 leading-none">
-        {loading ? 'Carregando...' : icon ?? <User className="h-4 w-4" />}
+        {!loading && (icon ?? <User className="h-4 w-4" />)}
         {loading ? 'Carregando...' : label}
       </span>
     </button>

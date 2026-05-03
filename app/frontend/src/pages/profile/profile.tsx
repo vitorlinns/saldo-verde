@@ -358,6 +358,8 @@ export default function ProfilePage() {
     }
 
     setIsSaving(true);
+    setSuccess('');
+    setSnackbarMessage('');
 
     try {
       const response = await fetch(`${BACKEND_URL}/profile/${session.user.id}`, {
@@ -384,11 +386,14 @@ export default function ProfilePage() {
       });
 
       const result = await response.json();
+      console.log('Profile save response:', { status: response.status, body: result });
 
       if (!response.ok) {
+        console.error('Profile save failed:', result);
         setSnackbarMessage(result.error || 'Não foi possível salvar o perfil.');
         setSnackbarOpen(true);
       } else {
+        console.log('Profile saved successfully');
         setAvatarUrl(avatarUrlToSave);
         if (selectedImage) {
           setSelectedImage(null);
@@ -400,7 +405,19 @@ export default function ProfilePage() {
           user: {
             ...session.user,
             user_metadata: {
-              ...(session.user.user_metadata ?? {}),
+              ...session.user.user_metadata,
+              first_name: firstName.trim(),
+              last_name: lastName.trim(),
+              cpf: cpf.trim(),
+              phone: phone.trim(),
+              birthdate: birthdate.trim(),
+              cep: cep.replace(/\D/g, '').trim(),
+              street: street.trim(),
+              number: number.trim(),
+              complement: complement.trim(),
+              neighborhood: neighborhood.trim(),
+              city: city.trim(),
+              state: stateUf.trim(),
               avatar_url: avatarUrlToSave,
             },
           },
@@ -408,6 +425,11 @@ export default function ProfilePage() {
 
         setFieldsLocked(true);
         setSuccess(result.message || 'Dados salvo com sucesso.');
+        
+        // Auto-clear success message after 5 seconds
+        setTimeout(() => {
+          setSuccess('');
+        }, 5000);
       }
     } catch (err) {
       console.error('Profile save error:', err);

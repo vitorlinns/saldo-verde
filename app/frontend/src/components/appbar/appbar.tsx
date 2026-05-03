@@ -190,42 +190,6 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
   }, [session, BACKEND_URL, notificationsCacheKey]);
 
   useEffect(() => {
-    if (!session || openMenu !== 'notifications') return;
-
-    const refreshNotifications = async () => {
-      if (notifications.length > 0) return;
-
-      setLoadingNotifications(true);
-      try {
-        const response = await fetch(`${BACKEND_URL}/notifications?unread=true&limit=4`, {
-          headers: {
-            Authorization: `Bearer ${session.access_token ?? ''}`,
-          },
-        });
-
-        if (!response.ok) {
-          setNotifications([]);
-          return;
-        }
-
-        const data = await response.json();
-        if (Array.isArray(data.notifications)) {
-          setNotifications(data.notifications);
-        } else {
-          setNotifications([]);
-        }
-      } catch (error) {
-        console.error('Failed to refresh notifications', error);
-        setNotifications([]);
-      } finally {
-        setLoadingNotifications(false);
-      }
-    };
-
-    void refreshNotifications();
-  }, [openMenu, session, BACKEND_URL, notifications.length]);
-
-  useEffect(() => {
     if (!openMenu) return;
 
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {

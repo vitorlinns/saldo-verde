@@ -9,7 +9,6 @@ import InputGeneral from '../../components/inputs/input_general';
 import ButtonSubmit from '../../components/btn/button_submit';
 import UploadImg from '../../components/upload/upload_img';
 import Snackbar from '../../components/snackbar/snackbar';
-import SuccessMessage from '../../components/message/success';
 import { AlertCircle, Save } from 'lucide-react';
 
 const formatValue = (value?: string | null) => (value?.trim() ? value : '');
@@ -112,7 +111,7 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [success, setSuccess] = useState('');
+  const [snackbarType, setSnackbarType] = useState<'success' | 'error'>('error');
   const [isSaving, setIsSaving] = useState(false);
   const [fieldsLocked, setFieldsLocked] = useState(false);
   const navigate = useNavigate();
@@ -153,31 +152,59 @@ export default function ProfilePage() {
     document.title = 'Meu perfil | Saldo Verde';
   }, []);
 
+  const applyProfileData = (
+    source: Record<string, string | null | undefined>,
+    currentSession: Session
+  ) => {
+    const googleSignIn = isGoogleSession(currentSession);
+    setFirstName(
+      googleSignIn
+        ? source.first_name ?? ''
+        : source.first_name ?? currentSession.user.email?.split('@')[0] ?? ''
+    );
+    setLastName(source.last_name ?? '');
+    setCpf(formatBrazilCpf(source.cpf ?? ''));
+    setPhone(formatBrazilPhone(source.phone ?? ''));
+    setBirthdate(source.birthdate ?? '');
+    setCep(formatCep(source.cep ?? ''));
+    setStreet(source.street ?? '');
+    setNumber(source.number ?? '');
+    setComplement(source.complement ?? '');
+    setNeighborhood(source.neighborhood ?? '');
+    setCity(source.city ?? '');
+    setStateUf(source.state ?? '');
+    const avatar = source.avatar_url ?? source.picture ?? '';
+    setAvatarUrl(avatar);
+    setProfileImage(avatar);
+  };
+
   useEffect(() => {
     if (!session) return;
 
     const metadata = session.user.user_metadata as Record<string, string> | undefined;
-    const googleSignIn = isGoogleSession(session);
+    applyProfileData(metadata ?? {}, session);
 
-    setFirstName(
-      googleSignIn
-        ? metadata?.first_name ?? ''
-        : metadata?.first_name ?? session.user.email?.split('@')[0] ?? ''
-    );
-    setLastName(metadata?.last_name ?? '');
-    setCpf(formatBrazilCpf(metadata?.cpf ?? ''));
-    setPhone(formatBrazilPhone(metadata?.phone ?? ''));
-    setBirthdate(metadata?.birthdate ?? '');
-    setCep(metadata?.cep ?? '');
-    setStreet(metadata?.street ?? '');
-    setNumber(metadata?.number ?? '');
-    setComplement(metadata?.complement ?? '');
-    setNeighborhood(metadata?.neighborhood ?? '');
-    setCity(metadata?.city ?? '');
-    setStateUf(metadata?.state ?? '');
-    const avatar = metadata?.avatar_url ?? metadata?.picture ?? '';
-    setAvatarUrl(avatar);
-    setProfileImage(avatar);
+    const fetchPersistedProfile = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/profile/${session.user.id}`, {
+          headers: {
+            Authorization: `Bearer ${session.access_token ?? ''}`,
+          },
+        });
+
+        if (!response.ok) return;
+
+        const result = await response.json();
+        const persistedProfile = result?.profile as Record<string, string> | undefined;
+        if (!persistedProfile) return;
+
+        applyProfileData(persistedProfile, session);
+      } catch (err) {
+        console.error('Profile fetch error:', err);
+      }
+    };
+
+    void fetchPersistedProfile();
   }, [session]);
 
   useEffect(() => {
@@ -292,7 +319,7 @@ export default function ProfilePage() {
 
     setSnackbarMessage('');
     setSnackbarOpen(false);
-    setSuccess('');
+    setSnackbarType('error');
 
     const requiredFields = [
       { value: firstName, label: 'Primeiro nome' },
@@ -358,7 +385,7 @@ export default function ProfilePage() {
     }
 
     setIsSaving(true);
-    setSuccess('');
+    setSnackbarType('error');
     setSnackbarMessage('');
 
     try {
@@ -390,6 +417,7 @@ export default function ProfilePage() {
 
       if (!response.ok) {
         console.error('Profile save failed:', result);
+        setSnackbarType('error');
         setSnackbarMessage(result.error || 'Não foi possível salvar o perfil.');
         setSnackbarOpen(true);
       } else {
@@ -424,15 +452,13 @@ export default function ProfilePage() {
         } as Session);
 
         setFieldsLocked(true);
-        setSuccess(result.message || 'Dados salvo com sucesso.');
-        
-        // Auto-clear success message after 5 seconds
-        setTimeout(() => {
-          setSuccess('');
-        }, 5000);
+        setSnackbarType('success');
+        setSnackbarMessage(result.message || 'Perfil atualizado com sucesso.');
+        setSnackbarOpen(true);
       }
     } catch (err) {
       console.error('Profile save error:', err);
+      setSnackbarType('error');
       setSnackbarMessage('Não foi possível salvar o perfil. Tente novamente.');
       setSnackbarOpen(true);
     } finally {
@@ -637,10 +663,6 @@ export default function ProfilePage() {
               </div>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="space-y-2">
-                  {success ? <SuccessMessage>{success}</SuccessMessage> : null}
-                </div>
-
                 <ButtonSubmit
                   type="submit"
                   label={isSaving ? 'Salvando...' : 'Salvar'}
@@ -659,8 +681,11 @@ export default function ProfilePage() {
       <Snackbar
         open={snackbarOpen}
         message={snackbarMessage}
-        type="error"
-        onClose={() => setSnackbarOpen(false)}
+        type={snackbarType}
+        onClose={() => {
+          setSnackbarOpen(false);
+          setSnackbarType('error');
+        }}
       />
     </main>
   );

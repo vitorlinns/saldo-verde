@@ -15,16 +15,28 @@ import ProfilePage from './pages/profile/profile';
 import ConfigPage from './pages/config/config';
 import SubscriptionPage from './pages/subscription/subscription';
 import Preloader from './components/preloader/preloader';
+import { SessionProvider } from './contexts/session-context';
+
+const AUTH_ROUTES = ['/login', '/criar-conta', '/recuperar-conta'] as const;
+
+function isAuthRoute(pathname: string) {
+  return AUTH_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+}
 
 function AppRoutes() {
   const location = useLocation();
-  const [loading, setLoading] = useState(false);
-  const firstLocation = useRef(true);
+  const [loading, setLoading] = useState(() => !isAuthRoute(location.pathname));
   const timeoutId = useRef<number | null>(null);
 
   useEffect(() => {
-    if (firstLocation.current) {
-      firstLocation.current = false;
+    const showPreloader = !isAuthRoute(location.pathname);
+
+    if (!showPreloader) {
+      if (timeoutId.current) {
+        window.clearTimeout(timeoutId.current);
+        timeoutId.current = null;
+      }
+      setLoading(false);
       return;
     }
 
@@ -77,7 +89,9 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <SessionProvider>
+        <AppRoutes />
+      </SessionProvider>
     </BrowserRouter>
   );
 }

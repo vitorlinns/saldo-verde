@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createClient, isProfileComplete, signOutWithBackend } from '../../lib/auth';
-import type { Session, SupabaseClient } from '@supabase/supabase-js';
+import { useSession } from '../../contexts/session-context';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import Sidebar from '../../components/sidebar/sidebar';
 import AppBar from '../../components/appbar/appbar';
 import Footer from '../../components/footer/footer';
@@ -14,7 +15,6 @@ import { addRecord, formatAmountFromInput, type RecordItem } from '../../lib/rec
 
 export default function ExpensesPage() {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showValues, setShowValues] = useState(true);
   const [title, setTitle] = useState('');
@@ -25,47 +25,13 @@ export default function ExpensesPage() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarType, setSnackbarType] = useState<'success' | 'error'>('success');
   const [snackbarKey, setSnackbarKey] = useState(0);
+  const { session } = useSession();
   const navigate = useNavigate();
 
   useEffect(() => {
-    try {
-      const client = createClient();
-      setSupabase(client);
-
-      client.auth.getSession().then(({ data }) => {
-        const currentSession = data.session ?? null;
-        setSession(currentSession);
-        if (!currentSession) {
-          navigate('/login', { replace: true });
-          return;
-        }
-
-        if (!isProfileComplete(currentSession)) {
-          navigate('/perfil', { replace: true });
-        }
-      });
-
-      const { data: authListener } = client.auth.onAuthStateChange((_event, sessionData) => {
-        const currentSession = sessionData ?? null;
-        setSession(currentSession);
-        if (!currentSession) {
-          navigate('/login', { replace: true });
-          return;
-        }
-
-        if (!isProfileComplete(currentSession)) {
-          navigate('/perfil', { replace: true });
-        }
-      });
-
-      return () => {
-        authListener.subscription.unsubscribe();
-      };
-    } catch (err) {
-      console.error('ExpensesPage init error:', err);
-      navigate('/login', { replace: true });
-    }
-  }, [navigate]);
+    const client = createClient();
+    setSupabase(client);
+  }, []);
 
   useEffect(() => {
     document.title = 'Saída | Saldo Verde';

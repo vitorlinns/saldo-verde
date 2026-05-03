@@ -58,34 +58,6 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
       return res.status(409).json({ error: 'Não é possível criar nova conta com este email ou CPF.' });
     }
 
-    const { data: existingEmailUser, error: emailError } = await supabase
-      .from('auth.users')
-      .select('id')
-      .eq('email', email)
-      .single();
-
-    if (emailError && emailError.code !== 'PGRST116') {
-      return res.status(500).json({ error: 'Erro ao verificar email cadastrado.' });
-    }
-
-    if (existingEmailUser) {
-      return res.status(409).json({ error: 'Email já cadastrado.' });
-    }
-
-    const { data: existingCpfUser, error: cpfError } = await supabase
-      .from('auth.users')
-      .select('id')
-      .eq('user_metadata->>cpf', normalizedCpf)
-      .single();
-
-    if (cpfError && cpfError.code !== 'PGRST116') {
-      return res.status(500).json({ error: 'Erro ao verificar CPF cadastrado.' });
-    }
-
-    if (existingCpfUser) {
-      return res.status(409).json({ error: 'CPF já cadastrado.' });
-    }
-
     const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -97,6 +69,9 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
     });
 
     if (error) {
+      if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already been registered')) {
+        return res.status(409).json({ error: 'Email já cadastrado.' });
+      }
       return res.status(400).json({ error: error.message });
     }
 

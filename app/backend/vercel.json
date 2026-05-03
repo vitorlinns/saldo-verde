@@ -5,5 +5,35 @@
       "src": "api/**/*.ts",
       "use": "@vercel/node"
     }
+  ],
+  "routes": [
+    {
+      "src": "/health",
+      "dest": "/api/health.ts"
+    },
+    {
+      "src": "/login",
+      "dest": "/api/login.ts"
+    },
+    {
+      "src": "/logout",
+      "dest": "/api/logout.ts"
+    },
+    {
+      "src": "/register",
+      "dest": "/api/register.ts"
+    },
+    {
+      "src": "/notifications",
+      "dest": "/api/notifications.ts"
+    },
+    {
+      "src": "/notifications/([^/]+)",
+      "dest": "/api/notifications/[id].ts?id=$1"
+    },
+    {
+      "src": "/profile/([^/]+)",
+      "dest": "/api/profile/[id].ts?id=$1"
+    }
   ]
 }

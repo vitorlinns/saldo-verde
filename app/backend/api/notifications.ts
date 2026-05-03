@@ -32,12 +32,28 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 401, { error: 'Invalid session' });
   }
 
+  const unreadOnly = req.query?.unread === 'true';
+  const limitRaw = req.query?.limit;
+  const parsedLimit = Number.parseInt(typeof limitRaw === 'string' ? limitRaw : '', 10);
+  const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(parsedLimit, 50) : null;
+
   const supabase = createSupabaseClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from('user_notifications')
     .select('id, title, message, unread, created_at')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
+    .eq('user_id', user.id);
+
+  if (unreadOnly) {
+    query = query.eq('unread', true);
+  }
+
+  query = query.order('created_at', { ascending: false });
+
+  if (limit) {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return sendJson(res, 500, { error: 'Failed to fetch notifications' });

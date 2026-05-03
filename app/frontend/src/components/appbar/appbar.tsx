@@ -106,7 +106,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
     const fetchNotifications = async () => {
       setLoadingNotifications(true);
       try {
-        const response = await fetch(`${BACKEND_URL}/notifications`, {
+        const response = await fetch(`${BACKEND_URL}/notifications?unread=true&limit=4&t=${Date.now()}`, {
           headers: {
             Authorization: `Bearer ${session.access_token ?? ''}`,
           },
@@ -157,7 +157,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
     const refreshNotifications = async () => {
       setLoadingNotifications(true);
       try {
-        const response = await fetch(`${BACKEND_URL}/notifications`, {
+        const response = await fetch(`${BACKEND_URL}/notifications?unread=true&limit=4&t=${Date.now()}`, {
           headers: {
             Authorization: `Bearer ${session.access_token ?? ''}`,
           },
@@ -211,8 +211,8 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
     };
   }, [openMenu]);
 
-  const unreadNotifications = notifications.filter((item) => item.unread);
-  const recentNotifications = unreadNotifications.slice(0, 4);
+  const unreadNotifications = notifications;
+  const recentNotifications = unreadNotifications;
 
   return (
     <div className="mt-4 mb-8 flex justify-between rounded-xl border border-border bg-black p-3 shadow-xl shadow-black/20">

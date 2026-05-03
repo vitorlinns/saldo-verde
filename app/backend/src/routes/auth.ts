@@ -48,9 +48,10 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
       .from('deleted_accounts')
       .select('id')
       .or(`email.eq.${email},cpf.eq.${normalizedCpf}`)
-      .single();
+      .maybeSingle();
 
-    if (reservedError && reservedError.code !== 'PGRST116') {
+    if (reservedError) {
+      console.error('[register] deleted_accounts check error:', reservedError);
       return res.status(500).json({ error: 'Erro ao verificar contas excluídas.' });
     }
 
@@ -69,6 +70,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
     });
 
     if (error) {
+      console.error('[register] createUser error:', error);
       if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already been registered')) {
         return res.status(409).json({ error: 'Email já cadastrado.' });
       }

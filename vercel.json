@@ -39,6 +39,16 @@
       "dest": "/app/backend/api/health.ts"
     },
     {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/health.ts"
+    },
+    {
       "src": "/login",
       "has": [
         {

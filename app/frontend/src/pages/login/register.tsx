@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createClient, isProfileComplete } from '../../lib/auth';
+import { API_BASE_URL } from '../../config';
 import ButtonGeneral from '../../components/btn/button_general';
 import InputGeneral from '../../components/inputs/input_general';
 import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 import type { Session } from '@supabase/supabase-js';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? API_BASE_URL;
 
 const validateCpf = (value: string) => {
   const cpf = value.replace(/\D/g, '');

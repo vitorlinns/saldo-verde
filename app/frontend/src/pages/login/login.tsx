@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createClient, isProfileComplete } from '../../lib/auth';
+import { API_BASE_URL } from '../../config';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import ButtonGeneral from '../../components/btn/button_general';
 import ButtonGoogle from '../../components/btn/button_google';
@@ -8,7 +9,7 @@ import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 import InputGeneral from '../../components/inputs/input_general';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? window.location.origin;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? API_BASE_URL;
 const OAUTH_REDIRECT_TO = import.meta.env.VITE_OAUTH_REDIRECT_TO ?? `${window.location.origin}/login`;
 
 const TEST_USER_EMAIL = 'teste@saldoverde.pro';

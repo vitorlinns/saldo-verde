@@ -30,10 +30,12 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
   const menuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const email = session?.user.email ?? 'Usuário';
-  const firstName =
+  const [persistedFirstName, setPersistedFirstName] = useState<string>('');
+  const firstNameFromMetadata =
     typeof session?.user.user_metadata?.first_name === 'string'
-      ? session.user.user_metadata.first_name
-      : email.split('@')[0];
+      ? session.user.user_metadata.first_name.trim()
+      : '';
+  const firstName = persistedFirstName || firstNameFromMetadata || email.split('@')[0];
   const avatarUrl =
     typeof session?.user.user_metadata?.avatar_url === 'string'
       ? session.user.user_metadata.avatar_url
@@ -51,6 +53,37 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
   const [loadingNotifications, setLoadingNotifications] = useState(true);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
+
+  useEffect(() => {
+    if (!session) {
+      setPersistedFirstName('');
+      return;
+    }
+
+    const fetchProfileName = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/profile/${session.user.id}`, {
+          headers: {
+            Authorization: `Bearer ${session.access_token ?? ''}`,
+          },
+        });
+
+        if (!response.ok) {
+          setPersistedFirstName('');
+          return;
+        }
+
+        const data = await response.json();
+        const dbFirstName = typeof data?.profile?.first_name === 'string' ? data.profile.first_name.trim() : '';
+        setPersistedFirstName(dbFirstName);
+      } catch (error) {
+        console.error('Failed to fetch profile name', error);
+        setPersistedFirstName('');
+      }
+    };
+
+    void fetchProfileName();
+  }, [session, BACKEND_URL]);
 
   useEffect(() => {
     if (!session) return;

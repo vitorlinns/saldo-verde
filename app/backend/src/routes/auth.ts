@@ -89,7 +89,7 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
     const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      email_confirm: false,
+      email_confirm: true,
       user_metadata: {
         cpf: normalizedCpf,
         birthdate,
@@ -100,7 +100,22 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
       return res.status(400).json({ error: error.message });
     }
 
-    return res.status(201).json({ user: data.user, message: 'Conta criada com sucesso.' });
+    // Auto-login after registration
+    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (loginError || !loginData.session) {
+      // Account created but auto-login failed, redirect to login page
+      return res.status(201).json({ user: data.user, message: 'Conta criada com sucesso. Faça login para continuar.' });
+    }
+
+    return res.status(201).json({
+      user: loginData.user,
+      session: loginData.session,
+      message: 'Conta criada com sucesso.',
+    });
   });
 
   app.post('/login', async (req, res) => {

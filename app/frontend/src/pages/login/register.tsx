@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { createClient, isProfileComplete } from '../../lib/auth';
 import ButtonGeneral from '../../components/btn/button_general';
 import InputGeneral from '../../components/inputs/input_general';
 import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
+import type { Session } from '@supabase/supabase-js';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4001';
 
@@ -138,8 +140,20 @@ export default function RegisterPage() {
 
       if (!response.ok) {
         setError(result.error || 'Não foi possível criar a conta.');
+      } else if (result.session) {
+        // Auto-login: set session and redirect to profile setup
+        const supabase = createClient();
+        const { error: setSessionError } = await supabase.auth.setSession(result.session as Session);
+        if (setSessionError) {
+          setMessage('Conta criada! Faça login para continuar.');
+          setTimeout(() => navigate('/login'), 2000);
+        } else {
+          setMessage('Conta criada com sucesso! Redirecionando...');
+          const destination = isProfileComplete(result.session as Session) ? '/dashboard' : '/perfil';
+          setTimeout(() => navigate(destination, { replace: true }), 1500);
+        }
       } else {
-        setMessage(result.message || 'Conta criada com sucesso. Verifique seu email para confirmar o registro.');
+        setMessage(result.message || 'Conta criada com sucesso. Faça login para continuar.');
         setTimeout(() => navigate('/login'), 2500);
       }
     } catch (err) {

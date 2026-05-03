@@ -2,8 +2,41 @@ import { createClient as createSupabaseJsClient } from '@supabase/supabase-js';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
 const BACKEND_API_BASE_URL = '/api';
+const RETRYABLE_NETWORK_MESSAGES = ['failed to fetch', 'networkerror', 'err_connection_closed'];
+
+let supabaseClient: SupabaseClient | null = null;
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const isRetryableNetworkError = (error: unknown) => {
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+  return RETRYABLE_NETWORK_MESSAGES.some((token) => message.includes(token));
+};
+
+const retryableFetch: typeof fetch = async (input, init) => {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await fetch(input, init);
+    } catch (error) {
+      lastError = error;
+      const shouldRetry = attempt < 2 && isRetryableNetworkError(error);
+      if (!shouldRetry) {
+        throw error;
+      }
+      await delay(200 * (attempt + 1));
+    }
+  }
+
+  throw lastError;
+};
 
 export const createClient = (): SupabaseClient => {
+  if (supabaseClient) {
+    return supabaseClient;
+  }
+
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? '';
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
 
@@ -19,13 +52,18 @@ export const createClient = (): SupabaseClient => {
     );
   }
 
-  return createSupabaseJsClient(supabaseUrl, supabaseAnonKey, {
+  supabaseClient = createSupabaseJsClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      fetch: retryableFetch,
+    },
     auth: {
       detectSessionInUrl: true,
       persistSession: true,
       autoRefreshToken: true,
     },
   });
+
+  return supabaseClient;
 };
 
 export const signOutWithBackend = async (

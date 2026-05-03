@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createClient, isProfileComplete } from '../../lib/auth';
-import { API_BASE_URL } from '../../config';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import ButtonGeneral from '../../components/btn/button_general';
 import ButtonGoogle from '../../components/btn/button_google';
@@ -11,7 +10,6 @@ import InputGeneral from '../../components/inputs/input_general';
 
 const BACKEND_URL = '/api';
 const FOOTER_URL = `${BACKEND_URL}/footer-text`;
-const LOGIN_URL = `${BACKEND_URL}/login`;
 const OAUTH_REDIRECT_TO = import.meta.env.VITE_OAUTH_REDIRECT_TO ?? `${window.location.origin}/login`;
 
 const TEST_USER_EMAIL = 'teste@saldoverde.pro';
@@ -112,35 +110,23 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch(LOGIN_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        setError(result.error || 'Email ou senha inválidos.');
+      if (signInError) {
+        setError(signInError.message || 'Email ou senha inválidos.');
         return;
       }
 
-      const { session: loginSession, user } = result;
-      if (!loginSession) {
+      if (!data.session) {
         setError('Falha ao autenticar. Tente novamente.');
         return;
       }
 
-      const { error: setSessionError } = await supabase.auth.setSession(loginSession);
-      if (setSessionError) {
-        setError(setSessionError.message);
-        return;
-      }
-
       setMessage('Login realizado com sucesso. Redirecionando...');
-      const destination = isProfileComplete({ user: { ...user, user_metadata: user.user_metadata } } as Session) ? '/dashboard' : '/perfil';
+      const destination = isProfileComplete(data.session as Session) ? '/dashboard' : '/perfil';
       setTimeout(() => navigate(destination, { replace: true }), 1500);
     } catch (err) {
       setError('Ocorreu um erro ao tentar fazer login. Por favor, tente novamente.');
@@ -161,34 +147,19 @@ export default function LoginPage() {
     setMessage('Usando usuário de teste...');
 
     try {
-      const response = await fetch(LOGIN_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: TEST_USER_EMAIL,
-          password: TEST_USER_PASSWORD,
-        }),
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: TEST_USER_EMAIL,
+        password: TEST_USER_PASSWORD,
       });
 
-      const result = await response.json();
-      if (!response.ok) {
-        setError(result.error || 'Não foi possível entrar com o usuário de teste.');
+      if (signInError) {
+        setError(signInError.message || 'Não foi possível entrar com o usuário de teste.');
         setMessage('');
         return;
       }
 
-      const { session: loginSession } = result;
-      if (!loginSession) {
+      if (!data.session) {
         setError('Falha ao autenticar o usuário de teste.');
-        setMessage('');
-        return;
-      }
-
-      const { error: setSessionError } = await supabase.auth.setSession(loginSession);
-      if (setSessionError) {
-        setError(setSessionError.message);
         setMessage('');
         return;
       }

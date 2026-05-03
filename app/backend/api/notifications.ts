@@ -2,6 +2,14 @@ import { createSupabaseClient } from './_supabase';
 import { getSessionUser } from './_auth';
 import { handleOptions, sendJson } from './_http';
 
+type NotificationRow = {
+  id: string;
+  title: string;
+  message: string;
+  unread: boolean;
+  created_at: string;
+};
+
 const formatDate = (value: Date) => {
   const pad = (num: number) => String(num).padStart(2, '0');
   return `${pad(value.getDate())}/${pad(value.getMonth() + 1)}/${value.getFullYear()}`;
@@ -35,7 +43,7 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 500, { error: 'Failed to fetch notifications' });
   }
 
-  const notifications = (data ?? []).map((item) => {
+  const notifications = ((data ?? []) as NotificationRow[]).map((item: NotificationRow) => {
     const createdAt = new Date(item.created_at as string);
     return {
       id: item.id,

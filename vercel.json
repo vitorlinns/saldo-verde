@@ -8,11 +8,76 @@
     {
       "src": "app/frontend/package.json",
       "use": "@vercel/static-build"
+    },
+    {
+      "src": "app/backend/api/**/*.ts",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "handle": "filesystem"
+    },
+    {
+      "src": "/profile/([^/]+)",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/profile/[id].ts?id=$1"
+    },
+    {
+      "src": "/health",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/health.ts"
+    },
+    {
+      "src": "/login",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/login.ts"
+    },
+    {
+      "src": "/logout",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/logout.ts"
+    },
+    {
+      "src": "/notifications",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/notifications.ts"
+    },
+    {
+      "src": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "status": 404,
+      "dest": "/404"
     },
     {
       "src": "/assets/(.*)",

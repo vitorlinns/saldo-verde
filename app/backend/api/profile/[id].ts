@@ -25,6 +25,27 @@ const isMetadataComplete = (metadata: Record<string, unknown> | null | undefined
   });
 };
 
+const updateUserMetadata = async (
+  supabase: ReturnType<typeof createSupabaseClient>,
+  userId: string,
+  metadata: Record<string, unknown>
+) => {
+  const auth = supabase.auth as any;
+
+  if (auth?.admin?.updateUserById) {
+    return auth.admin.updateUserById(userId, { user_metadata: metadata });
+  }
+
+  if (auth?.api?.updateUserById) {
+    return auth.api.updateUserById(userId, { user_metadata: metadata });
+  }
+
+  return {
+    data: null,
+    error: { message: 'Supabase admin update API is not available.' },
+  };
+};
+
 export default async function handler(req: any, res: any) {
   if (handleOptions(req, res)) return;
 
@@ -90,9 +111,7 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 400, { error: 'Campos obrigatorios ausentes no perfil.' });
   }
 
-  const { data, error } = await supabase.auth.admin.updateUserById(userId, {
-    user_metadata: normalizedPayload,
-  });
+  const { data, error } = await updateUserMetadata(supabase, userId, normalizedPayload);
 
   if (error) {
     return sendJson(res, 400, { error: error.message });

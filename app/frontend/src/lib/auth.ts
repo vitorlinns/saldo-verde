@@ -103,10 +103,30 @@ export const signOutWithBackend = async (
   }
 
   // Always clear local session, even if network logout/revocation fails.
+  const clearSupabaseLocalSession = () => {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+
+    const authStorageKey = ((supabase as unknown as { auth?: { storageKey?: string } }).auth?.storageKey as string | undefined) ?? 'supabase.auth.token';
+    const keys = Object.keys(window.localStorage);
+
+    for (const key of keys) {
+      if (key === authStorageKey || key.startsWith(authStorageKey) || key.includes('supabase.auth')) {
+        window.localStorage.removeItem(key);
+      }
+    }
+  };
+
   try {
-    await supabase.auth.signOut({ scope: 'local' });
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    if (error) {
+      throw error;
+    }
   } catch (err) {
     console.warn('Local logout failed:', err);
+    clearSupabaseLocalSession();
+    if (typeof window !== 'undefined') {
+      window.location.assign('/login');
+    }
   }
 };
 

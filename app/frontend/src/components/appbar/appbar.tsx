@@ -75,8 +75,14 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
 
     const fetchProfileName = async () => {
       try {
+        const accessToken = session.access_token;
         const response = await fetch(`${BACKEND_URL}/profile/${session.user.id}`, {
           credentials: 'include',
+          headers: accessToken
+            ? {
+                Authorization: `Bearer ${accessToken}`,
+              }
+            : undefined,
         });
 
         if (!response.ok) {

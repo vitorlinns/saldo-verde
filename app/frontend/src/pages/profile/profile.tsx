@@ -209,8 +209,14 @@ export default function ProfilePage() {
 
     const fetchPersistedProfile = async () => {
       try {
+        const accessToken = session.access_token;
         const response = await fetch(`${BACKEND_URL}/profile/${session.user.id}`, {
           credentials: 'include',
+          headers: accessToken
+            ? {
+                Authorization: `Bearer ${accessToken}`,
+              }
+            : undefined,
         });
 
         if (!response.ok) return;
@@ -413,11 +419,17 @@ export default function ProfilePage() {
     setSnackbarMessage('');
 
     try {
+      const accessToken = session.access_token;
       const response = await fetch(`${BACKEND_URL}/profile/${session.user.id}`, {
         method: 'PUT',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          ...(accessToken
+            ? {
+                Authorization: `Bearer ${accessToken}`,
+              }
+            : {}),
         },
         body: JSON.stringify({
           first_name: firstName.trim(),

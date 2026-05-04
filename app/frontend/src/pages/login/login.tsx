@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createClient, isProfileComplete } from '../../lib/auth';
 import type { Session } from '@supabase/supabase-js';
@@ -18,7 +18,6 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_ATTEMPTS = 3;
 const LOGIN_THROTTLE_STORAGE_KEY = 'saldo-verde:login-throttle';
 const LOCKOUT_STEPS_MS = [60_000, 300_000, 900_000] as const;
-const AUTH_REDIRECT_DELAY_MS = 3000;
 
 interface LoginThrottleState {
   failedAttempts: number;
@@ -118,6 +117,7 @@ export default function LoginPage() {
   const [lockoutCount, setLockoutCount] = useState(0);
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
+  const hasRedirectedRef = useRef(false);
   const navigate = useNavigate();
   const isLocked = lockedUntil !== null && lockedUntil > currentTime;
   const remainingSeconds = isLocked ? Math.ceil((lockedUntil - currentTime) / 1000) : 0;
@@ -156,6 +156,14 @@ export default function LoginPage() {
   }, [lockedUntil]);
 
   useEffect(() => {
+    const redirectAfterLogin = (currentSession: Session) => {
+      if (hasRedirectedRef.current) {
+        return;
+      }
+      hasRedirectedRef.current = true;
+      navigate(isProfileComplete(currentSession) ? '/dashboard' : '/perfil', { replace: true });
+    };
+
     const resetGoogleLoading = () => {
       setIsGoogleLoading(false);
       sessionStorage.removeItem(GOOGLE_OAUTH_PENDING_KEY);
@@ -179,7 +187,7 @@ export default function LoginPage() {
 
         setSession(currentSession);
         if (currentSession) {
-          navigate('/dashboard', { replace: true });
+          redirectAfterLogin(currentSession);
         }
       };
 
@@ -189,7 +197,7 @@ export default function LoginPage() {
         const currentSession = sessionData ?? null;
         setSession(currentSession);
         if (currentSession) {
-          navigate('/dashboard', { replace: true });
+          redirectAfterLogin(currentSession);
         }
       });
 
@@ -292,6 +300,24 @@ export default function LoginPage() {
 
       if (!response.ok) {
         const backendError = typeof result.error === 'string' ? result.error : '';
+
+        // Fallback: if backend login fails in production, try direct Supabase auth.
+        // This keeps users unblocked while backend cookies are diagnosed.
+        const fallback = await supabase.auth.signInWithPassword({
+          email: trimmedEmail,
+          password: trimmedPassword,
+        });
+
+        if (!fallback.error && fallback.data.session) {
+          setFailedAttempts(0);
+          setLockoutCount(0);
+          setLockedUntil(null);
+          clearLoginThrottleState();
+
+          setMessage('Login realizado com sucesso. Redirecionando...');
+          return;
+        }
+
         const next = failedAttempts + 1;
         if (next >= MAX_ATTEMPTS) {
           const nextLockoutCount = lockoutCount + 1;
@@ -328,7 +354,6 @@ export default function LoginPage() {
       setLockedUntil(null);
       clearLoginThrottleState();
       setMessage('Login realizado com sucesso. Redirecionando...');
-      setTimeout(() => navigate('/dashboard', { replace: true }), AUTH_REDIRECT_DELAY_MS);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Falha de rede ao tentar fazer login.';
       setError(message);

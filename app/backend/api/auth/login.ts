@@ -42,7 +42,17 @@ export default async function handler(req: any, res: any) {
   const { data, error } = await authSignInWithPassword(supabase.auth, normalizedEmail, password);
 
   if (error) {
-    return sendJson(res, 401, { error: 'E-mail ou senha inválidos.' });
+    const message = typeof error.message === 'string' ? error.message.toLowerCase() : '';
+    if (message.includes('invalid login credentials') || message.includes('invalid email or password')) {
+      return sendJson(res, 401, { error: 'E-mail ou senha inválidos.' });
+    }
+
+    if (message.includes('email not confirmed')) {
+      return sendJson(res, 401, { error: 'E-mail não confirmado.' });
+    }
+
+    console.error('[auth/login] signInWithPassword error:', error);
+    return sendJson(res, 401, { error: 'Falha ao autenticar usuário no momento.' });
   }
 
   if (!data.session || !data.user) {

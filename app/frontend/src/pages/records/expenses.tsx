@@ -10,6 +10,7 @@ import InputGeneral from '../../components/inputs/input_general';
 import ButtonSubmit from '../../components/btn/button_submit';
 import ExpensesPreview from '../../components/preview/expenses';
 import Snackbar from '../../components/snackbar/snackbar';
+import ModalNotice from '../../components/modal/modal_notice';
 import { inferCategoryFromTitle } from '../../data/categories';
 import { addRecord, formatAmountFromInput, type RecordItem } from '../../lib/records-storage';
 
@@ -25,8 +26,10 @@ export default function ExpensesPage() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarType, setSnackbarType] = useState<'success' | 'error'>('success');
   const [snackbarKey, setSnackbarKey] = useState(0);
+  const [showProfileNotice, setShowProfileNotice] = useState(false);
   const { session } = useSession();
   const navigate = useNavigate();
+  const profileComplete = isProfileComplete(session);
 
   useEffect(() => {
     const client = createClient();
@@ -59,6 +62,11 @@ export default function ExpensesPage() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!profileComplete) {
+      setShowProfileNotice(true);
+      return;
+    }
 
     if (!title.trim() || !amount.trim() || !note.trim()) {
       setSnackbarType('error');
@@ -97,7 +105,7 @@ export default function ExpensesPage() {
   return (
     <main className="min-h-screen bg-background text-white">
       <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
-<Sidebar email={session?.user.email ?? null} disableProtectedLinks={session ? !isProfileComplete(session) : false} />
+<Sidebar email={session?.user.email ?? null} />
 
         <div className="mr-4 flex min-h-screen flex-col">
           <AppBar
@@ -173,6 +181,14 @@ export default function ExpensesPage() {
         message={snackbarMessage}
         type={snackbarType}
         onClose={() => setSnackbarOpen(false)}
+      />
+
+      <ModalNotice
+        open={showProfileNotice}
+        title="Complete seu cadastro"
+        description="Para registrar saídas, é necessário completar o cadastro do seu perfil. Acesse seu perfil e finalize as informações obrigatórias."
+        onClose={() => setShowProfileNotice(false)}
+        onAction={() => navigate('/perfil')}
       />
     </main>
   );

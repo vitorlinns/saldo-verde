@@ -76,15 +76,31 @@ function getLockoutDurationMs(lockoutCount: number) {
 }
 
 function normalizeAuthError(message: string): string {
-  const lower = message.toLowerCase();
-  if (lower.includes('invalid login credentials') || lower.includes('invalid email or password')) {
+  const lower = message.toLowerCase().trim();
+  if (
+    lower.includes('invalid login credentials') ||
+    lower.includes('invalid email or password') ||
+    lower.includes('e-mail ou senha inválidos') ||
+    lower.includes('email ou senha inválidos')
+  ) {
     return 'Email ou senha inválidos.';
   }
-  if (lower.includes('email not confirmed')) {
+  if (
+    lower.includes('email not confirmed') ||
+    lower.includes('confirme seu e-mail') ||
+    lower.includes('e-mail não confirmado')
+  ) {
     return 'Confirme seu e-mail antes de fazer login.';
   }
-  if (lower.includes('too many requests')) {
+  if (
+    lower.includes('too many requests') ||
+    lower.includes('muitas tentativas') ||
+    lower.includes('tente novamente mais tarde')
+  ) {
     return 'Muitas tentativas. Aguarde um momento e tente novamente.';
+  }
+  if (message) {
+    return message;
   }
   return 'Ocorreu um erro ao tentar fazer login. Tente novamente.';
 }
@@ -163,8 +179,7 @@ export default function LoginPage() {
 
         setSession(currentSession);
         if (currentSession) {
-          const destination = isProfileComplete(currentSession) ? '/dashboard' : '/perfil';
-          navigate(destination, { replace: true });
+          navigate('/dashboard', { replace: true });
         }
       };
 
@@ -174,8 +189,7 @@ export default function LoginPage() {
         const currentSession = sessionData ?? null;
         setSession(currentSession);
         if (currentSession) {
-          const destination = isProfileComplete(currentSession) ? '/dashboard' : '/perfil';
-          navigate(destination, { replace: true });
+          navigate('/dashboard', { replace: true });
         }
       });
 
@@ -277,6 +291,7 @@ export default function LoginPage() {
       }
 
       if (!response.ok) {
+        const backendError = typeof result.error === 'string' ? result.error : '';
         const next = failedAttempts + 1;
         if (next >= MAX_ATTEMPTS) {
           const nextLockoutCount = lockoutCount + 1;
@@ -285,10 +300,12 @@ export default function LoginPage() {
           setLockoutCount(nextLockoutCount);
           setCurrentTime(Date.now());
           setLockedUntil(Date.now() + lockoutDurationMs);
-          setError(`Muitas tentativas malsucedidas. Aguarde ${Math.ceil(lockoutDurationMs / 1000)} segundos antes de tentar novamente.`);
+          setError(
+            backendError ||
+            `Muitas tentativas malsucedidas. Aguarde ${Math.ceil(lockoutDurationMs / 1000)} segundos antes de tentar novamente.`
+          );
         } else {
           setFailedAttempts(next);
-          const backendError = typeof result.error === 'string' ? result.error : '';
           setError(normalizeAuthError(backendError));
         }
         return;
@@ -311,10 +328,10 @@ export default function LoginPage() {
       setLockedUntil(null);
       clearLoginThrottleState();
       setMessage('Login realizado com sucesso. Redirecionando...');
-      const destination = isProfileComplete(sessionPayload) ? '/dashboard' : '/perfil';
-      setTimeout(() => navigate(destination, { replace: true }), AUTH_REDIRECT_DELAY_MS);
+      setTimeout(() => navigate('/dashboard', { replace: true }), AUTH_REDIRECT_DELAY_MS);
     } catch (err) {
-      setError('Ocorreu um erro ao tentar fazer login. Por favor, tente novamente.');
+      const message = err instanceof Error ? err.message : 'Falha de rede ao tentar fazer login.';
+      setError(message);
       console.error('Login error:', err);
     } finally {
       setIsAuthenticating(false);

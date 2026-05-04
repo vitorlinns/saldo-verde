@@ -124,6 +124,10 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
         getMetadataString(metadata, 'avatar_url'),
         getMetadataString(metadata, 'picture')
       ),
+      profile_complete:
+        typeof persisted?.profile_complete === 'boolean'
+          ? persisted.profile_complete
+          : isMetadataComplete(metadata),
     };
 
     return res.json({ profile });
@@ -232,6 +236,8 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
       return res.status(400).json({ error: 'Imagem inválida.' });
     }
 
+    const birthdateIso = parsedBirthdate.toISOString().slice(0, 10);
+
     const metadata = {
       first_name: first_name.trim(),
       last_name: last_name.trim(),
@@ -256,11 +262,14 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
       return res.status(400).json({ error: 'Não foi possível atualizar o perfil. Revise os dados e tente novamente.' });
     }
 
+    const isComplete = isMetadataComplete(metadata);
     const { error: profileSyncError } = await supabase
       .from('profiles')
       .upsert({
         id: userId,
         ...metadata,
+        birthdate: birthdateIso,
+        profile_complete: isComplete,
       }, { onConflict: 'id' });
 
     if (profileSyncError) {

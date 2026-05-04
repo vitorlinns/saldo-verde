@@ -1,3 +1,4 @@
+import { Download } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createClient, isProfileComplete, signOutWithBackend } from '../../lib/auth';
@@ -10,6 +11,9 @@ import Pagination from '../../components/pagination/pagination';
 import FilterRecords from '../../components/filter/filter_records';
 import SearchRecords from '../../components/filter/search_records';
 import AllRecordsCard from '../../components/cards/all_records';
+import ButtonSubmit from '../../components/btn/button_submit';
+import ModalNotice from '../../components/modal/modal_notice';
+import DownloadRecords from '../../components/download/download_records';
 import { getStoredRecords, type RecordItem } from '../../lib/records-storage';
 
 export default function AllRecordsPage() {
@@ -22,8 +26,10 @@ export default function AllRecordsPage() {
   const [filterYear, setFilterYear] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [records, setRecords] = useState<RecordItem[]>([]);
+  const [showProfileNotice, setShowProfileNotice] = useState(false);
   const { session } = useSession();
   const navigate = useNavigate();
+  const profileComplete = isProfileComplete(session);
 
   useEffect(() => {
     setRecords(getStoredRecords());
@@ -85,7 +91,7 @@ export default function AllRecordsPage() {
   return (
     <main className="min-h-screen bg-background text-white">
       <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
-<Sidebar email={session?.user.email ?? null} disableProtectedLinks={session ? !isProfileComplete(session) : false} />
+<Sidebar email={session?.user.email ?? null} />
 
         <div className="mr-4 flex min-h-screen flex-col">
           <AppBar
@@ -129,6 +135,29 @@ export default function AllRecordsPage() {
                   setCurrentPage(1);
                 }}
                 onReset={resetFilter}
+                showDownload={false}
+                downloadComponent={
+                  profileComplete ? (
+                    <DownloadRecords
+                      records={filteredRecords}
+                      filename={`registros-${filterMonth || 'todos'}-${filterYear || 'todos'}.pdf`}
+                      printedByName={
+                        typeof session?.user.user_metadata?.first_name === 'string'
+                          ? session.user.user_metadata.first_name
+                          : session?.user.email?.split('@')[0] ?? 'Usuário'
+                      }
+                      printedByEmail={session?.user.email ?? 'sem-email@saldoverde.pro'}
+                    />
+                  ) : (
+                    <ButtonSubmit
+                      type="button"
+                      label="Baixar PDF"
+                      icon={<Download className="h-4 w-4" />}
+                      onClick={() => setShowProfileNotice(true)}
+                      fullWidth={false}
+                    />
+                  )
+                }
               />
 
               <SearchRecords query={searchQuery} onChange={setSearchQuery} />
@@ -180,6 +209,17 @@ export default function AllRecordsPage() {
           <Footer />
         </div>
       </div>
+
+      <ModalNotice
+        open={showProfileNotice}
+        title="Complete seu cadastro"
+        description="Para baixar o PDF de todos os registros, é necessário completar o cadastro do seu perfil. Acesse seu perfil e finalize as informações obrigatórias."
+        onClose={() => setShowProfileNotice(false)}
+        onAction={() => {
+          setShowProfileNotice(false);
+          navigate('/perfil');
+        }}
+      />
     </main>
   );
 }

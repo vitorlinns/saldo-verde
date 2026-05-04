@@ -500,7 +500,7 @@ export default function ProfilePage() {
     { label: 'Primeiro nome', value: firstName, onChange: setFirstName, maxLength: 40 },
     { label: 'Sobrenome', value: lastName, onChange: setLastName, maxLength: 40 },
     { label: 'Email', value: email, onChange: () => {}, readOnly: true, type: 'email', style: { cursor: 'not-allowed' } },
-    { label: 'CPF', value: cpf, onChange: (value: string) => setCpf(formatBrazilCpf(value)), maxLength: 14, inputMode: 'numeric', pattern: '.*', readOnly: fieldsLocked, style: fieldsLocked ? { cursor: 'not-allowed' } : undefined },
+    { label: 'CPF', value: cpf, onChange: (value: string) => setCpf(formatBrazilCpf(value)), maxLength: 14, inputMode: 'numeric', pattern: '.*', readOnly: true, style: { cursor: 'not-allowed' } },
     { label: 'Telefone', value: phone, onChange: (value: string) => setPhone(formatBrazilPhone(value)), maxLength: 15, inputMode: 'tel', pattern: '.*' },
     {
       label: 'Data de nascimento',
@@ -556,7 +556,7 @@ export default function ProfilePage() {
   return (
     <main className="min-h-screen bg-background text-white">
       <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
-<Sidebar email={session.user.email ?? null} disableProtectedLinks={!isProfileComplete(session)} />
+<Sidebar email={session.user.email ?? null} />
 
         <div className="mr-4 flex min-h-screen flex-col">
           <AppBar
@@ -672,7 +672,7 @@ export default function ProfilePage() {
                         value={value}
                         onChange={onChange}
                         placeholder={label}
-                        className={`placeholder:text-white/50 ${field.readOnly && fieldsLocked ? 'cursor-not-allowed' : ''}`}
+                        className={`placeholder:text-white/50 ${field.readOnly ? 'cursor-not-allowed' : ''}`}
                         {...inputProps}
                       />
                       {label === 'CEP' ? (

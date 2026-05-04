@@ -126,5 +126,27 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 400, { error: 'Não foi possível atualizar o perfil. Revise os dados e tente novamente.' });
   }
 
+  const parsedBirthdate = (() => {
+    const [day, month, year] = normalizedPayload.birthdate.split('/').map(Number);
+    if (!day || !month || !year) return null;
+    const date = new Date(year, month - 1, day);
+    return Number.isFinite(date.getTime()) ? date.toISOString().slice(0, 10) : null;
+  })();
+
+  const isComplete = isMetadataComplete(normalizedPayload);
+  const { error: profileSyncError } = await supabase
+    .from('profiles')
+    .upsert({
+      id: userId,
+      ...normalizedPayload,
+      birthdate: parsedBirthdate ?? normalizedPayload.birthdate,
+      profile_complete: isComplete,
+    }, { onConflict: 'id' });
+
+  if (profileSyncError) {
+    console.error('Failed to sync profile table:', profileSyncError);
+    return sendJson(res, 500, { error: 'Perfil atualizado, mas falhou ao sincronizar dados do perfil.' });
+  }
+
   return sendJson(res, 200, { user: data.user, message: 'Perfil atualizado com sucesso.' });
 }

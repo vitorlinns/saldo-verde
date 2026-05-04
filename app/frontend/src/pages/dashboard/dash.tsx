@@ -87,7 +87,6 @@ export default function DashboardPage() {
       <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
 <Sidebar
           email={session?.user.email ?? null}
-          disableProtectedLinks={session ? !isProfileComplete(session) : false}
           open={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />

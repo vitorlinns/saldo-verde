@@ -33,10 +33,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         navigate('/login', { replace: true });
         return;
       }
-
-      if (!isProfileComplete(currentSession)) {
-        navigate('/perfil', { replace: true });
-      }
     };
 
     // Get initial session

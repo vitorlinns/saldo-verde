@@ -1,3 +1,4 @@
+import { Download } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createClient, isProfileComplete, signOutWithBackend } from '../../lib/auth';
@@ -10,6 +11,8 @@ import FinanceWidget from '../../components/widgets/finance';
 import Graphic from '../../components/widgets/graphic';
 import FilterRecords from '../../components/filter/filter_records';
 import DownloadReports from '../../components/download/download_reports';
+import ModalNotice from '../../components/modal/modal_notice';
+import ButtonSubmit from '../../components/btn/button_submit';
 import {
   getMonthlySummaries,
   getStoredBalance,
@@ -156,8 +159,10 @@ export default function ReportsPage() {
   const [showValues, setShowValues] = useState(true);
   const [filterMonth, setFilterMonth] = useState('');
   const [filterYear, setFilterYear] = useState('');
+  const [showProfileNotice, setShowProfileNotice] = useState(false);
   const normalizedMonth = normalizeMonth(filterMonth);
   const normalizedYear = normalizeYear(filterYear);
+  const profileComplete = isProfileComplete(session);
   const monthlySummariesRaw = getMonthlySummaries(6, {
     month: normalizedMonth || undefined,
     year: normalizedYear || undefined,
@@ -211,7 +216,7 @@ export default function ReportsPage() {
   return (
     <main className="min-h-screen bg-background text-white">
       <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
-<Sidebar email={session?.user.email ?? null} disableProtectedLinks={session ? !isProfileComplete(session) : false} />
+<Sidebar email={session?.user.email ?? null} />
 
         <div className="mr-4 flex min-h-screen flex-col">
           <AppBar
@@ -254,20 +259,30 @@ export default function ReportsPage() {
               showDayFilter={false}
               showDownload={false}
               downloadComponent={
-                <DownloadReports
-                  balance={balance}
-                  selectedSummary={monthlySummaries[0]}
-                  month={filterMonth}
-                  year={filterYear}
-                  monthlySummaries={monthlySummaries}
-                  filename={getDownloadFilename('relatorio', filterMonth, filterYear)}
-                  printedByName={
-                    typeof session?.user.user_metadata?.first_name === 'string'
-                      ? session.user.user_metadata.first_name
-                      : session?.user.email ?? 'Usuário'
-                  }
-                  printedByEmail={session?.user.email ?? 'sem-email@saldoverde.pro'}
-                />
+                profileComplete ? (
+                  <DownloadReports
+                    balance={balance}
+                    selectedSummary={monthlySummaries[0]}
+                    month={filterMonth}
+                    year={filterYear}
+                    monthlySummaries={monthlySummaries}
+                    filename={getDownloadFilename('relatorio', filterMonth, filterYear)}
+                    printedByName={
+                      typeof session?.user.user_metadata?.first_name === 'string'
+                        ? session.user.user_metadata.first_name
+                        : session?.user.email ?? 'Usuário'
+                    }
+                    printedByEmail={session?.user.email ?? 'sem-email@saldoverde.pro'}
+                  />
+                ) : (
+                  <ButtonSubmit
+                    type="button"
+                    label="Baixar PDF"
+                    icon={<Download className="h-4 w-4" />}
+                    onClick={() => setShowProfileNotice(true)}
+                    fullWidth={false}
+                  />
+                )
               }
             />
 
@@ -302,6 +317,17 @@ export default function ReportsPage() {
           <Footer />
         </div>
       </div>
+
+      <ModalNotice
+        open={showProfileNotice}
+        title="Complete seu cadastro"
+        description="Para baixar o PDF do relatório, é necessário completar o cadastro do seu perfil. Acesse seu perfil e finalize as informações obrigatórias."
+        onClose={() => setShowProfileNotice(false)}
+        onAction={() => {
+          setShowProfileNotice(false);
+          navigate('/perfil');
+        }}
+      />
     </main>
   );
 }

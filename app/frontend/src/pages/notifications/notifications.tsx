@@ -184,7 +184,7 @@ export default function NotificationsPage() {
   return (
     <main className="min-h-screen bg-background text-white">
       <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
-        <Sidebar email={session.user.email ?? null} disableProtectedLinks={!isProfileComplete(session)} />
+        <Sidebar email={session.user.email ?? null} />
 
         <div className="mr-4 flex min-h-screen flex-col">
           <AppBar

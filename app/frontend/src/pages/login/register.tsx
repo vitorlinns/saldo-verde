@@ -173,7 +173,7 @@ export default function RegisterPage() {
           setTimeout(() => navigate('/login'), 2000);
         } else {
           setMessage('Conta criada com sucesso! Redirecionando...');
-          const destination = isProfileComplete(result.session as Session) ? '/dashboard' : '/perfil';
+          const destination = '/dashboard';
           setTimeout(() => navigate(destination, { replace: true }), 1500);
         }
       } else {

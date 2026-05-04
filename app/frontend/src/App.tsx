@@ -54,7 +54,7 @@ function RootRedirect() {
           return;
         }
 
-        setDestination(isProfileComplete(currentSession) ? '/dashboard' : '/perfil');
+        setDestination('/dashboard');
       } catch {
         if (active) {
           setDestination('/login');

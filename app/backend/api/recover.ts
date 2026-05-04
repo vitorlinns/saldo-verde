@@ -25,6 +25,36 @@ const getActionFromUrl = (url?: string) => {
   return segments.length > 0 ? segments[segments.length - 1] : null;
 };
 
+const findUserIdByEmail = async (supabase: any, email: string): Promise<string | null> => {
+  let page = 1;
+  const normalizedEmail = email.toLowerCase();
+
+  while (true) {
+    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: 100 });
+    if (error) {
+      throw error;
+    }
+
+    const users = Array.isArray(data?.users) ? data.users : [];
+    const found = users.find(
+      (user: any) => typeof user.email === 'string' && user.email.toLowerCase() === normalizedEmail
+    );
+
+    if (found?.id) {
+      return found.id;
+    }
+
+    const nextPage = typeof data?.nextPage === 'number' ? data.nextPage : null;
+    const lastPage = typeof data?.lastPage === 'number' ? data.lastPage : null;
+
+    if (!nextPage || (lastPage !== null && page >= lastPage)) {
+      return null;
+    }
+
+    page += 1;
+  }
+};
+
 export default async function handler(req: any, res: any) {
   if (handleOptions(req, res)) return;
 
@@ -67,19 +97,17 @@ export default async function handler(req: any, res: any) {
       return sendJson(res, 503, { error: 'Serviço de recuperação indisponível no momento.' });
     }
 
-    const { data: userData, error: userError } = await supabase
-      .from('auth.users')
-      .select('id')
-      .eq('email', normalizedEmail)
-      .single();
-
-    if (userError && userError.code !== 'PGRST116') {
+    let userId: string | null = null;
+    try {
+      userId = await findUserIdByEmail(supabase, normalizedEmail);
+    } catch (error) {
+      console.error('[recover] findUserIdByEmail error:', error);
       return sendJson(res, 500, { error: 'Erro ao verificar usuário.' });
     }
 
     const entry = createRecoveryEntry(normalizedEmail);
 
-    if (userData) {
+    if (userId) {
       try {
         await sendRecoveryEmail(normalizedEmail, entry.code);
       } catch (err) {
@@ -142,21 +170,19 @@ export default async function handler(req: any, res: any) {
       return sendJson(res, 503, { error: 'Serviço de recuperação indisponível no momento.' });
     }
 
-    const { data: userData, error: userError } = await supabase
-      .from('auth.users')
-      .select('id')
-      .eq('email', email.toLowerCase())
-      .single();
-
-    if (userError) {
+    let userId: string | null = null;
+    try {
+      userId = await findUserIdByEmail(supabase, email.toLowerCase());
+    } catch (error) {
+      console.error('[recover] findUserIdByEmail error:', error);
       return sendJson(res, 400, { error: 'Não foi possível encontrar o usuário.' });
     }
 
-    if (!userData?.id) {
+    if (!userId) {
       return sendJson(res, 400, { error: 'Usuário não encontrado.' });
     }
 
-    const { error } = await supabase.auth.admin.updateUserById(userData.id, {
+    const { error } = await supabase.auth.admin.updateUserById(userId, {
       password,
     });
 

@@ -1,7 +1,9 @@
 import type { RecordItem, RecordType } from './records-storage';
 import { createClient } from './auth';
 
-const BACKEND_URL = '/api';
+const BACKEND_URL = import.meta.env.DEV
+  ? '/api'
+  : import.meta.env.VITE_API_BASE_URL ?? 'https://api.saldoverde.pro';
 
 export interface RecordItemWithId extends RecordItem {
   id: string;

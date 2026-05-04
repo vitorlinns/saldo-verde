@@ -9,7 +9,7 @@ import InputGeneral from '../../components/inputs/input_general';
 import ButtonSubmit from '../../components/btn/button_submit';
 import UploadImg from '../../components/upload/upload_img';
 import Snackbar from '../../components/snackbar/snackbar';
-import { AlertCircle, Save } from 'lucide-react';
+import { AlertCircle, Bookmark, BookmarkCheck, Save } from 'lucide-react';
 
 const formatValue = (value?: string | null) => (value?.trim() ? value : '');
 
@@ -58,6 +58,25 @@ const parseBirthdate = (value: string) => {
   if (Number.isNaN(birthDate.getTime())) return null;
   if (birthDate.getDate() !== day || birthDate.getMonth() !== month - 1 || birthDate.getFullYear() !== year) return null;
   return birthDate;
+};
+
+const hasSavedProfileData = (source: Record<string, string | null | undefined>) => {
+  const required = [
+    source.first_name,
+    source.last_name,
+    source.cpf,
+    source.phone,
+    source.birthdate,
+    source.cep,
+    source.street,
+    source.number,
+    source.complement,
+    source.neighborhood,
+    source.city,
+    source.state,
+  ];
+
+  return required.every((value) => typeof value === 'string' && value.trim().length > 0);
 };
 
 const isValidBirthdate = (value: string) => {
@@ -176,6 +195,9 @@ export default function ProfilePage() {
     const avatar = source.avatar_url ?? source.picture ?? '';
     setAvatarUrl(avatar);
     setProfileImage(avatar);
+
+    // Keep CPF immutable once profile has been fully saved.
+    setFieldsLocked((current) => current || hasSavedProfileData(source));
   };
 
   useEffect(() => {
@@ -280,7 +302,7 @@ export default function ProfilePage() {
 
   const handleProfileImageChange = (file: File | null) => {
     if (isGoogleUser) {
-      setSnackbarMessage('Foto de perfil gerenciada pelo Google. Não é possível alterar aqui.');
+      setSnackbarMessage('Foto de perfil gerenciada pelo Google. Não é possível alterar.');
       setSnackbarOpen(true);
       return;
     }
@@ -295,7 +317,7 @@ export default function ProfilePage() {
 
   const handleSavePassword = () => {
     if (isGoogleUser) {
-      setSnackbarMessage('Senha gerenciada pelo Google. Não é possível alterar aqui.');
+      setSnackbarMessage('Senha gerenciada pelo Google. Não é possível alterar.');
       setSnackbarOpen(true);
       return;
     }
@@ -347,19 +369,19 @@ export default function ProfilePage() {
     }
 
     if (!isValidCpf(cpf)) {
-      setSnackbarMessage('Informe um CPF válido com 11 dígitos.');
+      setSnackbarMessage('CPF inválido.');
       setSnackbarOpen(true);
       return;
     }
 
     if (!isValidPhone(phone)) {
-      setSnackbarMessage('Informe um telefone válido com pelo menos 10 dígitos.');
+      setSnackbarMessage('Telefone inválido.');
       setSnackbarOpen(true);
       return;
     }
 
     if (!isValidCep(cep)) {
-      setSnackbarMessage('Informe um CEP válido com 8 dígitos.');
+      setSnackbarMessage('CEP inválido.');
       setSnackbarOpen(true);
       return;
     }
@@ -377,7 +399,7 @@ export default function ProfilePage() {
     }
 
     if (!isValidBirthdate(birthdate)) {
-      setSnackbarMessage('Informe uma data de nascimento válida.');
+      setSnackbarMessage('Data de nascimento inválida.');
       setSnackbarOpen(true);
       return;
     }
@@ -551,7 +573,7 @@ export default function ProfilePage() {
             <div className="space-y-3">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h1 className="text-3xl font-semibold text-white">Meu perfil</h1>
+                  <h1 className="text-3xl font-regular text-white">Meu perfil</h1>
                   <p className="mt-2 max-w-2xl text-sm text-white/90">
                     {profileComplete
                       ? 'Aqui estão suas informações de cadastro.'
@@ -561,10 +583,10 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-black/95 p-6 shadow-xl shadow-black/20">
+            <div className="rounded-[0.5rem] border border-border bg-surface p-6">
               <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
                 <div className="space-y-4">
-                  <h2 className="text-xl font-semibold text-white">Foto de perfil</h2>
+                  <h2 className="text-xl font-regular text-white">Foto de perfil</h2>
                   <p className="text-sm text-white/70">
                     Envie uma foto em PNG ou JPEG.
                   </p>
@@ -577,13 +599,13 @@ export default function ProfilePage() {
                   />
                   {isGoogleUser ? (
                     <p className="text-sm text-white/60">
-                      A foto de perfil é fornecida pelo Google e não pode ser alterada aqui.
+                      A foto de perfil é fornecida pelo Google e não pode ser alterada.
                     </p>
                   ) : null}
                 </div>
 
                 <div className="space-y-4">
-                  <h2 className="text-xl font-semibold text-white">Editar senha</h2>
+                  <h2 className="text-xl font-regular text-white">Editar senha</h2>
                   <p className="text-sm text-white/70">
                     Informe a senha atual e a nova senha para alterar sua senha de acesso.
                   </p>
@@ -610,7 +632,7 @@ export default function ProfilePage() {
                   <ButtonSubmit
                     type="button"
                     label="Salvar nova senha"
-                    icon={<Save className="h-4 w-4" />}
+                    icon={<Bookmark className="h-4 w-4" />}
                     onClick={handleSavePassword}
                     fullWidth={false}
                     className="mt-3"
@@ -625,7 +647,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <form className="rounded-xl border border-border bg-black/95 p-6 shadow-xl shadow-black/20" onSubmit={handleSave}>
+            <form className="rounded-[0.5rem] border border-border bg-surface p-6" onSubmit={handleSave}>
               <div className="grid gap-4 sm:grid-cols-2">
                 {profileFields.map((field) => {
                   const { label, value, onChange, ...inputProps } = field;
@@ -633,13 +655,13 @@ export default function ProfilePage() {
 
                   return (
                     <div key={label} className="space-y-2">
-                      <label htmlFor={fieldId} className="block text-sm font-medium text-white/70">
+                      <label htmlFor={fieldId} className="block text-sm font-regular text-white/70">
                         <span className="inline-flex items-center gap-2">
                           {label}
                           {(label === 'Email' || label === 'CPF') && (
                             <span className="group relative inline-flex items-center">
                               <AlertCircle className="h-4 w-4 text-white/50" />
-                              <span className="invisible absolute left-1/2 top-full z-10 -translate-x-1/2 whitespace-nowrap rounded bg-white px-2 py-1 text-xs text-black opacity-0 shadow-xl shadow-black/10 transition-all duration-150 group-hover:visible group-hover:opacity-100">
+                              <span className="invisible absolute left-1/2 top-full z-10 -translate-x-1/2 whitespace-nowrap rounded bg-white px-2 py-1 text-xs text-black opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
                                 Não é possível alterar {label.toLowerCase()}. Entre em contato com o suporte.
                               </span>
                             </span>
@@ -669,7 +691,7 @@ export default function ProfilePage() {
                 <ButtonSubmit
                   type="submit"
                   label={isSaving ? 'Salvando...' : 'Salvar'}
-                  icon={<Save className="h-4 w-4" />}
+                  icon={<Bookmark className="h-4 w-4" />}
                   loading={isSaving}
                   fullWidth={false}
                 />

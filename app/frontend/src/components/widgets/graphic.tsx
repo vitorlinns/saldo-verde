@@ -27,7 +27,7 @@ export default function Graphic({ data, showValues }: GraphicProps) {
   const chartData = data;
 
   return (
-    <div className="rounded-2xl border border-border bg-black/80 p-6 shadow-xl shadow-black/20">
+    <div className="rounded-[0.5rem] border border-border bg-surface p-6">
       <div className="mb-2 flex items-center gap-2">
         <TrendingUp className="h-5 w-5 text-white" />
         <h2 className="text-xl font-regular text-white">Fluxo de entradas e saídas</h2>

@@ -1,4 +1,4 @@
-import { Heart } from 'lucide-react';
+import { Activity, Heart } from 'lucide-react';
 import Badge from '../badge/badge';
 
 interface HealthWidgetProps {
@@ -23,10 +23,10 @@ export default function HealthWidget({ totalEntradas, totalSaidas, showValues }:
   const healthVariant = healthScore >= 70 ? 'success' : healthScore >= 40 ? 'warning' : 'danger';
 
   return (
-    <div className="rounded-xl border border-border bg-black/80 p-6 shadow-xl shadow-black/20">
+    <div className="rounded-[0.5rem] border border-border bg-surface p-6 shadow-xl shadow-black/20">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Heart className="h-5 w-5 text-white" />
+          <Activity className="h-5 w-5 text-white" />
           <h3 className="text-xl font-regular text-white">Saúde financeira</h3>
         </div>
         <Badge label={healthStatus} variant={healthVariant} />

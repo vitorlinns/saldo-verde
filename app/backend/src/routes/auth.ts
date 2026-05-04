@@ -4,6 +4,9 @@ import {
   consumeRateLimit,
 } from '../lib/rate-limiter';
 import {
+  getSessionUser,
+} from '../lib/auth';
+import {
   normalizeDigits,
   isValidCpf,
   isValidPhone,
@@ -91,7 +94,19 @@ function clearAuthCookies(res: Response) {
 }
 
 export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null) {
-  app.post('/register', async (req, res) => {
+  const registerPost = (paths: string[], handler: (req: Request, res: Response) => unknown) => {
+    for (const path of paths) {
+      app.post(path, handler);
+    }
+  };
+
+  const registerGet = (paths: string[], handler: (req: Request, res: Response) => unknown) => {
+    for (const path of paths) {
+      app.get(path, handler);
+    }
+  };
+
+  const handleRegister = async (req: Request, res: Response) => {
     if (!supabase) {
       return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
     }
@@ -174,7 +189,9 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
       session: loginData.session,
       message: 'Conta criada com sucesso.',
     });
-  });
+  };
+
+  registerPost(['/register', '/api/register'], handleRegister);
 
   const handleLogin = async (req: Request, res: Response) => {
     if (!supabase) {
@@ -217,10 +234,9 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
     return res.status(200).json({ session: data.session, user: data.user, message: 'Login realizado com sucesso.' });
   };
 
-  app.post('/login', handleLogin);
-  app.post('/auth/login', handleLogin);
+  registerPost(['/login', '/api/login', '/auth/login', '/api/auth/login'], handleLogin);
 
-  app.post('/auth/refresh', async (req, res) => {
+  const handleRefresh = async (req: Request, res: Response) => {
     if (!supabase) {
       return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
     }
@@ -247,9 +263,38 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
 
     setAuthCookies(res, data.session.access_token, data.session.refresh_token);
     return res.status(200).json({ session: data.session, user: data.user, message: 'Sessão renovada com sucesso.' });
-  });
+  };
 
-  app.get('/auth/me', async (req, res) => {
+  registerPost(['/auth/refresh', '/api/auth/refresh'], handleRefresh);
+
+  const handleSessionCount = async (req: Request, res: Response) => {
+    if (!supabase) {
+      return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
+    }
+
+    const sessionUser = await getSessionUser(supabase, req);
+    if (!sessionUser) {
+      return res.status(401).json({ error: 'Sessão inválida.' });
+    }
+
+    const { data, error } = await supabase
+      .from('auth.sessions')
+      .select('id', { count: 'planned' })
+      .eq('user_id', sessionUser.id)
+      .gt('not_after', new Date().toISOString());
+
+    if (error) {
+      console.error('[auth/sessions] count error:', error);
+      return res.status(500).json({ error: 'Não foi possível contar as sessões ativas.' });
+    }
+
+    const count = Array.isArray(data) ? data.length : 0;
+    return res.status(200).json({ count });
+  };
+
+  registerGet(['/auth/sessions', '/api/auth/sessions'], handleSessionCount);
+
+  const handleMe = async (req: Request, res: Response) => {
     if (!supabase) {
       return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
     }
@@ -265,9 +310,11 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
     }
 
     return res.status(200).json({ user: data.user, authenticated: true });
-  });
+  };
 
-  app.post('/auth/logout', async (req, res) => {
+  registerGet(['/auth/me', '/api/auth/me'], handleMe);
+
+  const handleLogout = async (req: Request, res: Response) => {
     if (!supabase) {
       return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
     }
@@ -286,14 +333,18 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
 
     clearAuthCookies(res);
     return res.status(200).json({ message: 'Logout realizado com sucesso.' });
-  });
+  };
 
-  app.post('/logout', async (_req, res) => {
+  registerPost(['/auth/logout', '/api/auth/logout'], handleLogout);
+
+  const handleLegacyLogout = async (_req: Request, res: Response) => {
     if (!supabase) {
       return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
     }
 
     return res.status(200).json({ message: 'Logout realizado com sucesso.' });
-  });
+  };
+
+  registerPost(['/logout', '/api/logout'], handleLegacyLogout);
 
 }

@@ -11,7 +11,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
         type="button"
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
-        className="rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+        className="rounded-[0.5rem] border border-border bg-surface px-4 py-2 text-sm text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
       >
         Anterior
       </button>
@@ -26,7 +26,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
             className={`rounded-md px-4 py-2 text-sm transition ${
               page === currentPage
                 ? 'bg-success text-black'
-                : 'border border-white/10 bg-white/5 text-white hover:bg-white/10'
+                : 'border border-border bg-surface text-white hover:bg-white/10'
             }`}
           >
             {page}
@@ -38,7 +38,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
         type="button"
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
-        className="rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+        className="rounded-[0.5rem] border border-border bg-surface px-4 py-2 text-sm text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
       >
         Próximo
       </button>

@@ -140,7 +140,7 @@ export default function SubscriptionPage() {
             <div className="space-y-3">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h1 className="text-3xl font-semibold text-white">Minha assinatura</h1>
+                  <h1 className="text-3xl font-regular text-white">Minha assinatura</h1>
                   <p className="mt-2 max-w-2xl text-sm text-white/70">
                     Veja aqui o plano ativo e o status atual da sua assinatura.
                   </p>
@@ -149,7 +149,7 @@ export default function SubscriptionPage() {
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-2xl border border-border bg-black/90 p-6 shadow-xl shadow-black/20">
+              <div className="rounded-[0.5rem] border border-border bg-surface p-6">
                 <div className="flex items-center gap-3 text-white">
                   <CreditCard className="h-5 w-5 text-primary-400" />
                   <h2 className="text-xl font-semibold">Plano ativo</h2>

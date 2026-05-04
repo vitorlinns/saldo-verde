@@ -8,9 +8,9 @@ interface SearchRecordsProps {
 
 export default function SearchRecords({ query, onChange }: SearchRecordsProps) {
   return (
-    <div className="rounded-xl border border-border bg-black/95 p-6 shadow-xl shadow-black/20">
+    <div className="rounded-[0.5rem] border border-border bg-surface p-6">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-white">Buscar registros</h2>
+        <h2 className="text-lg font-regular text-white">Buscar registros</h2>
         <p className="mt-2 text-sm text-white/60">
           Digite 3 caracteres para pesquisar por título, categoria ou valor.
         </p>

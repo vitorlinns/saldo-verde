@@ -1,4 +1,4 @@
-import type { Express } from 'express';
+import type { Express, Request, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createRecoveryEntry, getRecoveryEntry, verifyRecoveryCode, consumeRecoveryEntry } from '../lib/recovery';
 import { sendRecoveryEmail } from '../lib/email';
@@ -7,7 +7,7 @@ const isValidEmail = (value: unknown): value is string =>
   typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 export function registerRecoverRoutes(app: Express, supabase: SupabaseClient | null) {
-  app.post('/recover/request', async (req, res) => {
+  const handleRecoverRequest = async (req: Request, res: Response) => {
     if (!supabase) {
       return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
     }
@@ -42,9 +42,12 @@ export function registerRecoverRoutes(app: Express, supabase: SupabaseClient | n
     }
 
     return res.status(200).json({ message: 'Se o email existir, você receberá as instruções para recuperação.' });
-  });
+  };
 
-  app.post('/recover/verify', async (req, res) => {
+  app.post('/recover/request', handleRecoverRequest);
+  app.post('/api/recover/request', handleRecoverRequest);
+
+  const handleRecoverVerify = async (req: Request, res: Response) => {
     const { email, code } = req.body;
 
     if (!isValidEmail(email) || typeof code !== 'string') {
@@ -56,9 +59,12 @@ export function registerRecoverRoutes(app: Express, supabase: SupabaseClient | n
     }
 
     return res.status(200).json({ message: 'Código de recuperação verificado.' });
-  });
+  };
 
-  app.post('/recover/reset', async (req, res) => {
+  app.post('/recover/verify', handleRecoverVerify);
+  app.post('/api/recover/verify', handleRecoverVerify);
+
+  const handleRecoverReset = async (req: Request, res: Response) => {
     if (!supabase) {
       return res.status(503).json({ error: 'Serviço de autenticação indisponível no momento.' });
     }
@@ -103,5 +109,8 @@ export function registerRecoverRoutes(app: Express, supabase: SupabaseClient | n
 
     consumeRecoveryEntry(email.toLowerCase());
     return res.status(200).json({ message: 'Senha redefinida com sucesso.' });
-  });
+  };
+
+  app.post('/recover/reset', handleRecoverReset);
+  app.post('/api/recover/reset', handleRecoverReset);
 }

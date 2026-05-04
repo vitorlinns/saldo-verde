@@ -1,4 +1,4 @@
-import express, { type Express } from 'express';
+import express, { type Express, type Request, type Response } from 'express';
 import fs from 'fs';
 
 export function registerSiteRoutes(app: Express, assetsPath: string, footerTextPath: string, logoPath: string) {
@@ -18,7 +18,7 @@ export function registerSiteRoutes(app: Express, assetsPath: string, footerTextP
     });
   });
 
-  app.get('/footer-text', (_req, res) => {
+  const handleFooterText = (_req: Request, res: Response) => {
     try {
       const file = fs.readFileSync(footerTextPath, 'utf-8');
       const data = JSON.parse(file);
@@ -27,5 +27,8 @@ export function registerSiteRoutes(app: Express, assetsPath: string, footerTextP
       console.error('Failed to read footer text file:', err);
       res.status(500).json({ copyright: '©Saldo Verde | Todos os direitos reservados.' });
     }
-  });
+  };
+
+  app.get('/footer-text', handleFooterText);
+  app.get('/api/footer-text', handleFooterText);
 }

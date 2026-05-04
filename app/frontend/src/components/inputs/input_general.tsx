@@ -40,7 +40,7 @@ export default function InputGeneral({
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck={false}
-        className="w-full rounded-[0.5rem] border border-border bg-background px-4 py-3 pr-12 text-base text-white outline-none transition placeholder:text-white placeholder:opacity-30"
+        className="w-full rounded-[0.5rem] border border-border bg-surface px-4 py-3 pr-12 text-base text-white outline-none transition placeholder:text-white placeholder:opacity-30"
         style={inputStyle}
         {...props}
       />

@@ -86,7 +86,7 @@ export default function Snackbar({
         role="status"
         aria-live="polite"
         style={animationStyle}
-        className={`pointer-events-auto flex max-w-[28rem] items-center gap-3 rounded-xl border px-4 py-3 shadow-xl shadow-black/25 ${containerClasses}`}
+        className={`pointer-events-auto flex max-w-[28rem] items-center gap-3 rounded-[0.5rem] border px-4 py-3 shadow-xl shadow-black/25 ${containerClasses}`}
       >
         <span className="inline-flex h-8 w-8 min-w-[2rem] items-center justify-center rounded-full bg-black/10">
           {icon}

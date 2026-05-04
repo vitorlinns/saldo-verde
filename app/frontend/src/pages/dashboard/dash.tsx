@@ -82,7 +82,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-background text-white">
+    <main className="min-h-screen bg-bg_saas text-white">
       <div className="min-h-screen h-full grid w-full gap-6 lg:grid-cols-[280px_1fr] lg:items-stretch">
 <Sidebar email={session?.user.email ?? null} disableProtectedLinks={session ? !isProfileComplete(session) : false} />
 
@@ -97,28 +97,28 @@ export default function DashboardPage() {
 
           <section className="flex-1 space-y-6">
             <div>
-              <h1 className="text-3xl font-semibold text-white">Dashboard</h1>
+              <h1 className="text-3xl font-regular text-white">Dashboard</h1>
             </div>
 
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
               <FinanceWidget
                 title="Saldo total"
                 value={saldoTotal}
-                description="Disponível após todas as entradas e saídas"
+                description="Saldo líquido disponível"
                 variant="primary"
                 showValues={showValues}
               />
               <FinanceWidget
                 title="Entradas"
                 value={totalEntradas}
-                description="Total de dinheiro registrado"
+                description="Total de entradas esse mês"
                 variant="success"
                 showValues={showValues}
               />
               <FinanceWidget
                 title="Saídas"
                 value={totalSaidas}
-                description="Total de saídas registradas"
+                description="Total de saídas esse mês"
                 variant="danger"
                 showValues={showValues}
               />

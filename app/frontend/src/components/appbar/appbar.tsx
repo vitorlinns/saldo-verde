@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
-import { Bell, Eye, EyeOff, MessageSquare } from 'lucide-react';
+import { Bell, Eye, EyeOff, MailQuestionIcon } from 'lucide-react';
 import BoxNotification from './box_notification';
 import NotificationCardAppbar from './notification_card_appbar';
 import AppBarBox from './box';
@@ -219,13 +219,13 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
   const recentNotifications = unreadNotifications;
 
   return (
-    <div className="mt-4 mb-8 flex justify-between rounded-xl border border-border bg-black p-3 shadow-xl shadow-black/20">
+    <div className="mt-4 mb-8 flex justify-between rounded-[0.5rem] border border-border bg-surface p-3">
       <div className="flex items-center gap-4">
-        <p className="text-2xl font-semibold text-white">{`Olá, ${firstName}`}</p>
+        <p className="text-2xl font-regular text-white">{`Olá, ${firstName}`}</p>
         <button
           type="button"
           onClick={onToggleValues}
-          className="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-black/90 px-4 text-sm text-white transition hover:bg-white/5"
+          className="inline-flex h-10 items-center gap-2 rounded-xl bg-surface px-4 text-sm text-white"
         >
           {showValues ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           {showValues ? 'Ocultar valores' : 'Mostrar valores'}
@@ -237,27 +237,30 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
           <button
             type="button"
             onClick={() => setOpenMenu((current) => (current === 'support' ? null : 'support'))}
-            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-black/90 text-lg text-white shadow-black/10 transition hover:bg-white/5"
+            className="inline-flex h-12 w-12 items-center justify-center rounded-[0.5rem] border border-border text-lg text-white transition hover:bg-white/5"
             aria-label="Abrir suporte"
           >
-            <MessageSquare className="h-5 w-5" />
+            <MailQuestionIcon className="h-5 w-5" />
           </button>
 
           {openMenu === 'support' ? (
             <AppBarBox>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm font-semibold text-white">Suporte</p>
+                  <p className="text-xl font-medium text-white">Suporte</p>
                   <p className="mt-2 text-sm text-white/70">
                     Precisa de ajuda com sua conta ou assinatura? Entre em contato com nosso suporte técnico.
                   </p>
                 </div>
-                <a
-                  href="mailto:suporte@saldoverde.pro"
-                  className="inline-flex w-full items-center justify-center rounded-xl border border-primary-500 bg-primary-500 px-4 py-3 text-sm font-semibold text-black transition hover:bg-primary-400"
-                >
-                  Enviar email ao suporte
-                </a>
+                <ButtonSubmit
+                  type="button"
+                  label="Enviar email ao suporte"
+                  icon={<MailQuestionIcon className="h-4 w-4" />}
+                  onClick={() => {
+                    window.location.href = 'mailto:suporte@saldoverde.pro';
+                    setOpenMenu(null);
+                  }}
+                />
               </div>
             </AppBarBox>
           ) : null}
@@ -267,12 +270,12 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
           <button
             type="button"
             onClick={() => setOpenMenu((current) => (current === 'notifications' ? null : 'notifications'))}
-            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-black/90 text-lg text-white shadow-black/10 transition hover:bg-white/5"
+            className="inline-flex h-12 w-12 items-center justify-center rounded-[0.5rem] border border-border text-lg text-white transition hover:bg-white/5"
             aria-label="Abrir notificações"
           >
             <Bell
               className="h-5 w-5"
-              style={{ animation: 'shake 0.8s ease-in-out infinite' }}
+              style={unreadNotifications.length > 0 ? { animation: 'shake 0.8s ease-in-out infinite' } : undefined}
             />
           </button>
 
@@ -280,7 +283,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
             <BoxNotification>
               <div className="space-y-4">
                 {loadingNotifications ? (
-                  <div className="rounded-2xl border border-border bg-black/90 p-4 text-sm text-white/70">
+                  <div className="rounded-[0.5rem] border border-border bg-surface p-4 text-sm text-white/70">
                     Carregando notificações...
                   </div>
                 ) : unreadNotifications.length > 0 ? (
@@ -298,7 +301,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded-2xl border border-border bg-black/90 p-4 text-sm text-white/70">
+                  <div className="rounded-[0.5rem] border border-border bg-surface p-4 text-sm text-white/70">
                     Nenhuma notificação disponível.
                   </div>
                 )}
@@ -321,7 +324,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
           <button
             type="button"
             onClick={() => setOpenMenu((current) => (current === 'profile' ? null : 'profile'))}
-            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-black/90 text-lg font-semibold text-white shadow-black/10 transition hover:bg-white/5 overflow-hidden"
+            className="inline-flex h-12 w-12 items-center justify-center rounded-[0.5rem] border border-border text-lg font-semibold text-white transition hover:bg-white/5 overflow-hidden"
             aria-label="Abrir menu de perfil"
           >
             {avatarUrl ? (

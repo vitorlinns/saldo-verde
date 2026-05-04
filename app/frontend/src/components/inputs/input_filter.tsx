@@ -19,8 +19,6 @@ export default function InputFilter({
 }: InputFilterProps) {
   const inputStyle = {
     ...style,
-    WebkitBoxShadow: '0 0 0 1000px #000 inset',
-    boxShadow: '0 0 0 1000px #000 inset',
     WebkitTextFillColor: '#fff',
   };
 
@@ -35,7 +33,7 @@ export default function InputFilter({
       autoCorrect="off"
       autoCapitalize="off"
       spellCheck={false}
-      className={`h-10 min-w-[3rem] rounded-xl border border-border bg-black/80 px-4 text-sm font-semibold text-white outline-none transition placeholder:text-white placeholder:opacity-50 ${className}`}
+      className={`h-11 min-w-[1rem] rounded-[0.5rem] border border-border bg-surface px-4 text-sm font-regular text-white outline-none transition placeholder:text-white placeholder:opacity-50 ${className}`}
       style={inputStyle}
       {...props}
     />

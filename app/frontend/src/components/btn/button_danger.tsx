@@ -17,7 +17,7 @@ export default function ButtonDanger({
 }: ButtonDangerProps) {
   return (
     <button
-      className={`w-full flex h-10 items-center justify-center rounded-xl border border-danger bg-danger_bg px-4 text-sm font-semibold text-danger transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`w-full flex h-10 items-center justify-center rounded-[0.5rem] border border-danger bg-danger_bg px-4 text-sm font-semibold text-danger transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
       disabled={disabled || loading}
       {...props}
     >

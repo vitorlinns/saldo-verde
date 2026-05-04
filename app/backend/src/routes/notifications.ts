@@ -1,4 +1,4 @@
-import type { Express } from 'express';
+import type { Express, Request, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSessionUser } from '../lib/auth';
 
@@ -13,7 +13,7 @@ const formatTime = (value: Date) => {
 };
 
 export function registerNotificationsRoutes(app: Express, supabase: SupabaseClient | null) {
-  app.get('/notifications', async (req, res) => {
+  const handleNotifications = async (req: Request, res: Response) => {
     if (!supabase) {
       return res.status(503).json({ error: 'Serviço de notificações indisponível no momento.' });
     }
@@ -62,5 +62,8 @@ export function registerNotificationsRoutes(app: Express, supabase: SupabaseClie
     });
 
     return res.json({ notifications });
-  });
+  };
+
+  app.get('/notifications', handleNotifications);
+  app.get('/api/notifications', handleNotifications);
 }

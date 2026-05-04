@@ -1,7 +1,10 @@
-import type { Express } from 'express';
+import type { Express, Request, Response } from 'express';
 
 export function registerHealthRoutes(app: Express) {
-  app.get('/health', (_req, res) => {
+  const handleHealth = (_req: Request, res: Response) => {
     res.json({ status: 'ok' });
-  });
+  };
+
+  app.get('/health', handleHealth);
+  app.get('/api/health', handleHealth);
 }

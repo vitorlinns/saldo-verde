@@ -24,6 +24,7 @@ export default function ConfigPage() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarType, setSnackbarType] = useState<'success' | 'error'>('success');
+  const [activeSessionsCount, setActiveSessionsCount] = useState<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -76,6 +77,36 @@ export default function ConfigPage() {
   const handleLogoutAllSessions = () => {
     setIsLogoutAllConfirmOpen(true);
   };
+
+  useEffect(() => {
+    if (!session) {
+      setActiveSessionsCount(null);
+      return;
+    }
+
+    const fetchActiveSessionsCount = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/auth/sessions`, {
+          headers: {
+            Authorization: `Bearer ${session.access_token ?? ''}`,
+          },
+        });
+
+        if (!response.ok) {
+          setActiveSessionsCount(null);
+          return;
+        }
+
+        const result = await response.json();
+        setActiveSessionsCount(typeof result.count === 'number' ? result.count : null);
+      } catch (error) {
+        console.error('Failed to fetch active sessions count:', error);
+        setActiveSessionsCount(null);
+      }
+    };
+
+    void fetchActiveSessionsCount();
+  }, [session]);
 
   const confirmLogoutAllSessions = async () => {
     if (!supabase) return;
@@ -178,7 +209,7 @@ export default function ConfigPage() {
             <div className="space-y-3">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h1 className="text-3xl font-semibold text-white">Configurações</h1>
+                  <h1 className="text-3xl font-regular text-white">Configurações</h1>
                   <p className="mt-2 max-w-2xl text-sm text-white/70">
                     Configure sua conta e ações sensíveis do sistema.
                   </p>
@@ -187,14 +218,18 @@ export default function ConfigPage() {
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-2xl border border-border bg-black/90 p-6 shadow-xl shadow-black/20">
-                <h2 className="text-xl font-semibold text-white">Sessão ativa</h2>
+              <div className="rounded-[0.5rem] border border-border bg-surface p-6">
+                <h2 className="text-xl font-regular text-white">Sessão ativa</h2>
                 <p className="mt-2 text-sm text-white/70">
                   Saia de todas as sessões ativas para encerrar o acesso em outros os dispositivos.
                 </p>
                 <p className="mt-4 flex items-center gap-2 text-sm text-white/80">
                   <ShieldCheck className="h-4 w-4" />
-                  1 sessão ativa
+                  {activeSessionsCount === null
+                    ? 'Carregando sessões...'
+                    : activeSessionsCount === 0
+                    ? 'Nenhuma sessão ativa'
+                    : `${activeSessionsCount} ${activeSessionsCount === 1 ? 'sessão ativa' : 'sessões ativas'}`}
                 </p>
                 <div className="mt-4 flex flex-col items-start gap-4">
                   <ButtonDanger
@@ -208,8 +243,8 @@ export default function ConfigPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-border bg-black/90 p-6 shadow-xl shadow-black/20">
-                <h2 className="text-xl font-semibold text-white">Termos e políticas</h2>
+              <div className="rounded-[0.5rem] border border-border bg-surface p-6">
+                <h2 className="text-xl font-regular text-white">Termos e políticas</h2>
                 <p className="mt-2 text-sm text-white/70">
                   Tenha sempre acesso rápido aos nossos termos e políticas de uso.
                 </p>
@@ -218,7 +253,7 @@ export default function ConfigPage() {
                     href="https://saldoverde.pro/politica-de-privacidade"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block rounded-2xl border border-border bg-black/80 px-4 py-4 text-sm text-white transition hover:bg-white/5"
+                    className="block rounded-[0.5rem] border border-border bg-surface px-4 py-4 text-sm text-white transition hover:bg-white/5"
                   >
                     Política de privacidade
                   </a>
@@ -226,7 +261,7 @@ export default function ConfigPage() {
                     href="https://saldoverde.pro/termos-de-uso"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block rounded-2xl border border-border bg-black/80 px-4 py-4 text-sm text-white transition hover:bg-white/5"
+                    className="block rounded-[0.5rem] border border-border bg-surface px-4 py-4 text-sm text-white transition hover:bg-white/5"
                   >
                     Termos de uso
                   </a>
@@ -234,8 +269,8 @@ export default function ConfigPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-danger bg-danger_bg p-6 shadow-xl shadow-black/20">
-              <h2 className="text-xl font-semibold text-white">Área de perigo</h2>
+            <div className="rounded-[0.5rem] border border-danger bg-danger_bg p-6">
+              <h2 className="text-xl font-regular text-danger">Área de perigo!</h2>
               <p className="mt-2 text-sm text-white/70">
                 Você pode excluir sua conta a qualquer momento, porém não será possível criar nova conta com mesmo e-mail e cpf já cadastrados. Para mais informções e tirar dúvidas, consulte nossos termos e políticas.
               </p>
@@ -274,6 +309,7 @@ export default function ConfigPage() {
         description="Deseja encerrar todas as sessões ativas? Isso desconectará sua conta de todos os dispositivos onde você estiver logado."
         warning="Essa ação irá deslogar sua conta globalmente em todos os dispositivos e navegadores."
         confirmLabel="Confirmar logout"
+        confirmIcon={<Power className="h-4 w-4" />}
         cancelLabel="Cancelar"
         loading={isSigningOutAll}
         onConfirm={confirmLogoutAllSessions}

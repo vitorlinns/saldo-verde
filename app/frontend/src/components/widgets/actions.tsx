@@ -6,7 +6,7 @@ export default function ActionsWidget() {
   const navigate = useNavigate();
 
   return (
-    <div className="rounded-xl border border-border bg-black/80 p-6 shadow-xl shadow-black/20">
+    <div className="rounded-[0.5rem] border border-border bg-surface p-6">
       <div className="flex items-center gap-2">
         <Zap className="h-5 w-5 text-white" />
         <h3 className="text-lg font-regular text-white">Ações rápidas:</h3>

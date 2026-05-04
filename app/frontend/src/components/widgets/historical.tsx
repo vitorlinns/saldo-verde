@@ -1,4 +1,4 @@
-import { ArrowUpRight, Clock } from 'lucide-react';
+import { ArrowUpRight, Clock, WalletCards } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ButtonSubmit from '../btn/button_submit';
 import HistoricalCard from '../cards/historical_card';
@@ -17,7 +17,7 @@ export default function HistoricalWidget({ showValues, records }: HistoricalWidg
   const navigate = useNavigate();
 
   return (
-    <div className="h-full rounded-xl border border-border bg-black/80 p-6 shadow-xl shadow-black/20">
+    <div className="h-full rounded-[0.5rem] border border-border bg-surface p-6 shadow-xl shadow-black/20">
       <div className="mb-5 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Clock className="h-5 w-5 text-white" />
@@ -26,9 +26,9 @@ export default function HistoricalWidget({ showValues, records }: HistoricalWidg
         <ButtonSubmit
           type="button"
           label="Ver todas"
-          icon={<ArrowUpRight className="h-4 w-4" />}
+          icon={<WalletCards className="h-4 w-4" />}
           fullWidth={false}
-          className="rounded-full px-4 text-sm"
+         
           onClick={() => navigate('/registros')}
         />
       </div>

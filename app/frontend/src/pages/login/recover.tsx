@@ -61,7 +61,7 @@ export default function RecoverPage() {
           <div className="relative z-10 w-full max-w-md rounded-[1rem] border border-border bg-surface p-8 sm:p-10">
             <div className="mb-6 space-y-4">
               <div className="flex justify-left">
-                <img src="/assets/brand/isologo.png" alt="Logo" className="h-12 w-auto" />
+                <img src="/assets/brand/isologo.webp" alt="Logo" className="h-12 w-auto" />
               </div>
 
               <div>

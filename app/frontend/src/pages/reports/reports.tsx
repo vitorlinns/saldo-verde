@@ -224,8 +224,8 @@ export default function ReportsPage() {
 
           <section className="flex-1 space-y-6">
             <div>
-              <h1 className="text-3xl font-semibold text-white">Relatório</h1>
-              <p className="mt-2 max-w-2xl text-sm text-white/70">
+              <h1 className="text-3xl font-regular text-white">Relatório</h1>
+              <p className="mt-4 max-w-2xl text-sm text-white/70">
                 Veja como seus meses anteriores se comportaram e acompanhe o saldo acumulado.
               </p>
             </div>

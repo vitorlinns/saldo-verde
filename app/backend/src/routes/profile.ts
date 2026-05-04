@@ -1,4 +1,4 @@
-import type { Express } from 'express';
+import type { Express, Request, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSessionUser } from '../lib/auth';
 import { isValidCpf, isValidPhone, isValidCep, parseBirthdate, getAge, normalizeDigits } from '../lib/validation';
@@ -18,6 +18,20 @@ const requiredProfileFields = [
   'state',
 ];
 
+const getMetadataString = (metadata: Record<string, unknown> | undefined, key: string) => {
+  const value = metadata?.[key];
+  return typeof value === 'string' ? value : null;
+};
+
+const getNonEmpty = (...values: Array<string | null | undefined>) => {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value;
+    }
+  }
+  return null;
+};
+
 const isMetadataComplete = (metadata: Record<string, unknown> | null | undefined) => {
   if (!metadata) return false;
   return requiredProfileFields.every((field) => {
@@ -27,7 +41,7 @@ const isMetadataComplete = (metadata: Record<string, unknown> | null | undefined
 };
 
 export function registerProfileRoutes(app: Express, supabase: SupabaseClient | null) {
-  app.get('/profile/:id', async (req, res) => {
+  const handleGetProfile = async (req: Request, res: Response) => {
     if (!supabase) {
       return res.status(503).json({ error: 'Serviço indisponível no momento.' });
     }
@@ -48,14 +62,77 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
       .eq('id', userId)
       .single();
 
-    if (error) {
+    if (error && error.code !== 'PGRST116') {
       return res.status(400).json({ error: 'Não foi possível carregar o perfil.' });
     }
 
-    return res.json({ profile: data });
-  });
+    const metadata = sessionUser.user_metadata as Record<string, unknown> | undefined;
+    const persisted = data as Record<string, unknown> | null;
 
-  app.put('/profile/:id', async (req, res) => {
+    const profile = {
+      id: userId,
+      first_name: getNonEmpty(
+        typeof persisted?.first_name === 'string' ? persisted.first_name : null,
+        getMetadataString(metadata, 'first_name')
+      ),
+      last_name: getNonEmpty(
+        typeof persisted?.last_name === 'string' ? persisted.last_name : null,
+        getMetadataString(metadata, 'last_name')
+      ),
+      cpf: getNonEmpty(
+        typeof persisted?.cpf === 'string' ? persisted.cpf : null,
+        getMetadataString(metadata, 'cpf')
+      ),
+      phone: getNonEmpty(
+        typeof persisted?.phone === 'string' ? persisted.phone : null,
+        getMetadataString(metadata, 'phone')
+      ),
+      birthdate: getNonEmpty(
+        typeof persisted?.birthdate === 'string' ? persisted.birthdate : null,
+        getMetadataString(metadata, 'birthdate')
+      ),
+      cep: getNonEmpty(
+        typeof persisted?.cep === 'string' ? persisted.cep : null,
+        getMetadataString(metadata, 'cep')
+      ),
+      street: getNonEmpty(
+        typeof persisted?.street === 'string' ? persisted.street : null,
+        getMetadataString(metadata, 'street')
+      ),
+      number: getNonEmpty(
+        typeof persisted?.number === 'string' ? persisted.number : null,
+        getMetadataString(metadata, 'number')
+      ),
+      complement: getNonEmpty(
+        typeof persisted?.complement === 'string' ? persisted.complement : null,
+        getMetadataString(metadata, 'complement')
+      ),
+      neighborhood: getNonEmpty(
+        typeof persisted?.neighborhood === 'string' ? persisted.neighborhood : null,
+        getMetadataString(metadata, 'neighborhood')
+      ),
+      city: getNonEmpty(
+        typeof persisted?.city === 'string' ? persisted.city : null,
+        getMetadataString(metadata, 'city')
+      ),
+      state: getNonEmpty(
+        typeof persisted?.state === 'string' ? persisted.state : null,
+        getMetadataString(metadata, 'state')
+      ),
+      avatar_url: getNonEmpty(
+        typeof persisted?.avatar_url === 'string' ? persisted.avatar_url : null,
+        getMetadataString(metadata, 'avatar_url'),
+        getMetadataString(metadata, 'picture')
+      ),
+    };
+
+    return res.json({ profile });
+  };
+
+  app.get('/profile/:id', handleGetProfile);
+  app.get('/api/profile/:id', handleGetProfile);
+
+  const handleUpdateProfile = async (req: Request, res: Response) => {
     if (!supabase) {
       return res.status(503).json({ error: 'Serviço indisponível no momento.' });
     }
@@ -179,6 +256,18 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
       return res.status(400).json({ error: 'Não foi possível atualizar o perfil. Revise os dados e tente novamente.' });
     }
 
+    const { error: profileSyncError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: userId,
+        ...metadata,
+      }, { onConflict: 'id' });
+
+    if (profileSyncError) {
+      console.error('Failed to sync profile table:', profileSyncError);
+      return res.status(500).json({ error: 'Perfil atualizado, mas falhou ao sincronizar dados do perfil.' });
+    }
+
     if (!wasProfileComplete) {
       await supabase
         .from('user_notifications')
@@ -198,5 +287,8 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
     }
 
     return res.status(200).json({ user: data.user, message: 'Perfil atualizado com sucesso.' });
-  });
+  };
+
+  app.put('/profile/:id', handleUpdateProfile);
+  app.put('/api/profile/:id', handleUpdateProfile);
 }

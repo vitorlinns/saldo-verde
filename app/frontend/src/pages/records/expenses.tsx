@@ -110,14 +110,14 @@ export default function ExpensesPage() {
 
           <section className="flex-1 space-y-6">
             <div>
-              <h1 className="text-3xl font-semibold text-white">Registrar nova saída</h1>
-              <p className="mt-2 max-w-2xl text-sm text-white/70">
+              <h1 className="text-3xl font-regular text-white">Registrar nova saída</h1>
+              <p className="mt-4 max-w-2xl text-sm text-white/70">
                 Preencha os dados abaixo para registrar uma nova despesa.
               </p>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-              <div className="rounded-xl border border-border bg-black/95 p-4 shadow-xl shadow-black/20 sm:p-6">
+              <div className="rounded-[0.5rem] border border-border bg-surface sm:p-6">
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   <div className="grid gap-4 md:grid-cols-2">
                     <InputGeneral
@@ -154,9 +154,11 @@ export default function ExpensesPage() {
                 </form>
               </div>
 
-              <div className="rounded-xl border border-border bg-black/95 p-6 shadow-xl shadow-black/20 sm:p-8">
-                <h2 className="text-xl font-semibold text-white mb-4">Preview:</h2>
-                <ExpensesPreview title={title} amount={amount} category={category} note={note} />
+              <div className="rounded-[0.5rem] border border-border bg-surface p-6 sm:p-8">
+                <div className="space-y-4">
+                  <h2 className="text-xl font-semibold text-white">Preview:</h2>
+                  <ExpensesPreview title={title} amount={amount} category={category} note={note} />
+                </div>
               </div>
             </div>
           </section>

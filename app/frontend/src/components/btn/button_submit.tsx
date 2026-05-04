@@ -19,7 +19,7 @@ export default function ButtonSubmit({
 }: ButtonSubmitProps) {
   return (
     <button
-      className={`${fullWidth ? 'w-full' : 'w-auto'} flex h-10 items-center justify-center rounded-xl border border-border bg-black/80 px-4 text-sm font-semibold text-white transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`${fullWidth ? 'w-full' : 'w-auto'} flex h-11 items-center justify-center rounded-[0.5rem] bg-gray px-6 py-2 text-sm font-semibold border border-border text-white transition disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
       disabled={disabled || loading}
       {...props}
     >

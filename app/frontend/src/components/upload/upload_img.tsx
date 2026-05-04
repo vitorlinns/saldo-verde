@@ -26,7 +26,7 @@ export default function UploadImg({
     <div className="space-y-3">
       <label
         htmlFor="upload-profile-image"
-        className={`group relative flex h-44 w-44 items-center justify-center overflow-hidden rounded-full border border-border bg-black/80 text-white transition focus:outline-none focus-visible:ring-0 ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-primary-300 hover:bg-white/10'}`}
+        className={`group relative flex h-44 w-44 items-center justify-center overflow-hidden rounded-full border border-border bg-surface text-white transition focus:outline-none focus-visible:ring-0 ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-gray hover:bg-white/10'}`}
       >
         {imageUrl ? (
           <img src={imageUrl} alt="Prévia da foto" className="h-full w-full object-cover" />

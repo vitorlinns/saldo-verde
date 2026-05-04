@@ -1,10 +1,10 @@
-import type { Express } from 'express';
+import type { Express, Request, Response } from 'express';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSessionUser, reserveDeletedAccountData } from '../lib/auth';
 import { normalizeDigits } from '../lib/validation';
 
 export function registerAccountRoutes(app: Express, supabase: SupabaseClient | null) {
-  app.delete('/account/:id', async (req, res) => {
+  const handleDeleteAccount = async (req: Request, res: Response) => {
     if (!supabase) {
       return res.status(503).json({ error: 'Serviço de conta indisponível no momento.' });
     }
@@ -42,5 +42,8 @@ export function registerAccountRoutes(app: Express, supabase: SupabaseClient | n
     }
 
     return res.status(200).json({ message: 'Conta excluída com sucesso.' });
-  });
+  };
+
+  app.delete('/account/:id', handleDeleteAccount);
+  app.delete('/api/account/:id', handleDeleteAccount);
 }

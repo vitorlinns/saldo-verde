@@ -12,6 +12,8 @@ import { registerProfileRoutes } from './routes/profile';
 import { registerHealthRoutes } from './routes/health';
 import { registerSiteRoutes } from './routes/site';
 
+// Load local overrides first during development, then fallback to .env defaults.
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 dotenv.config();
 
 const app = express();

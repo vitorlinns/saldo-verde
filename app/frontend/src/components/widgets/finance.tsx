@@ -21,9 +21,9 @@ export default function FinanceWidget({
   showValues = true,
 }: FinanceWidgetProps) {
   const variantStyles = {
-    primary: 'border-border bg-black text-white',
-    success: 'border-border bg-black text-success',
-    danger: 'border-border bg-black text-danger',
+    primary: 'border-border bg-surface text-white',
+    success: 'border-border bg-surface text-success',
+    danger: 'border-border bg-surface text-danger',
   };
 
   const titleIcon =
@@ -36,12 +36,12 @@ export default function FinanceWidget({
     );
 
   return (
-    <div className={`rounded-xl border p-6 shadow-xl shadow-black/20 ${variantStyles[variant]}`}>
+    <div className={`rounded-[0.5rem] border p-6 ${variantStyles[variant]}`}>
       <div className="flex items-center gap-2 text-sm text-white">
         {titleIcon}
         <span>{title}</span>
       </div>
-      <p className="mt-4 text-3xl font-semibold">
+      <p className="mt-4 text-3xl font-regular">
         {showValues ? currencyFormatter.format(value) : '•••••••'}
       </p>
       <p className="mt-2 text-sm text-white">{description}</p>

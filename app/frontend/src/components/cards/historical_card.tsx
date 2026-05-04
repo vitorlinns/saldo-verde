@@ -32,7 +32,7 @@ export default function HistoricalCard({ type, title, category, amount, onClick 
           onClick?.();
         }
       } : undefined}
-      className={`rounded-xl border border-border bg-black/90 p-4 ${isClickable ? 'cursor-pointer transition hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400' : ''}`}
+      className={`rounded-[0.5rem] border border-border bg-card p-4 ${isClickable ? 'cursor-pointer transition hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400' : ''}`}
     >
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0 flex items-center gap-3 text-sm text-white/70">

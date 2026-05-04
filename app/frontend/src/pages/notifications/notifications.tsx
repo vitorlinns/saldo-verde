@@ -247,7 +247,7 @@ export default function NotificationsPage() {
             <div className="space-y-3">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h1 className="text-3xl font-semibold text-white">Notificações</h1>
+                  <h1 className="text-3xl font-regular text-white">Notificações</h1>
                   <p className="mt-2 max-w-2xl text-sm text-white/70">
                     Veja aqui todos os avisos e atualizações importantes da sua conta.
                   </p>
@@ -257,7 +257,7 @@ export default function NotificationsPage() {
 
             <div className="grid gap-4">
               {loadingNotifications ? (
-                <div className="rounded-3xl border border-border bg-black/90 p-6 text-center text-sm text-white/70">
+                <div className="rounded-[0.5rem] border border-border bg-surface p-6 text-center text-sm text-white/70">
                   Carregando notificações...
                 </div>
               ) : visibleNotifications.length > 0 ? (
@@ -271,7 +271,7 @@ export default function NotificationsPage() {
                   />
                 ))
               ) : (
-                <div className="rounded-xl border border-border bg-black/90 p-6 text-center text-sm text-white/70">
+                <div className="rounded-[0.5rem] border border-border bg-surface p-6 text-center text-sm text-white/70">
                   Nenhuma notificação encontrada.
                 </div>
               )}
@@ -283,7 +283,7 @@ export default function NotificationsPage() {
                   type="button"
                   onClick={() => setCurrentPage((current) => Math.max(1, current - 1))}
                   disabled={currentPage === 1}
-                  className="rounded-xl border border-border bg-black/90 px-4 py-2 text-sm text-white transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-[0.5rem] border border-border bg-surface px-4 py-2 text-sm text-white transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Anterior
                 </button>
@@ -295,7 +295,7 @@ export default function NotificationsPage() {
                       key={page}
                       type="button"
                       onClick={() => setCurrentPage(page)}
-                      className={`rounded-xl border px-4 py-2 text-sm font-medium transition ${
+                      className={`rounded-[0.5rem] border px-4 py-2 text-sm font-medium transition ${
                         currentPage === page
                           ? 'border-primary-500 bg-primary-500 text-black'
                           : 'border-border bg-black/90 text-white hover:bg-white/5'

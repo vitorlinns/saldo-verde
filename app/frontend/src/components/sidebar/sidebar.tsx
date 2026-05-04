@@ -19,11 +19,11 @@ interface SidebarProps {
 
 export default function Sidebar({ email, disableProtectedLinks = false }: SidebarProps) {
   return (
-    <aside className="hidden xl:sticky xl:top-0 xl:h-screen xl:min-w-[260px] xl:flex xl:flex-col xl:gap-6 xl:overflow-hidden xl:border xl:border-border xl:bg-black/80 xl:p-6 xl:shadow-xl xl:shadow-black/20">
+    <aside className="hidden xl:sticky xl:top-0 xl:h-screen xl:min-w-[260px] xl:flex xl:flex-col xl:gap-6 xl:overflow-hidden xl:border-r xl:border-border xl:bg-bg_saas xl:p-6">
       <div className="flex items-center gap-3">
         <img src="/assets/brand/isologo.webp" alt="Saldo Verde" className="h-12 w-auto" />
       </div>
-      <div className="h-px bg-border" />
+      <div className="-mx-6 h-px bg-border" />
 
       <nav className="flex flex-1 flex-col gap-2 overflow-y-auto pr-1 sidebar-scroll">
         {navItems.map((item) => {
@@ -40,7 +40,7 @@ export default function Sidebar({ email, disableProtectedLinks = false }: Sideba
             return (
               <div
                 key={item.to}
-                className="rounded-xl border border-border bg-black/90 px-4 py-3 text-sm font-medium text-white opacity-50 cursor-not-allowed"
+                className="rounded-[0.5rem] border border-border bg-black/90 px-4 py-3 text-sm font-medium text-white opacity-50 cursor-not-allowed"
                 aria-disabled="true"
               >
                 {itemContent}
@@ -53,8 +53,8 @@ export default function Sidebar({ email, disableProtectedLinks = false }: Sideba
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `rounded-xl border border-border px-4 py-3 text-sm font-medium transition ${
-                  isActive ? 'bg-gray/30 text-white' : 'bg-black/90 text-white hover:bg-white/5'
+                `rounded-[0.5rem] border border-border px-4 py-3 text-sm font-medium transition ${
+                  isActive ? 'bg-tab_sidebar text-white' : 'bg-surface text-white hover:bg-white/5'
                 }`
               }
             >

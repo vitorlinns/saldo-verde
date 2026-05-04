@@ -13,7 +13,7 @@ const variantStyles: Record<NonNullable<BadgeProps['variant']>, string> = {
 
 export default function Badge({ label, variant = 'neutral', className = '' }: BadgeProps) {
   return (
-    <span className={`inline-flex items-center rounded-xl border px-6 py-2 text-sm font-regular ${variantStyles[variant]} ${className}`}>
+    <span className={`inline-flex items-center rounded-[0.5rem] border px-6 py-2 text-sm font-regular ${variantStyles[variant]} ${className}`}>
       {label}
     </span>
   );

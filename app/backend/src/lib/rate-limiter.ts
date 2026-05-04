@@ -52,6 +52,23 @@ export function consumeRateLimit(name: string, key: string, options: RateLimitOp
 }
 
 export function rateLimiter(req: any, res: any, next: any) {
+  const path = typeof req.path === 'string' ? req.path : '';
+  const bypassPaths = [
+    '/login',
+    '/auth/login',
+    '/register',
+    '/auth/refresh',
+    '/auth/logout',
+    '/auth/me',
+    '/recover/request',
+    '/recover/verify',
+    '/recover/reset',
+  ];
+
+  if (bypassPaths.includes(path)) {
+    return next();
+  }
+
   const key = req.ip || 'unknown';
   const result = consumeRateLimit('global', key, {
     windowMs: rateLimitWindowMs,
@@ -60,7 +77,7 @@ export function rateLimiter(req: any, res: any, next: any) {
 
   if (!result.allowed) {
     res.setHeader('Retry-After', String(result.retryAfterSeconds));
-    return res.status(429).json({ error: 'Erro inesperado, tente novamente mais tarde.' });
+    return res.status(429).json({ error: 'Muitas requisições. Aguarde alguns instantes e tente novamente.' });
   }
 
   next();

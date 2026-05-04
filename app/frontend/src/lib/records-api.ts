@@ -4,6 +4,39 @@ import { createClient } from './auth';
 const BACKEND_URL = '/api';
 const USE_CREDENTIALS: RequestCredentials = 'include';
 
+const refreshSession = async (): Promise<boolean> => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/auth/refresh`, {
+      method: 'POST',
+      credentials: USE_CREDENTIALS,
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+};
+
+const fetchWithSessionRecovery = async (input: string, init: RequestInit): Promise<Response> => {
+  const first = await fetch(input, {
+    ...init,
+    credentials: USE_CREDENTIALS,
+  });
+
+  if (first.status !== 401) {
+    return first;
+  }
+
+  const refreshed = await refreshSession();
+  if (!refreshed) {
+    return first;
+  }
+
+  return fetch(input, {
+    ...init,
+    credentials: USE_CREDENTIALS,
+  });
+};
+
 export interface RecordItemWithId extends RecordItem {
   id: string;
 }
@@ -64,9 +97,8 @@ export const addRecordAPI = async (
 ): Promise<{ ok: boolean; error?: string; record?: RecordItemWithId }> => {
   try {
     const authHeaders = await getAuthHeaders();
-    const res = await fetch(`${BACKEND_URL}/records`, {
+    const res = await fetchWithSessionRecovery(`${BACKEND_URL}/records`, {
       method: 'POST',
-      credentials: USE_CREDENTIALS,
       headers: {
         'Content-Type': 'application/json',
         ...authHeaders,
@@ -134,8 +166,7 @@ export const getRecordsAPI = async (
     if (filters?.limit) params.set('limit', String(filters.limit));
 
     const qs = params.toString() ? `?${params.toString()}` : '';
-    const res = await fetch(`${BACKEND_URL}/records${qs}`, {
-      credentials: USE_CREDENTIALS,
+    const res = await fetchWithSessionRecovery(`${BACKEND_URL}/records${qs}`, {
       headers: authHeaders,
     });
 
@@ -190,9 +221,8 @@ export const getRecordsAPI = async (
 export const deleteRecordAPI = async (id: string): Promise<{ ok: boolean; error?: string }> => {
   try {
     const authHeaders = await getAuthHeaders();
-    const res = await fetch(`${BACKEND_URL}/records/${encodeURIComponent(id)}`, {
+    const res = await fetchWithSessionRecovery(`${BACKEND_URL}/records/${encodeURIComponent(id)}`, {
       method: 'DELETE',
-      credentials: USE_CREDENTIALS,
       headers: authHeaders,
     });
 

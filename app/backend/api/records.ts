@@ -86,7 +86,7 @@ async function handleRequest(req: any, res: any) {
     return sendJson(res, 405, { error: 'Método não permitido.' });
   }
 
-  const user = await getSessionUser(req);
+  const user = await getSessionUser(req, res);
   if (!user) {
     return sendJson(res, 401, { error: 'Sessão inválida.' });
   }

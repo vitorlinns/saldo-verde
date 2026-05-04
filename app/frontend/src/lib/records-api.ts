@@ -2,7 +2,7 @@ import type { RecordItem, RecordType } from './records-storage';
 import { createClient } from './auth';
 
 const BACKEND_URL = '/api';
-const USE_CREDENTIALS = import.meta.env.DEV ? 'include' : 'omit';
+const USE_CREDENTIALS: RequestCredentials = 'include';
 
 export interface RecordItemWithId extends RecordItem {
   id: string;
@@ -48,15 +48,10 @@ const getAuthHeaders = async () => {
   const headers: Record<string, string> = {};
 
   try {
-    const supabase = createClient();
-    const { data } = await supabase.auth.getSession();
-    const token = data.session?.access_token;
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    // Ensure Supabase client is initialized before requests that depend on auth.
+    createClient();
   } catch {
-    // keep request without Authorization header and rely on cookies if available
+    // keep request without Authorization header and rely on server cookies
   }
 
   return headers;

@@ -1,4 +1,5 @@
 import { createSupabaseClient } from './_supabase';
+import { getAccessTokenFromRequest, getCookie, setAuthCookies } from './auth/_cookies';
 
 export function getBearerToken(req: any): string | null {
   const authHeader = req.headers?.authorization;
@@ -88,17 +89,32 @@ export async function authRefreshSession(auth: any, refreshToken: string) {
   };
 }
 
-export async function getSessionUser(req: any) {
-  const token = getBearerToken(req);
-  if (!token) {
-    return null;
-  }
-
+export async function getSessionUser(req: any, res?: any) {
   const supabase = createSupabaseClient();
-  const { data, error } = await authGetUser(supabase.auth, token);
-  if (error || !data?.user) {
+
+  const bearerToken = getBearerToken(req);
+  const accessToken = bearerToken ?? getAccessTokenFromRequest(req);
+
+  if (accessToken) {
+    const { data, error } = await authGetUser(supabase.auth, accessToken);
+    if (!error && data?.user) {
+      return data.user;
+    }
+  }
+
+  const refreshToken = getCookie(req, 'sv_rt');
+  if (!refreshToken) {
     return null;
   }
 
-  return data.user;
+  const { data: refreshData, error: refreshError } = await authRefreshSession(supabase.auth, refreshToken);
+  if (refreshError || !refreshData?.session || !refreshData?.user) {
+    return null;
+  }
+
+  if (res) {
+    setAuthCookies(res, refreshData.session.access_token, refreshData.session.refresh_token);
+  }
+
+  return refreshData.user;
 }

@@ -54,7 +54,7 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
 
   const accessCookie = [
     `sv_at=${encodeURIComponent(accessToken)}`,
-    'Path=/',
+    'Path=/api/auth',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Lax',
     `Max-Age=${15 * 60}`,
@@ -63,20 +63,14 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
 
   const refreshCookie = [
     `sv_rt=${encodeURIComponent(refreshToken)}`,
-    'Path=/api/auth',
+    'Path=/api',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Strict',
     `Max-Age=${30 * 24 * 60 * 60}`,
     ...(isProd ? ['Secure'] : []),
   ].join('; ');
 
-  res.setHeader('Set-Cookie', [accessCookie, refreshCookie]);
-}
-
-export function clearAuthCookies(res: any) {
-  const isProd = isProductionEnv();
-
-  const expiredAccessCookie = [
+  const clearLegacyAccessCookie = [
     'sv_at=',
     'Path=/',
     'HttpOnly',
@@ -85,14 +79,38 @@ export function clearAuthCookies(res: any) {
     ...(isProd ? ['Secure'] : []),
   ].join('; ');
 
+  res.setHeader('Set-Cookie', [accessCookie, refreshCookie, clearLegacyAccessCookie]);
+}
+
+export function clearAuthCookies(res: any) {
+  const isProd = isProductionEnv();
+
+  const expiredAccessCookie = [
+    'sv_at=',
+    'Path=/api/auth',
+    'HttpOnly',
+    isProd ? 'SameSite=None' : 'SameSite=Lax',
+    'Max-Age=0',
+    ...(isProd ? ['Secure'] : []),
+  ].join('; ');
+
   const expiredRefreshCookie = [
     'sv_rt=',
-    'Path=/api/auth',
+    'Path=/api',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Strict',
     'Max-Age=0',
     ...(isProd ? ['Secure'] : []),
   ].join('; ');
 
-  res.setHeader('Set-Cookie', [expiredAccessCookie, expiredRefreshCookie]);
+  const expiredLegacyAccessCookie = [
+    'sv_at=',
+    'Path=/',
+    'HttpOnly',
+    isProd ? 'SameSite=None' : 'SameSite=Lax',
+    'Max-Age=0',
+    ...(isProd ? ['Secure'] : []),
+  ].join('; ');
+
+  res.setHeader('Set-Cookie', [expiredAccessCookie, expiredRefreshCookie, expiredLegacyAccessCookie]);
 }

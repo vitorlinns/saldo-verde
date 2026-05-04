@@ -59,7 +59,7 @@ export default async function handler(req: any, res: any) {
   }
 
   const supabase = createSupabaseClient();
-  const sessionUser = await getSessionUser(req);
+  const sessionUser = await getSessionUser(req, res);
 
   if (req.method === 'GET') {
     if (!sessionUser) {

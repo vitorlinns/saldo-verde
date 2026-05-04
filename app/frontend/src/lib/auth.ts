@@ -93,8 +93,7 @@ export const signOutWithBackend = async (
         signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+                  },
       });
     } finally {
       window.clearTimeout(timeoutId);

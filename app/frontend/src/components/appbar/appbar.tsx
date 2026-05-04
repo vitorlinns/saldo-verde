@@ -77,9 +77,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
     const fetchProfileName = async () => {
       try {
         const response = await fetch(`${BACKEND_URL}/profile/${session.user.id}`, {
-          headers: {
-            Authorization: `Bearer ${session.access_token ?? ''}`,
-          },
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -139,9 +137,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
       setLoadingNotifications(true);
       try {
         const response = await fetch(`${BACKEND_URL}/notifications?unread=true&limit=4`, {
-          headers: {
-            Authorization: `Bearer ${session.access_token ?? ''}`,
-          },
+          credentials: 'include',
         });
 
         if (!response.ok) {

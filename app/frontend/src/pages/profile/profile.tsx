@@ -209,9 +209,7 @@ export default function ProfilePage() {
     const fetchPersistedProfile = async () => {
       try {
         const response = await fetch(`${BACKEND_URL}/profile/${session.user.id}`, {
-          headers: {
-            Authorization: `Bearer ${session.access_token ?? ''}`,
-          },
+          credentials: 'include',
         });
 
         if (!response.ok) return;
@@ -416,9 +414,9 @@ export default function ProfilePage() {
     try {
       const response = await fetch(`${BACKEND_URL}/profile/${session.user.id}`, {
         method: 'PUT',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token ?? ''}`,
         },
         body: JSON.stringify({
           first_name: firstName.trim(),

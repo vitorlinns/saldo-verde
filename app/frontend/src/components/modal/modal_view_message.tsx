@@ -39,9 +39,9 @@ export default function ModalViewMessage({
     try {
       const response = await fetch(`${BACKEND_URL}/notifications/${notificationId}`, {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
       });
 

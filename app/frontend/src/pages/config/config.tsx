@@ -91,9 +91,6 @@ export default function ConfigPage() {
     const fetchActiveSessionsCount = async () => {
       try {
         const response = await fetch(`${BACKEND_URL}/auth/sessions`, {
-          headers: {
-            Authorization: `Bearer ${session.access_token ?? ''}`,
-          },
           credentials: 'include',
         });
 
@@ -130,7 +127,6 @@ export default function ConfigPage() {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
         },
       });
 
@@ -168,9 +164,7 @@ export default function ConfigPage() {
     try {
       const response = await fetch(`${BACKEND_URL}/account/${session.user.id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${session.access_token ?? ''}`,
-        },
+        credentials: 'include',
       });
 
       const result = await response.json();

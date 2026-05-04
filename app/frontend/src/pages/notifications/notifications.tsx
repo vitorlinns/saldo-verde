@@ -113,9 +113,7 @@ export default function NotificationsPage() {
       setLoadingNotifications(true);
       try {
         const response = await fetch(`${BACKEND_URL}/notifications?unread=true&limit=50`, {
-          headers: {
-            Authorization: `Bearer ${session.access_token ?? ''}`,
-          },
+          credentials: 'include',
         });
 
         if (!response.ok) {

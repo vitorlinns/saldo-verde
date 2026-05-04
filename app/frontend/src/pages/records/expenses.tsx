@@ -96,7 +96,7 @@ export default function ExpensesPage() {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="min-h-screen h-full grid w-full gap-6 lg:grid-cols-[280px_1fr] lg:items-stretch">
+      <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
 <Sidebar email={session?.user.email ?? null} disableProtectedLinks={session ? !isProfileComplete(session) : false} />
 
         <div className="mr-4 flex min-h-screen flex-col">

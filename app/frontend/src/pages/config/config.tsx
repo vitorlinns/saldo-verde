@@ -193,7 +193,7 @@ export default function ConfigPage() {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="min-h-screen h-full grid w-full gap-6 lg:grid-cols-[280px_1fr] lg:items-stretch">
+      <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
         <Sidebar
           email={session.user.email ?? null}
           disableProtectedLinks={!isProfileComplete(session)}
@@ -208,7 +208,7 @@ export default function ConfigPage() {
             onToggleValues={toggleShowValues}
           />
 
-          <section className="flex-1 space-y-6 px-4 pb-8 sm:px-6 lg:px-0">
+          <section className="flex-1 space-y-6 px-4 pb-8 sm:px-6 xl:px-0">
             <div className="space-y-3">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>

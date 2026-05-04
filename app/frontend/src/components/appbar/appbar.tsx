@@ -222,27 +222,28 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
           <button
             type="button"
             onClick={onOpenSidebar}
-            className="inline-flex h-12 w-12 items-center justify-center rounded-[0.5rem] border border-border bg-surface text-white transition hover:bg-white/5 lg:hidden"
+            className="inline-flex h-12 w-12 items-center justify-center rounded-[0.5rem] border border-border bg-surface text-white transition hover:bg-white/5 xl:hidden"
             aria-label="Abrir menu"
           >
             <Menu className="h-5 w-5" />
           </button>
         ) : null}
 
-        <p className="hidden lg:block text-2xl font-regular text-white">{`Olá, ${firstName}`}</p>
-      </div>
+        <p className="max-[649px]:hidden text-2xl font-regular text-white">{`Olá, ${firstName}`}</p>
 
-      <div ref={menuRef} className="flex flex-1 justify-end gap-3 items-center">
         <button
           type="button"
           onClick={onToggleValues}
-          className="inline-flex h-12 w-12 items-center justify-center rounded-[0.5rem] border border-border bg-surface text-white transition hover:bg-white/5"
+          className="hidden min-[750px]:inline-flex h-12 items-center justify-center rounded-[0.5rem] border border-border bg-surface text-white transition hover:bg-white/5 gap-2 px-4 text-sm font-medium"
           aria-label={showValues ? 'Ocultar valores' : 'Mostrar valores'}
         >
           {showValues ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          <span>{showValues ? 'Ocultar valores' : 'Mostrar valores'}</span>
         </button>
+      </div>
 
-        <div className="relative">
+      <div ref={menuRef} className="flex flex-1 justify-end gap-3 items-center">
+        <div className="relative order-2 min-[750px]:order-1 max-[749px]:order-2">
           <button
             type="button"
             onClick={() => setOpenMenu((current) => (current === 'support' ? null : 'support'))}
@@ -275,7 +276,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
           ) : null}
         </div>
 
-        <div className="relative">
+        <div className="relative order-3 min-[750px]:order-2 max-[749px]:order-3">
           <button
             type="button"
             onClick={() => setOpenMenu((current) => (current === 'notifications' ? null : 'notifications'))}
@@ -329,7 +330,18 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
           ) : null}
         </div>
 
-        <div className="relative">
+        <div className="relative order-1 min-[750px]:order-4 max-[749px]:order-1">
+          <button
+            type="button"
+            onClick={onToggleValues}
+            className="inline-flex h-12 w-12 items-center justify-center rounded-[0.5rem] border border-border bg-surface text-white transition hover:bg-white/5 min-[750px]:hidden"
+            aria-label={showValues ? 'Ocultar valores' : 'Mostrar valores'}
+          >
+            {showValues ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          </button>
+        </div>
+
+        <div className="relative order-4 min-[750px]:order-3 max-[749px]:order-4">
           <button
             type="button"
             onClick={() => setOpenMenu((current) => (current === 'profile' ? null : 'profile'))}

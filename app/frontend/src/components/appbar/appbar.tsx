@@ -58,6 +58,7 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
   const [notifications] = useState<NotificationItem[]>([]);
   const [loadingNotifications] = useState(false);
   const notificationsCacheKey = session ? `unread-notifications:${session.user.id}` : null;
+  const BACKEND_URL = '/api';
 
   useEffect(() => {
     if (!session) {

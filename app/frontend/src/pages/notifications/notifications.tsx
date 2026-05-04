@@ -38,7 +38,7 @@ export default function NotificationsPage() {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showValues, setShowValues] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const [loadingNotifications] = useState(false);
   const navigate = useNavigate();
   const notificationsCacheKey = session ? `unread-notifications:${session.user.id}` : null;
   const CACHE_TTL_MS = 30_000;
@@ -80,66 +80,10 @@ export default function NotificationsPage() {
   }, []);
 
   useEffect(() => {
-    if (!session) return;
-
-    const readCache = () => {
-      if (!notificationsCacheKey) return null;
-      const raw = window.sessionStorage.getItem(notificationsCacheKey);
-      if (!raw) return null;
-      try {
-        const parsed = JSON.parse(raw) as { timestamp: number; items: NotificationItem[] };
-        if (Date.now() - parsed.timestamp > CACHE_TTL_MS) return null;
-        return parsed.items;
-      } catch {
-        return null;
-      }
-    };
-
-    const writeCache = (items: NotificationItem[]) => {
-      if (!notificationsCacheKey) return;
-      window.sessionStorage.setItem(
-        notificationsCacheKey,
-        JSON.stringify({ timestamp: Date.now(), items })
-      );
-    };
-
-    const fetchNotifications = async () => {
-      const cached = readCache();
-      if (cached) {
-        setNotifications(cached);
-        setLoadingNotifications(false);
-        return;
-      }
-
-      setLoadingNotifications(true);
-      try {
-        const response = await fetch(`${BACKEND_URL}/notifications?unread=true&limit=50`, {
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          console.error('Failed to fetch notifications');
-          setNotifications([]);
-          return;
-        }
-
-        const data = await response.json();
-        if (Array.isArray(data.notifications)) {
-          setNotifications(data.notifications);
-          writeCache(data.notifications);
-        } else {
-          setNotifications([]);
-          writeCache([]);
-        }
-      } catch (err) {
-        console.error('Notifications fetch error:', err);
-        setNotifications([]);
-      } finally {
-        setLoadingNotifications(false);
-      }
-    };
-
-    fetchNotifications();
+    setNotifications([]);
+    if (notificationsCacheKey) {
+      window.sessionStorage.removeItem(notificationsCacheKey);
+    }
   }, [session, notificationsCacheKey]);
 
   if (!session) {

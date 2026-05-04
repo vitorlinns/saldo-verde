@@ -55,12 +55,9 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
     .slice(0, 2)
     .join('');
 
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const [notifications] = useState<NotificationItem[]>([]);
+  const [loadingNotifications] = useState(false);
   const notificationsCacheKey = session ? `unread-notifications:${session.user.id}` : null;
-  const CACHE_TTL_MS = 30_000;
-
-  const BACKEND_URL = '/api';
 
   useEffect(() => {
     if (!session) {
@@ -102,89 +99,9 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
   }, [session]);
 
   useEffect(() => {
-    if (!session) return;
-
-    const readCache = () => {
-      if (!notificationsCacheKey) return null;
-      const raw = window.sessionStorage.getItem(notificationsCacheKey);
-      if (!raw) return null;
-      try {
-        const parsed = JSON.parse(raw) as { timestamp: number; items: NotificationItem[] };
-        if (Date.now() - parsed.timestamp > CACHE_TTL_MS) return null;
-        return parsed.items;
-      } catch {
-        return null;
-      }
-    };
-
-    const writeCache = (items: NotificationItem[]) => {
-      if (!notificationsCacheKey) return;
-      window.sessionStorage.setItem(
-        notificationsCacheKey,
-        JSON.stringify({ timestamp: Date.now(), items })
-      );
-    };
-
-    const fetchNotifications = async (force = false) => {
-      if (!force) {
-        const cached = readCache();
-        if (cached) {
-          setNotifications(cached);
-          setLoadingNotifications(false);
-          return;
-        }
-      }
-
-      setLoadingNotifications(true);
-      try {
-        const response = await fetch(`${BACKEND_URL}/notifications?unread=true&limit=4`, {
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          setNotifications([]);
-          return;
-        }
-
-        const data = await response.json();
-        if (Array.isArray(data.notifications)) {
-          setNotifications(data.notifications);
-          writeCache(data.notifications);
-        } else {
-          setNotifications([]);
-          writeCache([]);
-        }
-      } catch (error) {
-        console.error('Failed to fetch notifications', error);
-        setNotifications([]);
-      } finally {
-        setLoadingNotifications(false);
-      }
-    };
-
-    const handleNotificationRead = (event: Event) => {
-      const customEvent = event as CustomEvent<{ id?: string }>;
-      const notificationId = customEvent.detail?.id;
-
-      if (notificationId) {
-        setNotifications((current) => {
-          const updated = current.filter((item) => item.id !== notificationId);
-          writeCache(updated);
-          return updated;
-        });
-        return;
-      }
-
-      void fetchNotifications(true);
-    };
-
-    void fetchNotifications();
-    window.addEventListener('notification-read', handleNotificationRead as EventListener);
-
-    return () => {
-      window.removeEventListener('notification-read', handleNotificationRead as EventListener);
-    };
-  }, [session, BACKEND_URL, notificationsCacheKey]);
+    if (!notificationsCacheKey) return;
+    window.sessionStorage.removeItem(notificationsCacheKey);
+  }, [notificationsCacheKey]);
 
   useEffect(() => {
     if (!openMenu) return;

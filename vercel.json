@@ -219,24 +219,24 @@
       "dest": "/app/backend/api/recover.ts"
     },
     {
-      "src": "/notifications/([^/]+)",
+      "src": "/records/([^/]+)",
       "has": [
         {
           "type": "host",
           "value": "api.saldoverde.pro"
         }
       ],
-      "dest": "/app/backend/api/notifications/[id].ts?id=$1"
+      "dest": "/app/backend/api/records.ts?id=$1"
     },
     {
-      "src": "/notifications",
+      "src": "/records",
       "has": [
         {
           "type": "host",
           "value": "api.saldoverde.pro"
         }
       ],
-      "dest": "/app/backend/api/notifications.ts"
+      "dest": "/app/backend/api/records.ts"
     },
     {
       "src": "/(.*)",

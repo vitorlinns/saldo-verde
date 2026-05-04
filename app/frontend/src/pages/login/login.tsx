@@ -13,6 +13,7 @@ const BACKEND_URL = '/api';
 const FOOTER_URL = `${BACKEND_URL}/footer-text`;
 const LOGIN_URL = `${BACKEND_URL}/auth/login`;
 const OAUTH_REDIRECT_TO = import.meta.env.VITE_OAUTH_REDIRECT_TO ?? `${window.location.origin}/login`;
+const GOOGLE_OAUTH_PENDING_KEY = 'saldo-verde-google-oauth-pending';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_ATTEMPTS = 3;
 const LOGIN_THROTTLE_STORAGE_KEY = 'saldo-verde:login-throttle';
@@ -139,7 +140,12 @@ export default function LoginPage() {
   }, [lockedUntil]);
 
   useEffect(() => {
-    setIsGoogleLoading(false);
+    const resetGoogleLoading = () => {
+      setIsGoogleLoading(false);
+      sessionStorage.removeItem(GOOGLE_OAUTH_PENDING_KEY);
+    };
+
+    resetGoogleLoading();
 
     try {
       const client = createClient();
@@ -173,11 +179,16 @@ export default function LoginPage() {
         }
       });
 
+      window.addEventListener('pageshow', resetGoogleLoading);
+      window.addEventListener('focus', resetGoogleLoading);
+
       return () => {
         authListener.subscription.unsubscribe();
+        window.removeEventListener('pageshow', resetGoogleLoading);
+        window.removeEventListener('focus', resetGoogleLoading);
       };
     } catch (err) {
-      setIsGoogleLoading(false);
+      resetGoogleLoading();
       setError('Não foi possível iniciar o login. Por favor, tente novamente.');
       console.error('LoginPage init error:', err);
     }
@@ -338,6 +349,7 @@ export default function LoginPage() {
       }
 
       if (data.url) {
+        sessionStorage.setItem(GOOGLE_OAUTH_PENDING_KEY, '1');
         window.location.assign(data.url);
         return;
       }

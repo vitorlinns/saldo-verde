@@ -1,6 +1,6 @@
 import { createSupabaseClient } from '../_supabase';
 import { handleOptions, sendJson } from '../_http';
-import { getAccessTokenFromRequest } from './_cookies';
+import { getAccessTokenFromRequest, getClientIp } from './_cookies';
 import { authGetUser } from '../_auth';
 
 export default async function handler(req: any, res: any) {
@@ -28,10 +28,13 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 401, { error: 'Sessão inválida.' });
   }
 
+  const clientIp = getClientIp(req);
+
   const { data, error } = await supabase
     .from('auth.sessions')
     .select('id')
     .eq('user_id', userData.user.id)
+    .eq('ip_address', clientIp)
     .gt('not_after', new Date().toISOString());
 
   if (error) {

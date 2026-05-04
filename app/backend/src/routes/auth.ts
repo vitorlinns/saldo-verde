@@ -53,6 +53,19 @@ function getRefreshTokenFromRequest(req: Request) {
   return cookies.sv_rt ?? null;
 }
 
+function getClientIp(req: Request) {
+  const forwardedFor = req.headers['x-forwarded-for'];
+  if (typeof forwardedFor === 'string' && forwardedFor.length > 0) {
+    return forwardedFor.split(',')[0].trim();
+  }
+
+  if (Array.isArray(forwardedFor) && forwardedFor.length > 0) {
+    return String(forwardedFor[0]).split(',')[0].trim();
+  }
+
+  return req.socket?.remoteAddress ?? 'unknown';
+}
+
 function setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
   const isProd = process.env.NODE_ENV === 'production';
 
@@ -277,10 +290,12 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
       return res.status(401).json({ error: 'Sessão inválida.' });
     }
 
+    const clientIp = getClientIp(req);
     const { data, error } = await supabase
       .from('auth.sessions')
       .select('id', { count: 'planned' })
       .eq('user_id', sessionUser.id)
+      .eq('ip_address', clientIp)
       .gt('not_after', new Date().toISOString());
 
     if (error) {

@@ -79,6 +79,56 @@
       "dest": "/app/backend/api/register.ts"
     },
     {
+      "src": "/auth/login",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/auth/login.ts"
+    },
+    {
+      "src": "/auth/logout",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/auth/logout.ts"
+    },
+    {
+      "src": "/auth/refresh",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/auth/refresh.ts"
+    },
+    {
+      "src": "/auth/me",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/auth/me.ts"
+    },
+    {
+      "src": "/auth/sessions",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/auth/sessions.ts"
+    },
+    {
       "src": "/footer-text",
       "has": [
         {
@@ -97,6 +147,56 @@
         }
       ],
       "dest": "/app/backend/api/footer-text.ts"
+    },
+    {
+      "src": "/api/auth/login",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/auth/login.ts"
+    },
+    {
+      "src": "/api/auth/logout",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/auth/logout.ts"
+    },
+    {
+      "src": "/api/auth/refresh",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/auth/refresh.ts"
+    },
+    {
+      "src": "/api/auth/me",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/auth/me.ts"
+    },
+    {
+      "src": "/api/auth/sessions",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.saldoverde.pro"
+        }
+      ],
+      "dest": "/app/backend/api/auth/sessions.ts"
     },
     {
       "src": "/notifications/([^/]+)",

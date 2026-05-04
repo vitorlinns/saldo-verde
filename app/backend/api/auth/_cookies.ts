@@ -56,7 +56,7 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
     `sv_at=${encodeURIComponent(accessToken)}`,
     'Path=/',
     'HttpOnly',
-    'SameSite=Lax',
+    isProd ? 'SameSite=None' : 'SameSite=Lax',
     `Max-Age=${15 * 60}`,
     ...(isProd ? ['Secure'] : []),
   ].join('; ');
@@ -65,7 +65,7 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
     `sv_rt=${encodeURIComponent(refreshToken)}`,
     'Path=/api/auth',
     'HttpOnly',
-    'SameSite=Strict',
+    isProd ? 'SameSite=None' : 'SameSite=Strict',
     `Max-Age=${30 * 24 * 60 * 60}`,
     ...(isProd ? ['Secure'] : []),
   ].join('; ');
@@ -80,7 +80,7 @@ export function clearAuthCookies(res: any) {
     'sv_at=',
     'Path=/',
     'HttpOnly',
-    'SameSite=Lax',
+    isProd ? 'SameSite=None' : 'SameSite=Lax',
     'Max-Age=0',
     ...(isProd ? ['Secure'] : []),
   ].join('; ');
@@ -89,7 +89,7 @@ export function clearAuthCookies(res: any) {
     'sv_rt=',
     'Path=/api/auth',
     'HttpOnly',
-    'SameSite=Strict',
+    isProd ? 'SameSite=None' : 'SameSite=Strict',
     'Max-Age=0',
     ...(isProd ? ['Secure'] : []),
   ].join('; ');

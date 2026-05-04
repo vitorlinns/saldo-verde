@@ -1,9 +1,15 @@
 const resendApiKey = process.env.RESEND_API_KEY;
-const resendFrom = process.env.RESEND_FROM_EMAIL ?? 'no-reply@saldoverde.pro';
+const resendFrom = process.env.RESEND_FROM_EMAIL;
 
 export async function sendRecoveryEmail(to: string, code: string) {
   if (!resendApiKey) {
     throw new Error('RESEND_API_KEY is not configured');
+  }
+
+  if (!resendFrom) {
+    throw new Error(
+      'RESEND_FROM_EMAIL is not configured. Configure um remetente verificado no Resend e defina RESEND_FROM_EMAIL.'
+    );
   }
 
   const body = {

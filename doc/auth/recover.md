@@ -34,9 +34,11 @@ O remetente padrão do email de recuperação é `no-reply@saldoverde.pro`.
 A chave da API do Resend deve ser configurada no backend via variável de ambiente:
 
 - `RESEND_API_KEY`
-- opcionalmente `RESEND_FROM_EMAIL` para sobrescrever o remetente
+- `RESEND_FROM_EMAIL` deve apontar para um remetente verificado no Resend
 
-No código atual, o backend lê `RESEND_API_KEY` em `app/backend/src/lib/email.ts`.
+No código atual, o backend lê `RESEND_API_KEY` e `RESEND_FROM_EMAIL` em `app/backend/src/lib/email.ts`.
+
+> O domínio do remetente precisa estar verificado no painel do Resend. Caso contrário, o envio de email falhará com 403 e uma mensagem como "The saldoverde.pro domain is not verified.".
 
 ## Tela 1 — `RecoverPage`
 

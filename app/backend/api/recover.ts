@@ -58,7 +58,7 @@ const findUserIdByEmail = async (supabase: any, email: string): Promise<string |
 export default async function handler(req: any, res: any) {
   if (handleOptions(req, res)) return;
 
-  const action = getActionFromUrl(req.url);
+  const action = req.query?.action ?? getActionFromUrl(req.url);
   if (!action || !['request', 'verify', 'reset'].includes(action)) {
     return sendJson(res, 404, { error: 'Endpoint não encontrado.' });
   }

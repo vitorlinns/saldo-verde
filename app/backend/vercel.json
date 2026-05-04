@@ -61,6 +61,30 @@
     {
       "source": "/profile/:id",
       "destination": "/api/profile/[id].ts?id=:id"
+    },
+    {
+      "source": "/records",
+      "destination": "/api/records.ts"
+    },
+    {
+      "source": "/records/:id",
+      "destination": "/api/records.ts?id=:id"
+    },
+    {
+      "source": "/recover/:action",
+      "destination": "/api/recover.ts?action=:action"
+    },
+    {
+      "source": "/auth/sessions",
+      "destination": "/api/auth/sessions.ts"
+    },
+    {
+      "source": "/auth/refresh",
+      "destination": "/api/auth/refresh.ts"
+    },
+    {
+      "source": "/auth/me",
+      "destination": "/api/auth/me.ts"
     }
   ]
 }

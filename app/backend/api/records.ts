@@ -73,6 +73,15 @@ const mapRow = (row: FinancialRecordRow) => {
 export default async function handler(req: any, res: any) {
   if (handleOptions(req, res)) return;
 
+  try {
+    return await handleRequest(req, res);
+  } catch (err) {
+    console.error('[records] Unhandled error:', err);
+    return sendJson(res, 500, { error: 'Erro interno do servidor.' });
+  }
+}
+
+async function handleRequest(req: any, res: any) {
   if (req.method !== 'GET' && req.method !== 'POST' && req.method !== 'DELETE') {
     return sendJson(res, 405, { error: 'Método não permitido.' });
   }

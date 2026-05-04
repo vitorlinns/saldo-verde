@@ -1,14 +1,17 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
+const env = (globalThis as any)?.process?.env ?? {};
+
 const supabaseUrl =
-  process.env.SUPABASE_URL ??
-  process.env.NEXT_PUBLIC_SUPABASE_URL ??
-  process.env.VITE_SUPABASE_URL ??
+  env.SUPABASE_URL ??
+  env.NEXT_PUBLIC_SUPABASE_URL ??
+  env.VITE_SUPABASE_URL ??
   '';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SERVICE_KEY ?? '';
+const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY ?? env.SUPABASE_SERVICE_KEY ?? '';
 
 export function createSupabaseClient(): SupabaseClient {
   if (!supabaseUrl || !supabaseKey) {
+    console.error('[_supabase] Missing env vars — SUPABASE_URL:', !!supabaseUrl, 'SUPABASE_SERVICE_ROLE_KEY:', !!supabaseKey);
     throw new Error('Missing Supabase env vars: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
   }
 

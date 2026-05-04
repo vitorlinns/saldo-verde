@@ -72,7 +72,7 @@ export default function FilterRecords({
   onYearChange,
   onReset,
   title = 'Filtrar registros',
-  description = 'Use dia, mês e ano para encontrar a transação certa.',
+  description = 'Use dia, mês e ano para encontrar o seu registro.',
   showDayFilter = true,
   showDownload = true,
   downloadComponent,

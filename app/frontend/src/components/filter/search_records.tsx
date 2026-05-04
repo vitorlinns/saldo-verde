@@ -8,7 +8,7 @@ interface SearchRecordsProps {
 
 export default function SearchRecords({ query, onChange }: SearchRecordsProps) {
   return (
-    <div className="w-full max-w-[24rem] rounded-[0.5rem] border border-border bg-surface p-4 shadow-xl shadow-black/20 sm:p-6 lg:max-w-none">
+    <div className="w-full max-w-[24rem] rounded-[0.5rem] border border-border bg-surface p-4 sm:p-6 lg:max-w-none">
       <div className="mb-4">
         <h2 className="text-base font-regular text-white sm:text-lg">Buscar registros</h2>
         <p className="mt-2 text-sm text-white/60">
@@ -25,6 +25,7 @@ export default function SearchRecords({ query, onChange }: SearchRecordsProps) {
           type="text"
           value={query}
           onChange={onChange}
+          maxLength={25}
           placeholder="Buscar..."
           className="w-full sm:w-72 lg:w-full pl-10 sm:pl-12"
         />

@@ -5,6 +5,7 @@ import AuthSidePanel from '../../components/login/auth-side-panel';
 import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 import InputGeneral from '../../components/inputs/input_general';
+import { safeParseJson } from '../../lib/http';
 
 const BACKEND_URL = '/api';
 
@@ -76,9 +77,13 @@ export default function PasswordPage() {
         }),
       });
 
-      const data = await response.json();
+      const data = await safeParseJson<{ message?: string; error?: string }>(response);
       if (!response.ok) {
-        setError(data.error || 'Não foi possível redefinir a senha.');
+        setError(
+          typeof data === 'object' && 'error' in data
+            ? data.error || 'Não foi possível redefinir a senha.'
+            : 'Não foi possível redefinir a senha.'
+        );
       } else {
         setMessage('Senha redefinida com sucesso. Redirecionando para o login...');
         sessionStorage.removeItem('recoverEmail');

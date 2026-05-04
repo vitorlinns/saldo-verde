@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import ButtonGeneral from '../../components/btn/button_general';
 import AuthSidePanel from '../../components/login/auth-side-panel';
 import ErrorMessage from '../../components/message/error';
+import { safeParseJson } from '../../lib/http';
 
 const BACKEND_URL = '/api';
 
@@ -69,9 +70,13 @@ export default function CodePage() {
         }),
       });
 
-      const data = await response.json();
+      const data = await safeParseJson<{ message?: string; error?: string }>(response);
       if (!response.ok) {
-        setError(data.error || 'Código inválido ou expirado.');
+        setError(
+          typeof data === 'object' && 'error' in data
+            ? data.error || 'Código inválido ou expirado.'
+            : 'Código inválido ou expirado.'
+        );
       } else {
         sessionStorage.setItem('recoverCode', code.join(''));
         sessionStorage.setItem('recoverVerified', 'true');

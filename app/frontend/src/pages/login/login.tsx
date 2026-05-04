@@ -17,6 +17,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_ATTEMPTS = 3;
 const LOGIN_THROTTLE_STORAGE_KEY = 'saldo-verde:login-throttle';
 const LOCKOUT_STEPS_MS = [60_000, 300_000, 900_000] as const;
+const AUTH_REDIRECT_DELAY_MS = 3000;
 
 interface LoginThrottleState {
   failedAttempts: number;
@@ -300,7 +301,7 @@ export default function LoginPage() {
       clearLoginThrottleState();
       setMessage('Login realizado com sucesso. Redirecionando...');
       const destination = isProfileComplete(sessionPayload) ? '/dashboard' : '/perfil';
-      setTimeout(() => navigate(destination, { replace: true }), 1500);
+      setTimeout(() => navigate(destination, { replace: true }), AUTH_REDIRECT_DELAY_MS);
     } catch (err) {
       setError('Ocorreu um erro ao tentar fazer login. Por favor, tente novamente.');
       console.error('Login error:', err);

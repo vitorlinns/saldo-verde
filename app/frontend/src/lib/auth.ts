@@ -6,6 +6,7 @@ const RETRYABLE_NETWORK_MESSAGES = ['failed to fetch', 'networkerror', 'err_conn
 const MAX_DAYS_WITHOUT_LOGIN = 7;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const LOGOUT_REQUEST_TIMEOUT_MS = 5000;
+const LOGOUT_TRANSITION_DELAY_MS = 3000;
 
 let supabaseClient: SupabaseClient | null = null;
 
@@ -127,6 +128,8 @@ export const signOutWithBackend = async (
     if (typeof window !== 'undefined') {
       window.location.assign('/login');
     }
+  } finally {
+    await delay(LOGOUT_TRANSITION_DELAY_MS);
   }
 };
 

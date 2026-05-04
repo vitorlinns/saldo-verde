@@ -5,6 +5,7 @@ import AuthSidePanel from '../../components/login/auth-side-panel';
 import ErrorMessage from '../../components/message/error';
 import SuccessMessage from '../../components/message/success';
 import InputGeneral from '../../components/inputs/input_general';
+import { safeParseJson } from '../../lib/http';
 
 const BACKEND_URL = '/api';
 
@@ -35,12 +36,18 @@ export default function RecoverPage() {
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
 
-      const data = await response.json();
+      const data = await safeParseJson<{ message?: string; error?: string }>(response);
       if (!response.ok) {
-        setError(data.error || 'Não foi possível enviar o email de recuperação.');
+        setError(
+          typeof data === 'object' && 'error' in data
+            ? data.error || 'Não foi possível enviar o email de recuperação.'
+            : 'Não foi possível enviar o email de recuperação.'
+        );
       } else {
         sessionStorage.setItem('recoverEmail', email.trim().toLowerCase());
-        setMessage(data.message || 'Se o email existir, você receberá instruções de recuperação.');
+        setMessage(data && typeof data === 'object' && 'message' in data
+          ? data.message || 'Se o email existir, você receberá instruções de recuperação.'
+          : 'Se o email existir, você receberá instruções de recuperação.');
         navigate('/recuperar-conta/codigo');
       }
     } catch (err) {

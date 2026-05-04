@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
-import { Bell, Eye, EyeOff, MailQuestionIcon } from 'lucide-react';
+import { Bell, Eye, EyeOff, MailQuestionIcon, Menu } from 'lucide-react';
 import BoxNotification from './box_notification';
 import NotificationCardAppbar from './notification_card_appbar';
 import AppBarBox from './box';
@@ -23,9 +23,10 @@ interface AppBarProps {
   isSigningOut: boolean;
   showValues: boolean;
   onToggleValues: () => void;
+  onOpenSidebar?: () => void;
 }
 
-export default function AppBar({ session, onSignOut, isSigningOut, showValues, onToggleValues }: AppBarProps) {
+export default function AppBar({ session, onSignOut, isSigningOut, showValues, onToggleValues, onOpenSidebar }: AppBarProps) {
   const [openMenu, setOpenMenu] = useState<'profile' | 'notifications' | 'support' | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
@@ -216,19 +217,31 @@ export default function AppBar({ session, onSignOut, isSigningOut, showValues, o
 
   return (
     <div className="mt-4 mb-8 flex justify-between rounded-[0.5rem] border border-border bg-surface p-3">
-      <div className="flex items-center gap-4">
-        <p className="text-2xl font-regular text-white">{`Olá, ${firstName}`}</p>
+      <div className="flex items-center gap-3">
+        {onOpenSidebar ? (
+          <button
+            type="button"
+            onClick={onOpenSidebar}
+            className="inline-flex h-12 w-12 items-center justify-center rounded-[0.5rem] border border-border bg-surface text-white transition hover:bg-white/5 lg:hidden"
+            aria-label="Abrir menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        ) : null}
+
+        <p className="hidden lg:block text-2xl font-regular text-white">{`Olá, ${firstName}`}</p>
+      </div>
+
+      <div ref={menuRef} className="flex flex-1 justify-end gap-3 items-center">
         <button
           type="button"
           onClick={onToggleValues}
-          className="inline-flex h-10 items-center gap-2 rounded-xl bg-surface px-4 text-sm text-white"
+          className="inline-flex h-12 w-12 items-center justify-center rounded-[0.5rem] border border-border bg-surface text-white transition hover:bg-white/5"
+          aria-label={showValues ? 'Ocultar valores' : 'Mostrar valores'}
         >
-          {showValues ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          {showValues ? 'Ocultar valores' : 'Mostrar valores'}
+          {showValues ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
         </button>
-      </div>
 
-      <div ref={menuRef} className="flex flex-1 justify-end gap-3">
         <div className="relative">
           <button
             type="button"

@@ -26,6 +26,7 @@ export default function DashboardPage() {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showValues, setShowValues] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { session } = useSession();
   const recentRecords = getRecentRecords(5);
   const balance = getStoredBalance();
@@ -84,15 +85,21 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-bg_saas text-white">
       <div className="min-h-screen h-full grid w-full gap-6 lg:grid-cols-[280px_1fr] lg:items-stretch">
-<Sidebar email={session?.user.email ?? null} disableProtectedLinks={session ? !isProfileComplete(session) : false} />
+<Sidebar
+          email={session?.user.email ?? null}
+          disableProtectedLinks={session ? !isProfileComplete(session) : false}
+          open={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
 
-        <div className="mr-4 flex min-h-screen flex-col">
+        <div className="mx-4 lg:mr-4 lg:mx-0 flex min-h-screen flex-col">
           <AppBar
             session={session}
             onSignOut={handleSignOut}
             isSigningOut={isSigningOut}
             showValues={showValues}
             onToggleValues={toggleShowValues}
+            onOpenSidebar={() => setIsSidebarOpen(true)}
           />
 
           <section className="flex-1 space-y-6">

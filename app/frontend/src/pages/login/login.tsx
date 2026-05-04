@@ -356,7 +356,7 @@ export default function LoginPage() {
       <section className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[1fr_0.9fr]">
         <AuthSidePanel />
 
-        <div className="relative overflow-hidden flex min-h-screen items-center justify-center bg-background px-6 py-12 lg:min-h-0 lg:items-end lg:pb-14 lg:pt-12">
+        <div className="relative overflow-hidden flex min-h-screen items-center justify-center bg-background px-6 py-12 lg:min-h-0 lg:items-center lg:pb-14 lg:pt-12">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(130,222,127,0.10),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.012),transparent_28%)]" />
           <div className="relative z-10 w-full max-w-md rounded-[1rem] border border-border bg-surface p-8 sm:p-10">
             <div className="mb-6 space-y-4">

@@ -25,6 +25,7 @@ export default function ConfigPage() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarType, setSnackbarType] = useState<'success' | 'error'>('success');
   const [activeSessionsCount, setActiveSessionsCount] = useState<number | null>(null);
+  const [isFetchingActiveSessions, setIsFetchingActiveSessions] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -81,8 +82,11 @@ export default function ConfigPage() {
   useEffect(() => {
     if (!session) {
       setActiveSessionsCount(null);
+      setIsFetchingActiveSessions(false);
       return;
     }
+
+    setIsFetchingActiveSessions(true);
 
     const fetchActiveSessionsCount = async () => {
       try {
@@ -90,6 +94,7 @@ export default function ConfigPage() {
           headers: {
             Authorization: `Bearer ${session.access_token ?? ''}`,
           },
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -102,6 +107,8 @@ export default function ConfigPage() {
       } catch (error) {
         console.error('Failed to fetch active sessions count:', error);
         setActiveSessionsCount(null);
+      } finally {
+        setIsFetchingActiveSessions(false);
       }
     };
 
@@ -120,8 +127,10 @@ export default function ConfigPage() {
     try {
       await fetch(`${BACKEND_URL}/logout`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
         },
       });
 
@@ -225,8 +234,10 @@ export default function ConfigPage() {
                 </p>
                 <p className="mt-4 flex items-center gap-2 text-sm text-white/80">
                   <ShieldCheck className="h-4 w-4" />
-                  {activeSessionsCount === null
+                  {isFetchingActiveSessions
                     ? 'Carregando sessões...'
+                    : activeSessionsCount === null
+                    ? 'Não foi possível carregar as sessões.'
                     : activeSessionsCount === 0
                     ? 'Nenhuma sessão ativa'
                     : `${activeSessionsCount} ${activeSessionsCount === 1 ? 'sessão ativa' : 'sessões ativas'}`}

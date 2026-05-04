@@ -1,10 +1,10 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, ArrowUpRight, ArrowDownRight, ArrowDownUp, FileText, User, Wrench, Bell, X } from 'lucide-react';
+import { LayoutDashboard, ArrowUpRight, ArrowDownRight, ArrowDownUp, FileText, User, Wrench, Bell, X, TrendingUp, TrendingDown } from 'lucide-react';
 
 const navItems = [
     { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
-    { label: 'Entradas', to: '/entrada', icon: ArrowUpRight },
-    { label: 'Saídas', to: '/saida', icon: ArrowDownRight },
+    { label: 'Entradas', to: '/entrada', icon: TrendingUp },
+    { label: 'Saídas', to: '/saida', icon: TrendingDown },
     { label: 'Todos os registros', to: '/registros', icon: ArrowDownUp },
     { label: 'Relatório', to: '/relatorios', icon: FileText },
     { label: 'Notificações', to: '/notificacoes', icon: Bell },

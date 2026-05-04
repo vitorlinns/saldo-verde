@@ -60,6 +60,7 @@ export function rateLimiter(req: any, res: any, next: any) {
     '/auth/refresh',
     '/auth/logout',
     '/auth/me',
+    '/auth/sessions',
     '/recover/request',
     '/recover/verify',
     '/recover/reset',

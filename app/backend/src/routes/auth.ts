@@ -290,20 +290,16 @@ export function registerAuthRoutes(app: Express, supabase: SupabaseClient | null
       return res.status(401).json({ error: 'Sessão inválida.' });
     }
 
-    const clientIp = getClientIp(req);
-    const { data, error } = await supabase
-      .from('auth.sessions')
-      .select('id', { count: 'planned' })
-      .eq('user_id', sessionUser.id)
-      .eq('ip_address', clientIp)
-      .gt('not_after', new Date().toISOString());
+    const { data, error } = await supabase.rpc('count_active_session_devices', {
+      p_user_id: sessionUser.id,
+    });
 
     if (error) {
       console.error('[auth/sessions] count error:', error);
       return res.status(500).json({ error: 'Não foi possível contar as sessões ativas.' });
     }
 
-    const count = Array.isArray(data) ? data.length : 0;
+    const count = typeof data === 'number' ? data : Number(data ?? 0);
     return res.status(200).json({ count });
   };
 

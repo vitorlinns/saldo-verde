@@ -1,4 +1,4 @@
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, TrendingUp } from 'lucide-react';
 
 interface EntrancePreviewProps {
   title: string;
@@ -19,7 +19,7 @@ export default function EntrancePreview({ title, amount, category, note }: Entra
     <div className="flex items-start justify-between gap-4">
       <div>
         <div className="flex items-center gap-2 text-sm text-white/70">
-          <ArrowUpRight className="h-4 w-4 text-success" />
+          <TrendingUp className="h-4 w-4 text-success" />
           <span>Entrada</span>
         </div>
         <p className="mt-2 text-base font-medium text-white">{displayTitle}</p>

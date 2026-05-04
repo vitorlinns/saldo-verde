@@ -342,6 +342,27 @@ on conflict (id) do update
       updated_at = now();
 
 
+create or replace function public.count_active_session_devices(p_user_id uuid)
+returns integer
+language sql
+security definer
+set search_path = public, auth
+as $$
+  select coalesce(count(*), 0)::int
+  from (
+    select distinct
+      coalesce(ip::text, 'unknown-ip') as ip_key,
+      coalesce(nullif(trim(user_agent), ''), 'unknown-agent') as ua_key
+    from auth.sessions
+    where user_id = p_user_id
+      and (not_after is null or not_after > now())
+  ) device_sessions;
+$$;
+
+grant execute on function public.count_active_session_devices(uuid) to authenticated;
+grant execute on function public.count_active_session_devices(uuid) to service_role;
+
+
 -- RLS habilitado e sem politicas publicas (backend usa service role).
 alter table public.deleted_accounts enable row level security;
 alter table public.profiles enable row level security;

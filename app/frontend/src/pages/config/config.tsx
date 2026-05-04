@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
-import { createClient, isProfileComplete, signOutWithBackend } from '../../lib/auth';
-import { Power, ShieldCheck, Trash2 } from 'lucide-react';
+import { createClient, signOutWithBackend } from '../../lib/auth';
+import { Globe, Power, Trash2 } from 'lucide-react';
 import Sidebar from '../../components/sidebar/sidebar';
 import AppBar from '../../components/appbar/appbar';
 import Footer from '../../components/footer/footer';
@@ -25,6 +25,7 @@ export default function ConfigPage() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarType, setSnackbarType] = useState<'success' | 'error'>('success');
   const [activeSessionsCount, setActiveSessionsCount] = useState<number | null>(null);
+  const [activeSessionsError, setActiveSessionsError] = useState<string | null>(null);
   const [isFetchingActiveSessions, setIsFetchingActiveSessions] = useState(true);
   const navigate = useNavigate();
 
@@ -82,38 +83,81 @@ export default function ConfigPage() {
   useEffect(() => {
     if (!session) {
       setActiveSessionsCount(null);
+      setActiveSessionsError(null);
       setIsFetchingActiveSessions(false);
       return;
     }
+
+    const currentSession = session;
 
     setIsFetchingActiveSessions(true);
 
     const fetchActiveSessionsCount = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}/auth/sessions`, {
-          credentials: 'include',
-        });
+        setActiveSessionsError(null);
+
+        const requestCount = async (accessToken: string) => {
+          return fetch(`${BACKEND_URL}/auth/sessions`, {
+            credentials: 'include',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+        };
+
+        let latestSession = supabase
+          ? (await supabase.auth.getSession()).data.session ?? currentSession
+          : currentSession;
+
+        let response = await requestCount(latestSession.access_token);
+
+        if (response.status === 401) {
+          const refreshResponse = await fetch(`${BACKEND_URL}/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include',
+          });
+
+          if (refreshResponse.ok) {
+            const refreshPayload = await refreshResponse.json().catch(() => null);
+            const refreshedSession = refreshPayload?.session ?? null;
+
+            if (supabase && refreshedSession) {
+              const { error: setSessionError } = await supabase.auth.setSession(refreshedSession);
+              if (setSessionError) {
+                console.warn('Failed to sync refreshed session in frontend:', setSessionError);
+              }
+            }
+
+            latestSession = supabase
+              ? (await supabase.auth.getSession()).data.session ?? latestSession
+              : latestSession;
+
+            response = await requestCount(latestSession.access_token);
+          }
+        }
 
         if (!response.ok) {
-          setActiveSessionsCount(null);
+          const errorText = await response.text().catch(() => '');
+          console.error('Failed to fetch active sessions count:', response.status, errorText);
+          setActiveSessionsError(`Erro ${response.status}`);
           return;
         }
 
         const result = await response.json();
-        setActiveSessionsCount(typeof result.count === 'number' ? result.count : null);
+        setActiveSessionsCount((previous) => (typeof result.count === 'number' ? result.count : previous));
       } catch (error) {
         console.error('Failed to fetch active sessions count:', error);
-        setActiveSessionsCount(null);
+        setActiveSessionsError('Falha de rede');
       } finally {
         setIsFetchingActiveSessions(false);
       }
     };
 
     void fetchActiveSessionsCount();
-  }, [session]);
+  }, [session, supabase]);
 
   const confirmLogoutAllSessions = async () => {
-    if (!supabase) return;
+    if (!supabase || !session) return;
 
     setIsLogoutAllConfirmOpen(false);
     setIsSigningOutAll(true);
@@ -122,11 +166,14 @@ export default function ConfigPage() {
     setSnackbarOpen(true);
 
     try {
+      const latestSession = (await supabase.auth.getSession()).data.session ?? session;
+
       await fetch(`${BACKEND_URL}/logout`, {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${latestSession.access_token}`,
         },
       });
 
@@ -165,6 +212,9 @@ export default function ConfigPage() {
       const response = await fetch(`${BACKEND_URL}/account/${session.user.id}`, {
         method: 'DELETE',
         credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
 
       const result = await response.json();
@@ -221,24 +271,26 @@ export default function ConfigPage() {
 
             <div className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-[0.5rem] border border-border bg-surface p-6">
-                <h2 className="text-xl font-regular text-white">Sessão ativa</h2>
+                <h2 className="text-xl font-regular text-white">Dispositivos conectados</h2>
                 <p className="mt-2 text-sm text-white/70">
-                  Saia de todas as sessões ativas para encerrar o acesso em outros os dispositivos.
+                  Veja em quantos dispositivos sua conta está conectada e encerre o acesso em todos eles, se necessário.
                 </p>
                 <p className="mt-4 flex items-center gap-2 text-sm text-white/80">
-                  <ShieldCheck className="h-4 w-4" />
+                  <Globe className="h-4 w-4" />
                   {isFetchingActiveSessions
-                    ? 'Carregando sessões...'
+                    ? 'Carregando dispositivos...'
+                    : activeSessionsError
+                    ? `Não foi possível carregar os dispositivos conectados (${activeSessionsError}).`
                     : activeSessionsCount === null
-                    ? 'Não foi possível carregar as sessões.'
+                    ? 'Não foi possível carregar os dispositivos conectados.'
                     : activeSessionsCount === 0
-                    ? 'Nenhuma sessão ativa'
-                    : `${activeSessionsCount} ${activeSessionsCount === 1 ? 'sessão ativa' : 'sessões ativas'}`}
+                    ? 'Nenhum dispositivo conectado'
+                    : `${activeSessionsCount} ${activeSessionsCount === 1 ? 'dispositivo conectado' : 'dispositivos conectados'}`}
                 </p>
                 <div className="mt-4 flex flex-col items-start gap-4">
                   <ButtonDanger
                     type="button"
-                    label="Sair de todas as sessões"
+                    label="Sair de todos os dispositivos"
                     icon={<Power className="h-4 w-4" />}
                     loading={isSigningOutAll}
                     onClick={handleLogoutAllSessions}

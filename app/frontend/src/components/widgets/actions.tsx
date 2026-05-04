@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { FilePlus, ArrowUpCircle, ArrowDownCircle, Zap, ArrowUpDown, ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { FilePlus, ArrowUpCircle, ArrowDownCircle, Zap, ArrowUpDown, ArrowDownRight, ArrowUpRight, TrendingUp, TrendingDown } from 'lucide-react';
 import ButtonSubmit from '../btn/button_submit';
 
 export default function ActionsWidget() {
@@ -15,14 +15,14 @@ export default function ActionsWidget() {
         <ButtonSubmit
           type="button"
           label="Registrar entrada"
-          icon={<ArrowUpRight className="h-4 w-4" />}
+          icon={<TrendingUp className="h-4 w-4" />}
           onClick={() => navigate('/entrada')}
           className="justify-start text-left"
         />
         <ButtonSubmit
           type="button"
           label="Registrar saída"
-          icon={<ArrowDownRight className="h-4 w-4" />}
+          icon={<TrendingDown className="h-4 w-4" />}
           onClick={() => navigate('/saida')}
           className="justify-start text-left"
         />

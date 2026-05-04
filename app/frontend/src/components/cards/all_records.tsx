@@ -1,4 +1,4 @@
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface AllRecordsCardProps {
   type: 'income' | 'expense';
@@ -11,8 +11,8 @@ interface AllRecordsCardProps {
 }
 
 const iconByType = {
-  income: <ArrowUpRight className="h-4 w-4 text-success" />,
-  expense: <ArrowDownRight className="h-4 w-4 text-danger" />,
+  income: <TrendingUp className="h-4 w-4 text-success" />,
+  expense: <TrendingDown className="h-4 w-4 text-danger" />,
 };
 
 const textColorByType = {
@@ -22,7 +22,7 @@ const textColorByType = {
 
 export default function AllRecordsCard({ type, title, category, amount, date, time, note }: AllRecordsCardProps) {
   return (
-    <tr className="border-b border-white/10 last:border-b-0 bg-black/90">
+    <tr className="border-b border-border last:border-b-0 bg-bg_saas">
       <td className="px-6 py-6 align-top">
         <div className="flex items-center gap-2 text-sm text-white/70">
           {iconByType[type]}

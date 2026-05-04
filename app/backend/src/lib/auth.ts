@@ -2,12 +2,32 @@ import type { Request } from 'express';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { normalizeDigits } from './validation';
 
+function parseCookies(cookieHeader: string | undefined) {
+  const cookies: Record<string, string> = {};
+  if (!cookieHeader) {
+    return cookies;
+  }
+
+  for (const part of cookieHeader.split(';')) {
+    const [rawKey, ...rawValue] = part.trim().split('=');
+    if (!rawKey) {
+      continue;
+    }
+
+    cookies[rawKey] = decodeURIComponent(rawValue.join('='));
+  }
+
+  return cookies;
+}
+
 export const getBearerToken = (req: Request): string | null => {
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
-    return null;
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.replace('Bearer ', '');
   }
-  return authHeader.replace('Bearer ', '');
+
+  const cookies = parseCookies(req.headers.cookie);
+  return cookies.sv_at ?? null;
 };
 
 export const getSessionUser = async (

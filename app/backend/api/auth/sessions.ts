@@ -1,6 +1,6 @@
 import { createSupabaseClient } from '../_supabase';
 import { handleOptions, sendJson } from '../_http';
-import { getAccessTokenFromRequest, getClientIp } from './_cookies';
+import { getAccessTokenFromRequest } from './_cookies';
 import { authGetUser } from '../_auth';
 
 export default async function handler(req: any, res: any) {
@@ -28,19 +28,15 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 401, { error: 'Sessão inválida.' });
   }
 
-  const clientIp = getClientIp(req);
-
-  const { data, error } = await supabase
-    .from('auth.sessions')
-    .select('id')
-    .eq('user_id', userData.user.id)
-    .eq('ip_address', clientIp)
-    .gt('not_after', new Date().toISOString());
+  const { data, error } = await supabase.rpc('count_active_session_devices', {
+    p_user_id: userData.user.id,
+  });
 
   if (error) {
     console.error('[auth/sessions] count error:', error);
     return sendJson(res, 500, { error: 'Não foi possível contar as sessões ativas.' });
   }
 
-  return sendJson(res, 200, { count: Array.isArray(data) ? data.length : 0 });
+  const count = typeof data === 'number' ? data : Number(data ?? 0);
+  return sendJson(res, 200, { count: Number.isFinite(count) ? count : 0 });
 }

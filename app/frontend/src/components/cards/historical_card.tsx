@@ -1,4 +1,4 @@
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface HistoricalCardProps {
   type: 'income' | 'expense';
@@ -9,8 +9,8 @@ interface HistoricalCardProps {
 }
 
 const iconByType = {
-  income: <ArrowUpRight className="h-4 w-4 text-success" />,
-  expense: <ArrowDownRight className="h-4 w-4 text-danger" />,
+  income: <TrendingUp className="h-4 w-4 text-success" />,
+  expense: <TrendingDown className="h-4 w-4 text-danger" />,
 };
 
 const textColorByType = {

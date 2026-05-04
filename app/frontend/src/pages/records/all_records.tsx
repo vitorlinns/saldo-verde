@@ -163,7 +163,7 @@ export default function AllRecordsPage() {
               <SearchRecords query={searchQuery} onChange={setSearchQuery} />
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-border bg-black/95 shadow-xl shadow-black/20">
+            <div className="overflow-hidden rounded-[0.5rem] border border-border bg-surface">
               <table className="min-w-full table-fixed border-collapse text-left">
                 <thead className="border-b border-white/10 bg-white/5 text-xs uppercase tracking-[0.10em] text-white/60">
                   <tr>

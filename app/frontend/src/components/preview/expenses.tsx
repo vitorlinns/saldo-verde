@@ -1,4 +1,4 @@
-import { ArrowDownRight } from 'lucide-react';
+import { ArrowDownRight, TrendingDown } from 'lucide-react';
 
 interface ExpensesPreviewProps {
   title: string;
@@ -19,7 +19,7 @@ export default function ExpensesPreview({ title, amount, category, note }: Expen
     <div className="flex items-start justify-between gap-4">
       <div>
         <div className="flex items-center gap-2 text-sm text-white/70">
-          <ArrowDownRight className="h-4 w-4 text-danger" />
+          <TrendingDown className="h-4 w-4 text-danger" />
           <span>Saída</span>
         </div>
         <p className="mt-2 text-base font-medium text-white">{displayTitle}</p>

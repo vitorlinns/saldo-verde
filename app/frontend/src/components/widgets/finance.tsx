@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowUpRight, DollarSign } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, DollarSign, TrendingDown, TrendingUp } from 'lucide-react';
 
 interface FinanceWidgetProps {
   title: string;
@@ -28,9 +28,9 @@ export default function FinanceWidget({
 
   const titleIcon =
     variant === 'success' ? (
-      <ArrowUpRight className="h-4 w-4 text-success" />
+      <TrendingUp className="h-4 w-4 text-success" />
     ) : variant === 'danger' ? (
-      <ArrowDownRight className="h-4 w-4 text-danger" />
+      <TrendingDown className="h-4 w-4 text-danger" />
     ) : (
       <DollarSign className="h-4 w-4 text-white" />
     );

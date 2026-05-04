@@ -199,64 +199,24 @@
       "dest": "/app/backend/api/auth/sessions.ts"
     },
     {
-      "src": "/recover/request",
+      "src": "/recover/(request|verify|reset)",
       "has": [
         {
           "type": "host",
           "value": "api.saldoverde.pro"
         }
       ],
-      "dest": "/app/backend/api/recover/request.ts"
+      "dest": "/app/backend/api/recover.ts"
     },
     {
-      "src": "/recover/verify",
+      "src": "/api/recover/(request|verify|reset)",
       "has": [
         {
           "type": "host",
           "value": "api.saldoverde.pro"
         }
       ],
-      "dest": "/app/backend/api/recover/verify.ts"
-    },
-    {
-      "src": "/recover/reset",
-      "has": [
-        {
-          "type": "host",
-          "value": "api.saldoverde.pro"
-        }
-      ],
-      "dest": "/app/backend/api/recover/reset.ts"
-    },
-    {
-      "src": "/api/recover/request",
-      "has": [
-        {
-          "type": "host",
-          "value": "api.saldoverde.pro"
-        }
-      ],
-      "dest": "/app/backend/api/recover/request.ts"
-    },
-    {
-      "src": "/api/recover/verify",
-      "has": [
-        {
-          "type": "host",
-          "value": "api.saldoverde.pro"
-        }
-      ],
-      "dest": "/app/backend/api/recover/verify.ts"
-    },
-    {
-      "src": "/api/recover/reset",
-      "has": [
-        {
-          "type": "host",
-          "value": "api.saldoverde.pro"
-        }
-      ],
-      "dest": "/app/backend/api/recover/reset.ts"
+      "dest": "/app/backend/api/recover.ts"
     },
     {
       "src": "/notifications/([^/]+)",

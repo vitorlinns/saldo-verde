@@ -54,7 +54,7 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
 
   const accessCookie = [
     `sv_at=${encodeURIComponent(accessToken)}`,
-    'Path=/api/auth',
+    'Path=/auth',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Lax',
     `Max-Age=${15 * 60}`,
@@ -63,7 +63,7 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
 
   const refreshCookie = [
     `sv_rt=${encodeURIComponent(refreshToken)}`,
-    'Path=/api',
+    'Path=/',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Strict',
     `Max-Age=${30 * 24 * 60 * 60}`,
@@ -79,13 +79,7 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
     ...(isProd ? ['Secure'] : []),
   ].join('; ');
 
-  res.setHeader('Set-Cookie', [accessCookie, refreshCookie, clearLegacyAccessCookie]);
-}
-
-export function clearAuthCookies(res: any) {
-  const isProd = isProductionEnv();
-
-  const expiredAccessCookie = [
+  const clearLegacyAccessApiAuthCookie = [
     'sv_at=',
     'Path=/api/auth',
     'HttpOnly',
@@ -94,9 +88,39 @@ export function clearAuthCookies(res: any) {
     ...(isProd ? ['Secure'] : []),
   ].join('; ');
 
-  const expiredRefreshCookie = [
+  const clearLegacyRefreshApiCookie = [
     'sv_rt=',
     'Path=/api',
+    'HttpOnly',
+    isProd ? 'SameSite=None' : 'SameSite=Strict',
+    'Max-Age=0',
+    ...(isProd ? ['Secure'] : []),
+  ].join('; ');
+
+  res.setHeader('Set-Cookie', [
+    accessCookie,
+    refreshCookie,
+    clearLegacyAccessCookie,
+    clearLegacyAccessApiAuthCookie,
+    clearLegacyRefreshApiCookie,
+  ]);
+}
+
+export function clearAuthCookies(res: any) {
+  const isProd = isProductionEnv();
+
+  const expiredAccessCookie = [
+    'sv_at=',
+    'Path=/auth',
+    'HttpOnly',
+    isProd ? 'SameSite=None' : 'SameSite=Lax',
+    'Max-Age=0',
+    ...(isProd ? ['Secure'] : []),
+  ].join('; ');
+
+  const expiredRefreshCookie = [
+    'sv_rt=',
+    'Path=/',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Strict',
     'Max-Age=0',
@@ -112,5 +136,29 @@ export function clearAuthCookies(res: any) {
     ...(isProd ? ['Secure'] : []),
   ].join('; ');
 
-  res.setHeader('Set-Cookie', [expiredAccessCookie, expiredRefreshCookie, expiredLegacyAccessCookie]);
+  const expiredLegacyAccessApiAuthCookie = [
+    'sv_at=',
+    'Path=/api/auth',
+    'HttpOnly',
+    isProd ? 'SameSite=None' : 'SameSite=Lax',
+    'Max-Age=0',
+    ...(isProd ? ['Secure'] : []),
+  ].join('; ');
+
+  const expiredLegacyRefreshApiCookie = [
+    'sv_rt=',
+    'Path=/api',
+    'HttpOnly',
+    isProd ? 'SameSite=None' : 'SameSite=Strict',
+    'Max-Age=0',
+    ...(isProd ? ['Secure'] : []),
+  ].join('; ');
+
+  res.setHeader('Set-Cookie', [
+    expiredAccessCookie,
+    expiredRefreshCookie,
+    expiredLegacyAccessCookie,
+    expiredLegacyAccessApiAuthCookie,
+    expiredLegacyRefreshApiCookie,
+  ]);
 }

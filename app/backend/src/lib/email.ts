@@ -33,7 +33,22 @@ export async function sendRecoveryEmail(to: string, code: string) {
   } as RequestInit);
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Resend request failed: ${response.status} ${text}`);
+    let errorMessage = `Resend request failed: ${response.status}`;
+    try {
+      const json = await response.json();
+      if (json && typeof json === 'object') {
+        if ('error' in json && typeof json.error === 'string') {
+          errorMessage += ` ${json.error}`;
+        } else if ('message' in json && typeof json.message === 'string') {
+          errorMessage += ` ${json.message}`;
+        }
+      }
+    } catch {
+      const text = await response.text();
+      if (text) {
+        errorMessage += ` ${text}`;
+      }
+    }
+    throw new Error(errorMessage);
   }
 }

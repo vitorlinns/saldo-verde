@@ -111,8 +111,11 @@ export default async function handler(req: any, res: any) {
       try {
         await sendRecoveryEmail(normalizedEmail, entry.code);
       } catch (err) {
-        console.error('[recover] Failed to send recovery email:', err);
-        return sendJson(res, 500, { error: 'Não foi possível enviar o email de recuperação.' });
+        const message = err instanceof Error ? err.message : String(err);
+        console.error('[recover] Failed to send recovery email:', message);
+        return sendJson(res, 500, {
+          error: `Não foi possível enviar o email de recuperação. ${message}`,
+        });
       }
     }
 

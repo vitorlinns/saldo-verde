@@ -72,7 +72,7 @@ function setAuthCookies(res: Response, accessToken: string, refreshToken: string
   res.cookie('sv_at', accessToken, {
     httpOnly: true,
     secure: isProd,
-    sameSite: 'lax',
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: 15 * 60 * 1000,
     path: '/',
   });
@@ -80,7 +80,7 @@ function setAuthCookies(res: Response, accessToken: string, refreshToken: string
   res.cookie('sv_rt', refreshToken, {
     httpOnly: true,
     secure: isProd,
-    sameSite: 'strict',
+    sameSite: isProd ? 'none' : 'strict',
     maxAge: 30 * 24 * 60 * 60 * 1000,
     path: '/api/auth',
   });
@@ -92,7 +92,7 @@ function clearAuthCookies(res: Response) {
   res.cookie('sv_at', '', {
     httpOnly: true,
     secure: isProd,
-    sameSite: 'lax',
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: 0,
     path: '/',
   });
@@ -100,7 +100,7 @@ function clearAuthCookies(res: Response) {
   res.cookie('sv_rt', '', {
     httpOnly: true,
     secure: isProd,
-    sameSite: 'strict',
+    sameSite: isProd ? 'none' : 'strict',
     maxAge: 0,
     path: '/api/auth',
   });

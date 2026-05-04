@@ -4,6 +4,16 @@ import { createClient } from './auth';
 const BACKEND_URL = '/api';
 const USE_CREDENTIALS: RequestCredentials = 'include';
 
+const getAccessToken = async (): Promise<string | null> => {
+  try {
+    const supabase = createClient();
+    const { data } = await supabase.auth.getSession();
+    return data.session?.access_token ?? null;
+  } catch {
+    return null;
+  }
+};
+
 const refreshSession = async (): Promise<boolean> => {
   try {
     const response = await fetch(`${BACKEND_URL}/auth/refresh`, {
@@ -28,7 +38,19 @@ const fetchWithSessionRecovery = async (input: string, init: RequestInit): Promi
 
   const refreshed = await refreshSession();
   if (!refreshed) {
-    return first;
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return first;
+    }
+
+    const fallbackHeaders = new Headers(init.headers ?? {});
+    fallbackHeaders.set('Authorization', `Bearer ${accessToken}`);
+
+    return fetch(input, {
+      ...init,
+      credentials: USE_CREDENTIALS,
+      headers: fallbackHeaders,
+    });
   }
 
   return fetch(input, {

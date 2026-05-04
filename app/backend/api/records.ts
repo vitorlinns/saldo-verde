@@ -19,6 +19,23 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 100;
 const env = (globalThis as any)?.process?.env ?? {};
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://app.saldoverde.pro',
+  'https://www.app.saldoverde.pro',
+  'https://saldoverde.pro',
+  'https://www.saldoverde.pro',
+];
+
+const getAllowedOrigins = () => {
+  const configured = [
+    env.FRONTEND_ORIGIN,
+    ...String(env.FRONTEND_ORIGINS ?? '')
+      .split(',')
+      .map((o: string) => o.trim()),
+  ].filter((v): v is string => Boolean(v));
+
+  return new Set(configured.length > 0 ? configured : DEFAULT_ALLOWED_ORIGINS);
+};
 
 const pad2 = (n: number) => String(n).padStart(2, '0');
 const formatDate = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
@@ -152,14 +169,7 @@ export default async function handler(req: any, res: any) {
   }
 
   if (req.method === 'DELETE') {
-    const allowedOrigins = new Set(
-      [
-        env.FRONTEND_ORIGIN,
-        ...(String(env.FRONTEND_ORIGINS ?? '')
-          .split(',')
-          .map((o: string) => o.trim())),
-      ].filter((v): v is string => Boolean(v)),
-    );
+    const allowedOrigins = getAllowedOrigins();
     const origin = req.headers?.origin;
     if (origin && allowedOrigins.size > 0 && !allowedOrigins.has(origin)) {
       return sendJson(res, 403, { error: 'Forbidden origin' });
@@ -183,14 +193,7 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 200, { ok: true });
   }
 
-  const allowedOrigins = new Set(
-    [
-      env.FRONTEND_ORIGIN,
-      ...(String(env.FRONTEND_ORIGINS ?? '')
-        .split(',')
-        .map((o: string) => o.trim())),
-    ].filter((v): v is string => Boolean(v)),
-  );
+  const allowedOrigins = getAllowedOrigins();
   const origin = req.headers?.origin;
   if (origin && allowedOrigins.size > 0 && !allowedOrigins.has(origin)) {
     return sendJson(res, 403, { error: 'Forbidden origin' });

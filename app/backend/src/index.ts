@@ -19,14 +19,21 @@ dotenv.config();
 const app = express();
 const port = Number(process.env.PORT ?? 4001);
 const frontendOrigin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173';
+const defaultProdOrigins = [
+  'https://app.saldoverde.pro',
+  'https://www.app.saldoverde.pro',
+  'https://saldoverde.pro',
+  'https://www.saldoverde.pro',
+];
+const configuredOrigins = [
+  frontendOrigin,
+  ...(process.env.FRONTEND_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+];
 const frontendOrigins = new Set(
-  [
-    frontendOrigin,
-    ...(process.env.FRONTEND_ORIGINS ?? '')
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter(Boolean),
-  ],
+  configuredOrigins.length > 0 ? configuredOrigins : defaultProdOrigins,
 );
 
 app.disable('x-powered-by');

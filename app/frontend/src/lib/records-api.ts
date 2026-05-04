@@ -87,7 +87,10 @@ export const addRecordAPI = async (
 
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      return { ok: false, error: (body as { error?: string }).error ?? 'Erro ao salvar.' };
+      return {
+        ok: false,
+        error: (body as { error?: string }).error ?? `Erro ao salvar. (HTTP ${res.status})`,
+      };
     }
 
     const body = await res.json();

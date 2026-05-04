@@ -4,6 +4,7 @@ import { createClient } from './auth';
 const BACKEND_URL = import.meta.env.DEV
   ? '/api'
   : import.meta.env.VITE_API_BASE_URL ?? 'https://api.saldoverde.pro';
+const USE_CREDENTIALS = import.meta.env.DEV ? 'include' : 'omit';
 
 export interface RecordItemWithId extends RecordItem {
   id: string;
@@ -72,7 +73,7 @@ export const addRecordAPI = async (
     const authHeaders = await getAuthHeaders();
     const res = await fetch(`${BACKEND_URL}/records`, {
       method: 'POST',
-      credentials: 'include',
+      credentials: USE_CREDENTIALS,
       headers: {
         'Content-Type': 'application/json',
         ...authHeaders,
@@ -140,7 +141,7 @@ export const getRecordsAPI = async (
 
     const qs = params.toString() ? `?${params.toString()}` : '';
     const res = await fetch(`${BACKEND_URL}/records${qs}`, {
-      credentials: 'include',
+      credentials: USE_CREDENTIALS,
       headers: authHeaders,
     });
 
@@ -196,7 +197,7 @@ export const deleteRecordAPI = async (id: string): Promise<{ ok: boolean; error?
     const authHeaders = await getAuthHeaders();
     const res = await fetch(`${BACKEND_URL}/records/${encodeURIComponent(id)}`, {
       method: 'DELETE',
-      credentials: 'include',
+      credentials: USE_CREDENTIALS,
       headers: authHeaders,
     });
 

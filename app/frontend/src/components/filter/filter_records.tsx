@@ -78,11 +78,11 @@ export default function FilterRecords({
   downloadComponent,
 }: FilterRecordsProps) {
   return (
-    <div className="rounded-[0.5rem] border border-border bg-surface p-6">
+    <div className="rounded-[0.5rem] border border-border bg-surface p-4 shadow-xl shadow-black/20 sm:p-6">
       <div className="mb-4">
-        <h2 className="text-lg font-regular text-white">Filtrar registros</h2>
+        <h2 className="text-base font-regular text-white sm:text-lg">{title}</h2>
         <p className="mt-2 text-sm text-white/60">
-          Use dia, mês e ano para encontrar a transação certa.
+          {description}
         </p>
       </div>
 
@@ -117,13 +117,14 @@ export default function FilterRecords({
           className="w-20"
         />
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
           <ButtonSubmit
             type="button"
             label="Limpar"
             icon={<X className="h-4 w-4" />}
             onClick={onReset}
             fullWidth={false}
+            className="!h-10 !px-4 text-xs sm:!h-11 sm:!px-6 sm:text-sm"
           />
           {downloadComponent ? (
             <>{downloadComponent}</>

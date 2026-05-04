@@ -111,6 +111,7 @@ export default function ProfilePage() {
   const [session, setSession] = useState<Session | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showValues, setShowValues] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [cpf, setCpf] = useState('');
@@ -554,20 +555,25 @@ export default function ProfilePage() {
   ];
 
   return (
-    <main className="min-h-screen bg-background text-white">
+    <main className="min-h-screen bg-bg_saas text-white">
       <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
-<Sidebar email={session.user.email ?? null} />
+        <Sidebar
+          email={session.user.email ?? null}
+          open={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
 
-        <div className="mr-4 flex min-h-screen flex-col">
+        <div className="mx-4 xl:mr-4 xl:mx-0 flex min-h-screen flex-col">
           <AppBar
             session={session}
             onSignOut={handleSignOut}
             isSigningOut={isSigningOut}
             showValues={showValues}
             onToggleValues={toggleShowValues}
+            onOpenSidebar={() => setIsSidebarOpen(true)}
           />
 
-          <section className="flex-1 space-y-6 px-4 pb-8 sm:px-6 xl:px-0">
+          <section className="flex-1 space-y-6 pb-8">
             <div className="space-y-3">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>

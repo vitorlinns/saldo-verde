@@ -11,6 +11,7 @@ import { registerRecoverRoutes } from './routes/recover';
 import { registerProfileRoutes } from './routes/profile';
 import { registerHealthRoutes } from './routes/health';
 import { registerSiteRoutes } from './routes/site';
+import { registerRecordsRoutes } from './routes/records';
 
 // Load local overrides first during development, then fallback to .env defaults.
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
@@ -19,6 +20,15 @@ dotenv.config();
 const app = express();
 const port = Number(process.env.PORT ?? 4001);
 const frontendOrigin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173';
+const frontendOrigins = new Set(
+  [
+    frontendOrigin,
+    ...(process.env.FRONTEND_ORIGINS ?? '')
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  ],
+);
 
 app.disable('x-powered-by');
 app.use((req, res, next) => {
@@ -43,6 +53,25 @@ const footerTextPath = path.resolve(__dirname, '../../../site/src/data/site-info
 const logoPath = path.resolve(__dirname, '../../../site/public/assets/brand/isologo.webp');
 const assetsPath = path.resolve(__dirname, '../../../site/public/assets');
 
+app.use('/api', (req, res, next) => {
+  const method = req.method.toUpperCase();
+  if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
+    return next();
+  }
+
+  const origin = req.headers.origin;
+  // Non-browser clients may not send Origin header.
+  if (!origin) {
+    return next();
+  }
+
+  if (!frontendOrigins.has(origin)) {
+    return res.status(403).json({ error: 'Forbidden origin' });
+  }
+
+  next();
+});
+
 app.use('/api', rateLimiter);
 app.use((req, res, next) => {
   if (req.method !== 'GET' && req.headers['content-type'] && !req.headers['content-type'].includes('application/json')) {
@@ -66,6 +95,7 @@ registerRecoverRoutes(app, supabase);
 registerNotificationsRoutes(app, supabase);
 registerAccountRoutes(app, supabase);
 registerProfileRoutes(app, supabase);
+registerRecordsRoutes(app, supabase);
 
 app.listen(port, () => {
   console.log(`Backend running at http://localhost:${port}`);

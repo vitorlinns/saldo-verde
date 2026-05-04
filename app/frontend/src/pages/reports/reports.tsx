@@ -13,14 +13,7 @@ import FilterRecords from '../../components/filter/filter_records';
 import DownloadReports from '../../components/download/download_reports';
 import ModalNotice from '../../components/modal/modal_notice';
 import ButtonSubmit from '../../components/btn/button_submit';
-import {
-  getMonthlySummaries,
-  getStoredBalance,
-  getStoredRecords,
-  parseAmount,
-  type MonthlySummary,
-  type RecordItem,
-} from '../../lib/records-storage';
+import { getRecordsAPI, computeMonthlySummaries, computeBalance, parseAmount, type RecordItemWithId } from '../../lib/records-api';
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -82,7 +75,7 @@ const normalizeYear = (value?: string) => {
 const getCurrentMonth = () => String(new Date().getMonth() + 1).padStart(2, '0');
 
 const buildChartDataFromRecords = (
-  records: RecordItem[],
+  records: RecordItemWithId[],
   month?: string,
   year?: string,
 ) => {
@@ -124,10 +117,21 @@ const buildChartDataFromRecords = (
     });
   }
 
-  const monthlySummaries = getMonthlySummaries(6, {
-    month: normalizedMonth || undefined,
-    year: normalizedYear || undefined,
-  });
+  const allSummaries = computeMonthlySummaries(records);
+  const monthlySummaries = normalizedMonth || normalizedYear
+    ? allSummaries.filter((summary) => {
+        if (normalizedMonth && normalizedYear) {
+          return summary.monthKey === `${normalizedYear}-${normalizedMonth}`;
+        }
+        if (normalizedMonth) {
+          return summary.monthKey.endsWith(`-${normalizedMonth}`);
+        }
+        if (normalizedYear) {
+          return summary.monthKey.startsWith(`${normalizedYear}-`);
+        }
+        return true;
+      })
+    : allSummaries.slice(0, 6);
 
   if (normalizedYear) {
     return monthlySummaries.map((summary) => ({
@@ -155,18 +159,29 @@ const buildChartDataFromRecords = (
 export default function ReportsPage() {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { session } = useSession();
   const [showValues, setShowValues] = useState(true);
   const [filterMonth, setFilterMonth] = useState('');
   const [filterYear, setFilterYear] = useState('');
   const [showProfileNotice, setShowProfileNotice] = useState(false);
+  const [allRecords, setAllRecords] = useState<RecordItemWithId[]>([]);
   const normalizedMonth = normalizeMonth(filterMonth);
   const normalizedYear = normalizeYear(filterYear);
   const profileComplete = isProfileComplete(session);
-  const monthlySummariesRaw = getMonthlySummaries(6, {
-    month: normalizedMonth || undefined,
-    year: normalizedYear || undefined,
-  });
+
+  const allSummaries = computeMonthlySummaries(allRecords);
+  const monthlySummariesRaw = (() => {
+    const filtered = normalizedMonth || normalizedYear
+      ? allSummaries.filter((s) => {
+          if (normalizedMonth && normalizedYear) return s.monthKey === `${normalizedYear}-${normalizedMonth}`;
+          if (normalizedMonth) return s.monthKey.endsWith(`-${normalizedMonth}`);
+          if (normalizedYear) return s.monthKey.startsWith(`${normalizedYear}-`);
+          return true;
+        })
+      : allSummaries.slice(0, 6);
+    return filtered;
+  })();
   const monthlySummaries =
     monthlySummariesRaw.length === 0 && (normalizedMonth || normalizedYear)
       ? [
@@ -183,14 +198,17 @@ export default function ReportsPage() {
           },
         ]
       : monthlySummariesRaw;
-  const storedRecords = getStoredRecords();
-  const chartData = buildChartDataFromRecords(storedRecords, normalizedMonth, normalizedYear);
-  const [balance] = useState(() => getStoredBalance());
+  const chartData = buildChartDataFromRecords(allRecords, normalizedMonth, normalizedYear);
+  const balance = computeBalance(allRecords);
   const navigate = useNavigate();
 
   useEffect(() => {
     const client = createClient();
     setSupabase(client);
+  }, []);
+
+  useEffect(() => {
+    getRecordsAPI().then(({ records }) => setAllRecords(records));
   }, []);
 
   useEffect(() => {
@@ -214,17 +232,22 @@ export default function ReportsPage() {
   const selectedLabel = selectedSummary?.label ?? 'mês selecionado';
 
   return (
-    <main className="min-h-screen bg-background text-white">
+    <main className="min-h-screen bg-bg_saas text-white">
       <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
-<Sidebar email={session?.user.email ?? null} />
+        <Sidebar
+          email={session?.user.email ?? null}
+          open={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
 
-        <div className="mr-4 flex min-h-screen flex-col">
+        <div className="mx-4 xl:mr-4 xl:mx-0 flex min-h-screen flex-col">
           <AppBar
             session={session}
             onSignOut={handleSignOut}
             isSigningOut={isSigningOut}
             showValues={showValues}
             onToggleValues={toggleShowValues}
+            onOpenSidebar={() => setIsSidebarOpen(true)}
           />
 
           <section className="flex-1 space-y-6">

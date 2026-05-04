@@ -1,5 +1,5 @@
-const rateLimitWindowMs = 15 * 60 * 1000;
-const rateLimitMax = 30;
+const rateLimitWindowMs = Number(process.env.RATE_LIMIT_WINDOW_MS ?? 15 * 60 * 1000);
+const rateLimitMax = Number(process.env.RATE_LIMIT_MAX ?? 30);
 const rateMap = new Map<string, { count: number; firstRequestAt: number }>();
 const namedRateMaps = new Map<string, Map<string, { count: number; firstRequestAt: number }>>();
 
@@ -52,6 +52,11 @@ export function consumeRateLimit(name: string, key: string, options: RateLimitOp
 }
 
 export function rateLimiter(req: any, res: any, next: any) {
+  // CORS preflight should not consume quota.
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+
   const path = typeof req.path === 'string' ? req.path : '';
   const bypassPaths = [
     '/login',
@@ -70,7 +75,9 @@ export function rateLimiter(req: any, res: any, next: any) {
     return next();
   }
 
-  const key = req.ip || 'unknown';
+  // Scope limits by IP + method + path so one noisy endpoint does not block others.
+  const method = typeof req.method === 'string' ? req.method.toUpperCase() : 'GET';
+  const key = `${req.ip || 'unknown'}:${method}:${path}`;
   const result = consumeRateLimit('global', key, {
     windowMs: rateLimitWindowMs,
     max: rateLimitMax,

@@ -12,7 +12,8 @@ import EntrancePreview from '../../components/preview/entrance';
 import Snackbar from '../../components/snackbar/snackbar';
 import ModalNotice from '../../components/modal/modal_notice';
 import { inferCategoryFromTitle } from '../../data/categories';
-import { addRecord, formatAmountFromInput, type RecordItem } from '../../lib/records-storage';
+import { formatAmountFromInput, type RecordItem } from '../../lib/records-storage';
+import { addRecordAPI } from '../../lib/records-api';
 
 export default function EntrancePage() {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
@@ -27,6 +28,7 @@ export default function EntrancePage() {
   const [snackbarType, setSnackbarType] = useState<'success' | 'error'>('success');
   const [snackbarKey, setSnackbarKey] = useState(0);
   const [showProfileNotice, setShowProfileNotice] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { session } = useSession();
   const navigate = useNavigate();
   const profileComplete = isProfileComplete(session);
@@ -60,7 +62,7 @@ export default function EntrancePage() {
 
   const pad2 = (value: number) => String(value).padStart(2, '0');
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!profileComplete) {
@@ -91,7 +93,14 @@ export default function EntrancePage() {
       note: note.trim(),
     };
 
-    addRecord(record);
+    const result = await addRecordAPI(record);
+    if (!result.ok) {
+      setSnackbarType('error');
+      setSnackbarMessage(result.error ?? 'Erro ao registrar a entrada.');
+      setSnackbarKey((current) => current + 1);
+      setSnackbarOpen(true);
+      return;
+    }
     setSnackbarType('success');
     setSnackbarMessage('Entrada registrada com sucesso.');
     setSnackbarKey((current) => current + 1);
@@ -103,17 +112,22 @@ export default function EntrancePage() {
   };
 
   return (
-    <main className="min-h-screen bg-background text-white">
+    <main className="min-h-screen bg-bg_saas text-white">
       <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
-<Sidebar email={session?.user.email ?? null} />
+        <Sidebar
+          email={session?.user.email ?? null}
+          open={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
 
-        <div className="mr-4 flex min-h-screen flex-col">
+        <div className="mx-4 xl:mr-4 xl:mx-0 flex min-h-screen flex-col">
           <AppBar
             session={session}
             onSignOut={handleSignOut}
             isSigningOut={isSigningOut}
             showValues={showValues}
             onToggleValues={toggleShowValues}
+            onOpenSidebar={() => setIsSidebarOpen(true)}
           />
 
           <section className="flex-1 space-y-6">

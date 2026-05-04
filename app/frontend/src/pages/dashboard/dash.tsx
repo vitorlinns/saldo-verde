@@ -13,29 +13,25 @@ import HistoricalWidget from '../../components/widgets/historical';
 import Graphic from '../../components/widgets/graphic';
 import Footer from '../../components/footer/footer';
 import {
-  getAllMonthlySummaries,
-  getMonthlySummaries,
-  getRecentRecords,
-  getStoredBalance,
-  getStoredRecords,
-  parseAmount,
-  type RecordItem,
 } from '../../lib/records-storage';
+import { getRecordsAPI, computeMonthlySummaries, computeBalance, parseAmount, type RecordItemWithId } from '../../lib/records-api';
 
 export default function DashboardPage() {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showValues, setShowValues] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [allRecords, setAllRecords] = useState<RecordItemWithId[]>([]);
   const { session } = useSession();
-  const recentRecords = getRecentRecords(5);
-  const balance = getStoredBalance();
-  const monthlyRecords = getStoredRecords();
   const navigate = useNavigate();
 
   useEffect(() => {
     const client = createClient();
     setSupabase(client);
+  }, []);
+
+  useEffect(() => {
+    getRecordsAPI().then(({ records }) => setAllRecords(records));
   }, []);
 
   const handleSignOut = async () => {
@@ -49,6 +45,14 @@ export default function DashboardPage() {
     }
   };
 
+  const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+  const currentYear = String(new Date().getFullYear());
+
+  const monthlyRecords = allRecords.filter((r) => {
+    const [, month, year] = r.date.split('/');
+    return month === currentMonth && year === currentYear;
+  });
+
   const totalEntradas = monthlyRecords.reduce((sum, record) => {
     return record.type === 'income' ? sum + parseAmount(record.amount) : sum;
   }, 0);
@@ -57,8 +61,10 @@ export default function DashboardPage() {
     return record.type === 'expense' ? sum + parseAmount(record.amount) : sum;
   }, 0);
 
+  const recentRecords = allRecords.slice(0, 5).map(({ type, title, category, amount }) => ({ type, title, category, amount }));
+
   const monthLabels = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
-  const allSummaries = getAllMonthlySummaries();
+  const allSummaries = computeMonthlySummaries(allRecords);
   const summaryMap = new Map(allSummaries.map((summary) => [summary.monthKey, summary]));
   const currentDate = new Date();
 
@@ -74,7 +80,7 @@ export default function DashboardPage() {
     };
   });
 
-  const saldoTotal = balance;
+  const saldoTotal = computeBalance(allRecords);
 
   const toggleShowValues = () => setShowValues((current) => !current);
 
@@ -138,7 +144,12 @@ export default function DashboardPage() {
               </div>
 
               <aside className="flex h-full flex-col gap-6">
-                <HealthWidget totalEntradas={totalEntradas} totalSaidas={totalSaidas} showValues={showValues} />
+                <HealthWidget
+                  totalEntradas={totalEntradas}
+                  totalSaidas={totalSaidas}
+                  showValues={showValues}
+                  hasRecords={monthlyRecords.length > 0}
+                />
 
                 <div className="mt-auto">
                   <ActionsWidget />

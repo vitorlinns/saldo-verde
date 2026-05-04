@@ -37,6 +37,7 @@ export default function NotificationsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showValues, setShowValues] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
   const navigate = useNavigate();
   const notificationsCacheKey = session ? `unread-notifications:${session.user.id}` : null;
@@ -182,11 +183,15 @@ export default function NotificationsPage() {
   const visibleNotifications = notifications.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
-    <main className="min-h-screen bg-background text-white">
+    <main className="min-h-screen bg-bg_saas text-white">
       <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
-        <Sidebar email={session.user.email ?? null} />
+        <Sidebar
+          email={session.user.email ?? null}
+          open={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
 
-        <div className="mr-4 flex min-h-screen flex-col">
+        <div className="mx-4 xl:mr-4 xl:mx-0 flex min-h-screen flex-col">
           <AppBar
             session={session}
             onSignOut={async () => {
@@ -199,9 +204,10 @@ export default function NotificationsPage() {
             isSigningOut={isSigningOut}
             showValues={showValues}
             onToggleValues={() => setShowValues((current) => !current)}
+            onOpenSidebar={() => setIsSidebarOpen(true)}
           />
 
-          <section className="flex-1 space-y-6 px-4 pb-8 sm:px-6 xl:px-0">
+          <section className="flex-1 space-y-6 pb-8">
             <div className="space-y-3">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>

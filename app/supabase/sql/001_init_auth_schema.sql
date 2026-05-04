@@ -106,6 +106,30 @@ create index if not exists user_notifications_user_id_idx
 create index if not exists user_notifications_created_at_idx
   on public.user_notifications (created_at desc);
 
+create table if not exists public.financial_records (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  record_type text not null,
+  title text not null,
+  category text not null default 'Outros',
+  amount_cents integer not null,
+  note text not null default '',
+  occurred_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint financial_records_record_type_chk check (record_type in ('income', 'expense')),
+  constraint financial_records_amount_cents_chk check (amount_cents >= 0)
+);
+
+create index if not exists financial_records_user_id_idx
+  on public.financial_records (user_id);
+
+create index if not exists financial_records_user_date_idx
+  on public.financial_records (user_id, occurred_at desc);
+
+create index if not exists financial_records_user_type_idx
+  on public.financial_records (user_id, record_type);
+
 -- Trigger generico de updated_at.
 create or replace function public.set_updated_at()
 returns trigger
@@ -126,6 +150,12 @@ execute function public.set_updated_at();
 drop trigger if exists user_notifications_set_updated_at on public.user_notifications;
 create trigger user_notifications_set_updated_at
 before update on public.user_notifications
+for each row
+execute function public.set_updated_at();
+
+drop trigger if exists financial_records_set_updated_at on public.financial_records;
+create trigger financial_records_set_updated_at
+before update on public.financial_records
 for each row
 execute function public.set_updated_at();
 
@@ -362,10 +392,38 @@ $$;
 grant execute on function public.count_active_session_devices(uuid) to authenticated;
 grant execute on function public.count_active_session_devices(uuid) to service_role;
 
+grant select, insert, update, delete on public.financial_records to authenticated;
+grant all privileges on public.financial_records to service_role;
 
 -- RLS habilitado e sem politicas publicas (backend usa service role).
 alter table public.deleted_accounts enable row level security;
 alter table public.profiles enable row level security;
 alter table public.user_notifications enable row level security;
+alter table public.financial_records enable row level security;
+
+drop policy if exists financial_records_select_own on public.financial_records;
+create policy financial_records_select_own
+on public.financial_records
+for select
+using (auth.uid() = user_id);
+
+drop policy if exists financial_records_insert_own on public.financial_records;
+create policy financial_records_insert_own
+on public.financial_records
+for insert
+with check (auth.uid() = user_id);
+
+drop policy if exists financial_records_update_own on public.financial_records;
+create policy financial_records_update_own
+on public.financial_records
+for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+drop policy if exists financial_records_delete_own on public.financial_records;
+create policy financial_records_delete_own
+on public.financial_records
+for delete
+using (auth.uid() = user_id);
 
 commit;

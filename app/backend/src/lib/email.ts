@@ -17,10 +17,10 @@ export async function sendRecoveryEmail(to: string, code: string) {
     to,
     subject: 'Recuperação de conta Saldo Verde',
     html: `
-      <div style="font-family: Inter, system-ui, sans-serif; color: #111;">
-        <h1 style="font-size: 22px; color: #0f766e;">Recuperação de conta</h1>
-        <p>Use o código abaixo para continuar sua recuperação de conta no Saldo Verde.</p>
-        <div style="margin: 24px 0; padding: 20px; background: #f8fafc; border: 1px solid #94a3b8; border-radius: 14px; display: inline-block;">
+      <div style="font-family: Inter, system-ui, sans-serif; color: #040404;">
+        <h1 style="font-size: 22px; color: #040404;">Recuperação de conta</h1>
+        <p>Use o código abaixo para continuar sua recuperação de conta.</p>
+        <div style="margin: 24px 0; padding: 20px; background: #f8fafc; border: 1px solid #3e3e3e8e; border-radius: 9px; display: inline-block;">
           <strong style="font-size: 24px; letter-spacing: 0.1em;">${code}</strong>
         </div>
         <p>Esse código expira em 15 minutos.</p>

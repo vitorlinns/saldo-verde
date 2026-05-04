@@ -14,26 +14,44 @@ import AllRecordsCard from '../../components/cards/all_records';
 import ButtonSubmit from '../../components/btn/button_submit';
 import ModalNotice from '../../components/modal/modal_notice';
 import DownloadRecords from '../../components/download/download_records';
-import { getStoredRecords, type RecordItem } from '../../lib/records-storage';
+import { getRecordsAPI, type RecordItemWithId } from '../../lib/records-api';
+
+const PAGE_SIZE = 10;
 
 export default function AllRecordsPage() {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showValues, setShowValues] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [filterDay, setFilterDay] = useState('');
   const [filterMonth, setFilterMonth] = useState('');
   const [filterYear, setFilterYear] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [records, setRecords] = useState<RecordItem[]>([]);
+  const [records, setRecords] = useState<RecordItemWithId[]>([]);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [showProfileNotice, setShowProfileNotice] = useState(false);
   const { session } = useSession();
   const navigate = useNavigate();
   const profileComplete = isProfileComplete(session);
 
   useEffect(() => {
-    setRecords(getStoredRecords());
-  }, []);
+    const loadRecords = async () => {
+      const { records: rows, pagination } = await getRecordsAPI({
+        day: filterDay || undefined,
+        month: filterMonth || undefined,
+        year: filterYear || undefined,
+        page: currentPage,
+        limit: PAGE_SIZE,
+      });
+      setRecords(rows);
+      setTotalRecords(pagination.total);
+      setTotalPages(Math.max(1, pagination.totalPages));
+    };
+
+    void loadRecords();
+  }, [filterDay, filterMonth, filterYear, currentPage]);
 
   useEffect(() => {
     document.title = 'Registros | Saldo Verde';
@@ -55,11 +73,6 @@ export default function AllRecordsPage() {
   const normalizeDigits = (value: string) => value.replace(/[^0-9]/g, '');
 
   const filteredRecords = records.filter((record) => {
-    const [day, month, year] = record.date.split('/');
-    const matchesDay = !filterDay || day === filterDay.padStart(2, '0');
-    const matchesMonth = !filterMonth || month === filterMonth.padStart(2, '0');
-    const matchesYear = !filterYear || year === filterYear;
-
     const normalizedSearch = searchQuery.trim().toLowerCase();
     const numericSearch = normalizeDigits(normalizedSearch);
     const amountMatch = numericSearch.length > 0 && normalizeDigits(record.amount).includes(numericSearch);
@@ -70,12 +83,8 @@ export default function AllRecordsPage() {
         .some((value) => value.includes(normalizedSearch)) ||
       amountMatch;
 
-    return matchesDay && matchesMonth && matchesYear && matchesSearch;
+    return matchesSearch;
   });
-
-  const PAGE_SIZE = 10;
-  const totalPages = Math.max(1, Math.ceil(filteredRecords.length / PAGE_SIZE));
-  const currentRecords = filteredRecords.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const handleChangePage = (page: number) => {
     setCurrentPage(page);
@@ -89,20 +98,25 @@ export default function AllRecordsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-background text-white">
+    <main className="min-h-screen bg-bg_saas text-white">
       <div className="min-h-screen h-full grid w-full gap-6 xl:grid-cols-[280px_1fr] xl:items-stretch">
-<Sidebar email={session?.user.email ?? null} />
+        <Sidebar
+          email={session?.user.email ?? null}
+          open={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
 
-        <div className="mr-4 flex min-h-screen flex-col">
+        <div className="min-w-0 px-4 xl:pr-4 xl:px-0 flex min-h-screen flex-col">
           <AppBar
             session={session}
             onSignOut={handleSignOut}
             isSigningOut={isSigningOut}
             showValues={showValues}
             onToggleValues={toggleShowValues}
+            onOpenSidebar={() => setIsSidebarOpen(true)}
           />
 
-          <section className="flex-1 space-y-6">
+          <section className="min-w-0 flex-1 space-y-6">
             <div>
               <h1 className="text-3xl font-regular text-white">Todos os registros</h1>
               <p className="mt-2 max-w-2xl text-sm text-white/70">
@@ -110,7 +124,7 @@ export default function AllRecordsPage() {
               </p>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-[1.3fr_1.2fr] items-end">
+            <div className="grid items-start gap-4 lg:grid-cols-[1.3fr_1.2fr] lg:items-end">
               <FilterRecords
                 day={filterDay}
                 month={filterMonth}
@@ -160,24 +174,26 @@ export default function AllRecordsPage() {
                 }
               />
 
-              <SearchRecords query={searchQuery} onChange={setSearchQuery} />
+              <div className="w-full lg:justify-self-stretch">
+                <SearchRecords query={searchQuery} onChange={setSearchQuery} />
+              </div>
             </div>
 
-            <div className="overflow-hidden rounded-[0.5rem] border border-border bg-surface">
+            <div className="min-w-0 overflow-hidden rounded-[0.5rem] border border-border bg-surface">
               <table className="min-w-full table-fixed border-collapse text-left">
                 <thead className="border-b border-white/10 bg-white/5 text-xs uppercase tracking-[0.10em] text-white/60">
                   <tr>
-                    <th className="w-[12%] px-6 py-4 font-medium">Tipo</th>
-                    <th className="w-[18%] px-6 py-4 font-medium">Título</th>
-                    <th className="w-[16%] px-6 py-4 font-medium">Categoria</th>
-                    <th className="w-[14%] px-6 py-4 font-medium">Valor</th>
-                    <th className="w-[10%] px-6 py-4 font-medium">Data</th>
-                    <th className="w-[10%] px-6 py-4 font-medium">Horário</th>
-                    <th className="w-[24%] px-6 py-4 font-medium">Detalhes</th>
+                    <th className="w-[55%] px-4 py-4 font-medium sm:w-[12%] sm:px-6">Tipo</th>
+                    <th className="hidden w-[18%] px-6 py-4 font-medium sm:table-cell">Título</th>
+                    <th className="hidden w-[16%] px-6 py-4 font-medium sm:table-cell">Categoria</th>
+                    <th className="w-[45%] px-4 py-4 font-medium sm:w-[14%] sm:px-6">Valor</th>
+                    <th className="hidden w-[10%] px-6 py-4 font-medium sm:table-cell">Data</th>
+                    <th className="hidden w-[10%] px-6 py-4 font-medium sm:table-cell">Horário</th>
+                    <th className="hidden w-[24%] px-6 py-4 font-medium sm:table-cell">Detalhes</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentRecords.map((record, index) => (
+                  {filteredRecords.map((record, index) => (
                     <AllRecordsCard
                       key={`${record.title}-${record.date}-${index}`}
                       type={record.type}
@@ -194,7 +210,7 @@ export default function AllRecordsPage() {
 
               <div className="flex flex-col gap-3 border-t border-white/10 bg-black/95 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-sm text-white/70">
-                  Mostrando {currentRecords.length} de {filteredRecords.length} registros
+                  Mostrando {filteredRecords.length} de {totalRecords} registros
                 </span>
 
                 <Pagination

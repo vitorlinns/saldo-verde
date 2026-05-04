@@ -18,17 +18,17 @@ export default function HistoricalWidget({ showValues, records }: HistoricalWidg
 
   return (
     <div className="h-full rounded-[0.5rem] border border-border bg-surface p-6 shadow-xl shadow-black/20">
-      <div className="mb-5 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <Clock className="h-5 w-5 text-white" />
-          <h2 className="text-xl font-regular text-white">Registros recentes</h2>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <Clock className="h-5 w-5 shrink-0 text-white" />
+          <h2 className="truncate text-lg font-regular text-white sm:text-xl">Registros recentes</h2>
         </div>
         <ButtonSubmit
           type="button"
           label="Ver todas"
           icon={<WalletCards className="h-4 w-4" />}
           fullWidth={false}
-         
+          className="shrink-0 !h-9 !px-4 text-xs"
           onClick={() => navigate('/registros')}
         />
       </div>

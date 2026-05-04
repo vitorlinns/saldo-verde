@@ -29,46 +29,6 @@ const formatTime = (value: Date) => {
   return `${pad(value.getHours())}:${pad(value.getMinutes())}`;
 };
 
-const getDefaultNotifications = (session: Session): NotificationItem[] => {
-  const now = new Date();
-  const date = formatDate(now);
-  const time = formatTime(now);
-  const complete = isProfileComplete(session);
-
-  const notifications: NotificationItem[] = [
-    {
-      id: `welcome-${session.user.id}`,
-      title: 'Bem-vindo ao Saldo Verde',
-      message: 'Sua conta foi criada com sucesso. Explore as funcionalidades e organize suas finanças aqui.',
-      date,
-      time,
-      unread: true,
-    },
-  ];
-
-  if (!complete) {
-    notifications.push({
-      id: `complete-profile-${session.user.id}`,
-      title: 'Complete seu cadastro',
-      message: 'Finalize seu perfil para liberar o acesso total à plataforma.',
-      date,
-      time,
-      unread: true,
-    });
-  } else {
-    notifications.push({
-      id: `profile-complete-${session.user.id}`,
-      title: 'Cadastro concluído',
-      message: 'Tudo certo! Seu perfil está completo e você já pode usar a plataforma normalmente.',
-      date,
-      time,
-      unread: true,
-    });
-  }
-
-  return notifications;
-};
-
 export default function NotificationsPage() {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [session, setSession] = useState<Session | null>(null);

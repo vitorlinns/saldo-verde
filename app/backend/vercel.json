@@ -36,27 +36,27 @@
     },
     {
       "source": "/login",
-      "destination": "/api/login.ts"
+      "destination": "/api/auth/login.ts"
     },
     {
       "source": "/logout",
-      "destination": "/api/logout.ts"
+      "destination": "/api/auth/logout.ts"
     },
     {
       "source": "/register",
       "destination": "/api/register.ts"
     },
     {
+      "source": "/api/login",
+      "destination": "/api/auth/login.ts"
+    },
+    {
+      "source": "/api/logout",
+      "destination": "/api/auth/logout.ts"
+    },
+    {
       "source": "/api/footer-text",
       "destination": "/api/footer-text.ts"
-    },
-    {
-      "source": "/notifications",
-      "destination": "/api/notifications.ts"
-    },
-    {
-      "source": "/notifications/:id",
-      "destination": "/api/notifications/[id].ts?id=:id"
     },
     {
       "source": "/profile/:id",

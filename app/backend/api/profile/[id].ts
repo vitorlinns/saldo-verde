@@ -126,23 +126,5 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 400, { error: 'Não foi possível atualizar o perfil. Revise os dados e tente novamente.' });
   }
 
-  if (!wasProfileComplete) {
-    await supabase
-      .from('user_notifications')
-      .insert({
-        user_id: userId,
-        kind: 'profile-complete',
-          title: 'Cadastro concluído',
-          message: 'Tudo certo! Seu perfil está completo e você já pode usar a plataforma normalmente.',
-        unread: true,
-      });
-
-    await supabase
-      .from('user_notifications')
-      .update({ unread: false })
-      .eq('user_id', userId)
-      .eq('kind', 'complete-profile');
-  }
-
   return sendJson(res, 200, { user: data.user, message: 'Perfil atualizado com sucesso.' });
 }

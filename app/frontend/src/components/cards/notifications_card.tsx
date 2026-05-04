@@ -15,10 +15,10 @@ export default function NotificationsCard({
   onView,
 }: NotificationCardProps) {
   return (
-    <div className="rounded-2xl border border-border bg-black/90 p-5 shadow-xl shadow-black/20">
+    <div className="rounded-[0.5rem] border border-border bg-surface p-5">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-black/90">
+          <div className="inline-flex h-12 w-12 items-center justify-center overflow-hidden">
             <img src="/assets/brand/favicon.png" alt="Saldo Verde" className="h-8 w-8 object-contain" />
           </div>
           <h3 className="text-base font-semibold text-white">{title}</h3>

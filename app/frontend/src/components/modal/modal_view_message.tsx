@@ -62,12 +62,12 @@ export default function ModalViewMessage({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-2xl rounded-3xl border border-border bg-black/95 p-6 text-white shadow-xl shadow-black/40">
+      <div className="w-full max-w-2xl rounded-[0.5rem] border border-border bg-surface p-6 text-white">
         <div className="space-y-6">
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-4">
               <div className="text-sm text-white/60">
-                <span className="font-semibold text-white">Data</span>
+                <span className="font-regular text-white">Data</span>
                 <span className="mx-2">•</span>
                 <span>{date}</span>
                 <span className="mx-2">•</span>
@@ -76,7 +76,7 @@ export default function ModalViewMessage({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border bg-black/80 p-5 text-lg leading-8 text-white/80">
+          <div className="rounded-[0.5rem] border border-border bg-surface p-5 text-lg leading-8 text-white/80">
             {message}
           </div>
 

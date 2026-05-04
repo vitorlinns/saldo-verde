@@ -268,24 +268,6 @@ export function registerProfileRoutes(app: Express, supabase: SupabaseClient | n
       return res.status(500).json({ error: 'Perfil atualizado, mas falhou ao sincronizar dados do perfil.' });
     }
 
-    if (!wasProfileComplete) {
-      await supabase
-        .from('user_notifications')
-        .insert({
-          user_id: userId,
-          kind: 'profile-complete',
-          title: 'Cadastro concluído',
-          message: 'Tudo certo! Seu perfil está completo e você já pode usar a plataforma normalmente.',
-          unread: true,
-        });
-
-      await supabase
-        .from('user_notifications')
-        .update({ unread: false })
-        .eq('user_id', userId)
-        .eq('kind', 'complete-profile');
-    }
-
     return res.status(200).json({ user: data.user, message: 'Perfil atualizado com sucesso.' });
   };
 

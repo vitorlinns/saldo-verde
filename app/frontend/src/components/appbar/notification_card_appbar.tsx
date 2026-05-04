@@ -9,7 +9,7 @@ export default function NotificationCardAppbar({ title, unread = false, onClick 
     <button
       type="button"
       onClick={onClick}
-      className={`w-full rounded-2xl border px-4 py-3 text-left transition hover:border-white/20 ${
+      className={`w-full rounded-[0.5rem] border px-4 py-3 text-left transition hover:border-white/20 ${
         unread ? 'border-border bg-white/5' : 'border-border bg-black/90'
       }`}
     >

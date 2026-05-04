@@ -1,27 +1,7 @@
 import type { RecordItem, RecordType } from './records-storage';
 import { createClient } from './auth';
 
-const normalizeBackendUrl = (value: string | undefined) => {
-  const raw = (value ?? '').trim();
-  if (!raw) return 'https://api.saldoverde.pro';
-
-  const unquoted = raw.replace(/^['\"]|['\"]$/g, '');
-  const normalized = unquoted.replace(/\/+$/, '');
-
-  if (normalized.startsWith('http://') || normalized.startsWith('https://')) {
-    return normalized;
-  }
-
-  if (normalized.startsWith('/')) {
-    return normalized;
-  }
-
-  return `https://${normalized}`;
-};
-
-const BACKEND_URL = import.meta.env.DEV
-  ? '/api'
-  : normalizeBackendUrl(import.meta.env.VITE_API_BASE_URL);
+const BACKEND_URL = '/api';
 const USE_CREDENTIALS = import.meta.env.DEV ? 'include' : 'omit';
 
 export interface RecordItemWithId extends RecordItem {

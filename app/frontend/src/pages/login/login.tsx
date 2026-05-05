@@ -251,26 +251,31 @@ export default function LoginPage() {
       return;
     }
 
-    let supabase;
-    try {
-      supabase = createClient();
-    } catch {
-      setError('Não foi possível iniciar o login. Por favor, tente novamente.');
-      return;
-    }
-
     setIsAuthenticating(true);
     setMessage('');
     setError('');
 
     try {
-      const signInResult = await supabase.auth.signInWithPassword({
-        email: trimmedEmail,
-        password: trimmedPassword,
+      const response = await fetch(`${BACKEND_URL}/auth/login`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: trimmedEmail,
+          password: trimmedPassword,
+        }),
       });
 
-      if (signInResult.error || !signInResult.data.session) {
-        const authError = signInResult.error?.message ?? '';
+      const body = await response.json().catch(() => ({}));
+      const errorMessage = (body as { error?: string }).error;
+
+      if (!response.ok || !body || !(body as any).session) {
+        const authError = typeof errorMessage === 'string' && errorMessage.length > 0
+          ? errorMessage
+          : 'E-mail ou senha inválidos.';
+
         const next = failedAttempts + 1;
         if (next >= MAX_ATTEMPTS) {
           const nextLockoutCount = lockoutCount + 1;
@@ -288,6 +293,16 @@ export default function LoginPage() {
           setError(normalizeAuthError(authError));
         }
         return;
+      }
+
+      const supabase = createClient();
+      const { session: backendSession } = body as { session?: unknown };
+
+      if (backendSession) {
+        const { error: setSessionError } = await supabase.auth.setSession(backendSession as any);
+        if (setSessionError) {
+          console.warn('Failed to set Supabase session after backend login:', setSessionError);
+        }
       }
 
       setFailedAttempts(0);

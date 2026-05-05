@@ -54,7 +54,7 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
 
   const accessCookie = [
     `sv_at=${encodeURIComponent(accessToken)}`,
-    'Path=/',
+    'Path=/api',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Lax',
     `Max-Age=${15 * 60}`,
@@ -63,7 +63,7 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
 
   const refreshCookie = [
     `sv_rt=${encodeURIComponent(refreshToken)}`,
-    'Path=/',
+    'Path=/api/auth',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Strict',
     `Max-Age=${30 * 24 * 60 * 60}`,
@@ -72,7 +72,7 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
 
   const clearLegacyAccessCookie = [
     'sv_at=',
-    'Path=/',
+    'Path=/api',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Lax',
     'Max-Age=0',
@@ -90,7 +90,7 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
 
   const clearLegacyRefreshApiCookie = [
     'sv_rt=',
-    'Path=/api',
+    'Path=/api/auth',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Strict',
     'Max-Age=0',
@@ -111,7 +111,7 @@ export function clearAuthCookies(res: any) {
 
   const expiredAccessCookie = [
     'sv_at=',
-    'Path=/auth',
+    'Path=/api',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Lax',
     'Max-Age=0',
@@ -120,7 +120,7 @@ export function clearAuthCookies(res: any) {
 
   const expiredRefreshCookie = [
     'sv_rt=',
-    'Path=/',
+    'Path=/api/auth',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Strict',
     'Max-Age=0',
@@ -129,7 +129,7 @@ export function clearAuthCookies(res: any) {
 
   const expiredLegacyAccessCookie = [
     'sv_at=',
-    'Path=/',
+    'Path=/api',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Lax',
     'Max-Age=0',
@@ -147,7 +147,7 @@ export function clearAuthCookies(res: any) {
 
   const expiredLegacyRefreshApiCookie = [
     'sv_rt=',
-    'Path=/api',
+    'Path=/api/auth',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Strict',
     'Max-Age=0',

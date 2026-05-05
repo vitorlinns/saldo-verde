@@ -2,7 +2,7 @@ import type { RecordItem, RecordType } from './records-storage';
 import { createClient } from './auth';
 
 const BACKEND_URL = '/api';
-const USE_CREDENTIALS: RequestCredentials = 'omit';
+const USE_CREDENTIALS: RequestCredentials = 'include';
 
 const getAccessToken = async (): Promise<string | null> => {
   try {

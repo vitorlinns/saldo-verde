@@ -48,7 +48,7 @@ const fetchWithSessionRecovery = async (input: string, init: RequestInit): Promi
 
     return fetch(input, {
       ...init,
-      credentials: USE_CREDENTIALS,
+      credentials: 'omit',
       headers: fallbackHeaders,
     });
   }

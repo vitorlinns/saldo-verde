@@ -2,7 +2,7 @@ import type { RecordItem, RecordType } from './records-storage';
 import { createClient } from './auth';
 
 const BACKEND_URL = '/api';
-const USE_CREDENTIALS: RequestCredentials = 'include';
+const USE_CREDENTIALS: RequestCredentials = 'omit';
 
 const getAccessToken = async (): Promise<string | null> => {
   try {
@@ -14,21 +14,30 @@ const getAccessToken = async (): Promise<string | null> => {
   }
 };
 
-const refreshSession = async (): Promise<boolean> => {
+const refreshAccessToken = async (): Promise<string | null> => {
   try {
-    const response = await fetch(`${BACKEND_URL}/auth/refresh`, {
-      method: 'POST',
-      credentials: USE_CREDENTIALS,
-    });
-    return response.ok;
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.refreshSession();
+    if (error) {
+      return null;
+    }
+
+    return data.session?.access_token ?? null;
   } catch {
-    return false;
+    return null;
   }
 };
 
 const fetchWithSessionRecovery = async (input: string, init: RequestInit): Promise<Response> => {
+  const firstToken = await getAccessToken();
+  const firstHeaders = new Headers(init.headers ?? {});
+  if (firstToken) {
+    firstHeaders.set('Authorization', `Bearer ${firstToken}`);
+  }
+
   const first = await fetch(input, {
     ...init,
+    headers: firstHeaders,
     credentials: USE_CREDENTIALS,
   });
 
@@ -36,25 +45,17 @@ const fetchWithSessionRecovery = async (input: string, init: RequestInit): Promi
     return first;
   }
 
-  const refreshed = await refreshSession();
-  if (!refreshed) {
-    const accessToken = await getAccessToken();
-    if (!accessToken) {
-      return first;
-    }
-
-    const fallbackHeaders = new Headers(init.headers ?? {});
-    fallbackHeaders.set('Authorization', `Bearer ${accessToken}`);
-
-    return fetch(input, {
-      ...init,
-      credentials: 'omit',
-      headers: fallbackHeaders,
-    });
+  const refreshedToken = await refreshAccessToken();
+  if (!refreshedToken) {
+    return first;
   }
+
+  const retryHeaders = new Headers(init.headers ?? {});
+  retryHeaders.set('Authorization', `Bearer ${refreshedToken}`);
 
   return fetch(input, {
     ...init,
+    headers: retryHeaders,
     credentials: USE_CREDENTIALS,
   });
 };
@@ -99,31 +100,16 @@ const buildOccurredAt = (date: string, time: string): string => {
   return d.toISOString();
 };
 
-const getAuthHeaders = async () => {
-  const headers: Record<string, string> = {};
-
-  try {
-    // Ensure Supabase client is initialized before requests that depend on auth.
-    createClient();
-  } catch {
-    // keep request without Authorization header and rely on server cookies
-  }
-
-  return headers;
-};
-
 // ─── API ─────────────────────────────────────────────────────────────────────
 
 export const addRecordAPI = async (
   record: RecordItem,
 ): Promise<{ ok: boolean; error?: string; record?: RecordItemWithId }> => {
   try {
-    const authHeaders = await getAuthHeaders();
     const res = await fetchWithSessionRecovery(`${BACKEND_URL}/records`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...authHeaders,
       },
       body: JSON.stringify({
         type: record.type,
@@ -178,7 +164,6 @@ export const getRecordsAPI = async (
   filters?: GetRecordsFilters,
 ): Promise<GetRecordsResponse> => {
   try {
-    const authHeaders = await getAuthHeaders();
     const params = new URLSearchParams();
     if (filters?.type) params.set('type', filters.type);
     if (filters?.month) params.set('month', filters.month);
@@ -189,7 +174,6 @@ export const getRecordsAPI = async (
 
     const qs = params.toString() ? `?${params.toString()}` : '';
     const res = await fetchWithSessionRecovery(`${BACKEND_URL}/records${qs}`, {
-      headers: authHeaders,
     });
 
     if (!res.ok) {
@@ -242,10 +226,8 @@ export const getRecordsAPI = async (
 
 export const deleteRecordAPI = async (id: string): Promise<{ ok: boolean; error?: string }> => {
   try {
-    const authHeaders = await getAuthHeaders();
     const res = await fetchWithSessionRecovery(`${BACKEND_URL}/records/${encodeURIComponent(id)}`, {
       method: 'DELETE',
-      headers: authHeaders,
     });
 
     if (!res.ok) {

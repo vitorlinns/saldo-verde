@@ -11,7 +11,6 @@ import InputGeneral from '../../components/inputs/input_general';
 
 const BACKEND_URL = '/api';
 const FOOTER_URL = `${BACKEND_URL}/footer-text`;
-const LOGIN_URL = `${BACKEND_URL}/auth/login`;
 const OAUTH_REDIRECT_TO = import.meta.env.VITE_OAUTH_REDIRECT_TO ?? `${window.location.origin}/login`;
 const GOOGLE_OAUTH_PENDING_KEY = 'saldo-verde-google-oauth-pending';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -265,59 +264,13 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch(LOGIN_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: trimmedEmail,
-          password: trimmedPassword,
-        }),
+      const signInResult = await supabase.auth.signInWithPassword({
+        email: trimmedEmail,
+        password: trimmedPassword,
       });
 
-      const result = await response.json().catch(() => ({} as Record<string, unknown>));
-
-      if (response.status === 429) {
-        const retryAfterHeader = response.headers.get('Retry-After');
-        const retryAfterSeconds = Number.parseInt(retryAfterHeader ?? '60', 10);
-        const lockoutDurationMs = Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
-          ? retryAfterSeconds * 1000
-          : 60_000;
-        const nextLockoutCount = lockoutCount + 1;
-
-        setFailedAttempts(0);
-        setLockoutCount(nextLockoutCount);
-        setCurrentTime(Date.now());
-        setLockedUntil(Date.now() + lockoutDurationMs);
-        setError(
-          typeof result.error === 'string'
-            ? result.error
-            : `Muitas tentativas malsucedidas. Aguarde ${Math.ceil(lockoutDurationMs / 1000)} segundos antes de tentar novamente.`
-        );
-        return;
-      }
-
-      if (!response.ok) {
-        const backendError = typeof result.error === 'string' ? result.error : '';
-
-        // Fallback: if backend login fails in production, try direct Supabase auth.
-        // This keeps users unblocked while backend cookies are diagnosed.
-        const fallback = await supabase.auth.signInWithPassword({
-          email: trimmedEmail,
-          password: trimmedPassword,
-        });
-
-        if (!fallback.error && fallback.data.session) {
-          setFailedAttempts(0);
-          setLockoutCount(0);
-          setLockedUntil(null);
-          clearLoginThrottleState();
-
-          setMessage('Login realizado com sucesso. Redirecionando...');
-          return;
-        }
-
+      if (signInResult.error || !signInResult.data.session) {
+        const authError = signInResult.error?.message ?? '';
         const next = failedAttempts + 1;
         if (next >= MAX_ATTEMPTS) {
           const nextLockoutCount = lockoutCount + 1;
@@ -327,25 +280,13 @@ export default function LoginPage() {
           setCurrentTime(Date.now());
           setLockedUntil(Date.now() + lockoutDurationMs);
           setError(
-            backendError ||
+            normalizeAuthError(authError) ||
             `Muitas tentativas malsucedidas. Aguarde ${Math.ceil(lockoutDurationMs / 1000)} segundos antes de tentar novamente.`
           );
         } else {
           setFailedAttempts(next);
-          setError(normalizeAuthError(backendError));
+          setError(normalizeAuthError(authError));
         }
-        return;
-      }
-
-      const sessionPayload = (result as { session?: Session }).session;
-      if (!sessionPayload) {
-        setError('Falha ao autenticar. Tente novamente.');
-        return;
-      }
-
-      const { error: setSessionError } = await supabase.auth.setSession(sessionPayload);
-      if (setSessionError) {
-        setError('Falha ao autenticar. Tente novamente.');
         return;
       }
 

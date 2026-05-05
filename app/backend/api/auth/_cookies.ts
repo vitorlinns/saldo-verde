@@ -54,7 +54,7 @@ export function setAuthCookies(res: any, accessToken: string, refreshToken: stri
 
   const accessCookie = [
     `sv_at=${encodeURIComponent(accessToken)}`,
-    'Path=/auth',
+    'Path=/',
     'HttpOnly',
     isProd ? 'SameSite=None' : 'SameSite=Lax',
     `Max-Age=${15 * 60}`,

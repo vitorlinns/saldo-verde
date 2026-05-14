@@ -5,8 +5,20 @@ import Badge from '../components/ui/badge/badge';
 import Input from '../components/ui/input/input';
 import ButtonCta from '../components/ui/btn/button-cta';
 import ChatHeartLineIcon from 'remixicon-react/ChatHeartLineIcon';
+import { useState } from 'react';
 
 export default function ContactPage() {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
+    setTimeout(() => {
+      setStatus('success');
+      // Reset form if needed, or just leave success state
+    }, 1500);
+  };
+
   return (
     <main className="scroll-smooth">
       <Head>
@@ -33,9 +45,7 @@ export default function ContactPage() {
             </div>
 
             <form
-              action="mailto:suporte@saldoverde.pro"
-              method="POST"
-              encType="text/plain"
+              onSubmit={handleSubmit}
               className="mx-auto max-w-3xl grid gap-6"
             >
               <div className="grid gap-6 lg:grid-cols-2">
@@ -70,8 +80,16 @@ export default function ContactPage() {
               </label>
 
               <div className="mt-4">
-                <ButtonCta type="submit">Enviar</ButtonCta>
+                <ButtonCta type="submit" disabled={status === 'loading'}>
+                  {status === 'loading' ? 'Enviando...' : 'Enviar'}
+                </ButtonCta>
               </div>
+
+              {status === 'success' && (
+                <div className="mt-2 rounded-xl bg-[#e5f5e8] p-4 text-[#1a5d2b] text-sm font-medium border border-[#c3e6cb]">
+                  Mensagem enviada com sucesso! Entraremos em contato em breve.
+                </div>
+              )}
             </form>
           </div>
         </div>

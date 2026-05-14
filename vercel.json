@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "cleanUrls": true,
   "builds": [
     {
       "src": "site/package.json",
@@ -7,6 +8,14 @@
     }
   ],
   "routes": [
+    {
+      "src": "/contato/?",
+      "dest": "/site/contact"
+    },
+    {
+      "src": "/sobre-nos/?",
+      "dest": "/site/about"
+    },
     {
       "handle": "filesystem"
     },

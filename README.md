@@ -52,5 +52,5 @@ src/data/     # Dados estáticos do site (ex.: texto de copyright)
 
 ## Deploy
 
-- Vercel, Root Directory = raiz do repositório
 - Domínio de produção: `saldoverde.pro`
+- DNS e proxy (CDN/SSL) via Cloudflare, apontando para a Vercel (CNAME com proxy ativado, SSL/TLS em Full strict)

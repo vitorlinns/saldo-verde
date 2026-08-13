@@ -1,8 +1,0 @@
-# Ignore everything outside the site folder when Vercel packages the project
-../mobile/
-../package.json
-../package-lock.json
-../.gitignore
-../.vscode/
-../.idea/
-../node_modules/

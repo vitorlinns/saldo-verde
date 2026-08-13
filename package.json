@@ -1,14 +1,34 @@
 {
-  "name": "saldo-verde",
+  "name": "saldo-verde-site",
   "private": true,
-  "workspaces": ["site"],
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "dev": "npm --workspace site run dev --",
-    "build": "npm --workspace site run build --",
-    "start": "npm --workspace site run start --",
-    "lint": "npm --workspace site run lint --",
-    "dev:node22": "PATH=/home/usuario/.local/bin:$PATH npm --workspace site run dev --",
-    "build:node22": "PATH=/home/usuario/.local/bin:$PATH npm --workspace site run build --",
-    "start:node22": "PATH=/home/usuario/.local/bin:$PATH npm --workspace site run start --"
+    "dev": "next dev --hostname 127.0.0.1 --port 3000",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1 --port 3000",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "framer-motion": "^11.0.0",
+    "lenis": "^1.3.23",
+    "next": "^15.4.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-qr-code": "^2.0.18",
+    "remixicon-react": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.4.3",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.4"
   }
 }
